@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<nav color="#DA382E" search_view="search">
+  <view default="true" name="welcome"/>
+  <view name="counts"/>
+  <view name="themes"/>
+  <view name="sentiment"/>
+  <view name="search"/>
+</nav>
