@@ -10,7 +10,7 @@ Version: 0.1
 
 ##### Author: Nathan Worsham 
 Created for MSDS692 Data Science Practicum I at Regis University, 2018 </br>
-See [associated blog](https://github.com/geekusa/nlp-text-analytics/blob/master/README/blog.md) for detailed information on the project creation.
+See [associated blog](https://github.com/geekusa/nlp-text-analytics/blob/master/PROJECT_FILES/blog.md) for detailed information on the project creation.
 
 ## Description and Use-cases
 
