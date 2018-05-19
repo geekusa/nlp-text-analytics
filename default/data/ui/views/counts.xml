@@ -1,4 +1,103 @@
-<!--<dashboard hideEdit="true">-->
-<dashboard>
+<!--<dashboard hideEdit="true">--><form script="tabledatabar.js" stylesheet="tabledatabar.css">
   <label>Counts</label>
-</dashboard>
+  <search id="base_search">
+    <query>
+$master_search$
+| cleantext textfield=$textfield$ base_type=lemma_pos
+    </query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="time" token="time">
+      <label>Time Range</label>
+      <default>
+        <earliest>-1d@d</earliest>
+        <latest>@d</latest>
+      </default>
+    </input>
+    <input id="text_long" type="text" token="master_search">
+      <label>Text Search</label>
+      <default></default>
+    </input>
+    <html>
+      <p>Split input fields here</p>
+      <p/>
+      <p/>
+      <p/>
+      <p/>
+    </html>
+    <input type="text" token="textfield">
+      <label>Text Field</label>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Top Parts-of-Speech Tags</title>
+      <chart>
+        <search base="base_search">
+          <query>| stats count by pos_tag |sort -count</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">45</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="height">557</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Top Terms</title>
+      <table id="tabledatabar">
+        <search base="base_search" id="counts">
+          <query>
+| stats count BY $textfield$
+| search $textfield$!=""
+| sort -count
+| eventstats sum(count) AS total
+| eval percent = (count/total) * 100
+| fields - total</query>
+        </search>
+        <option name="count">15</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <format type="color" field="count">
+          <colorPalette type="minMidMax" maxColor="#EC9960" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>WordCloud</title>
+      <input type="dropdown" token="term_count" searchWhenChanged="true">
+        <label>Terms</label>
+        <choice value="">25</choice>
+        <choice value="50">50</choice>
+        <choice value="100">100</choice>
+        <choice value="200">200</choice>
+        <default>50</default>
+        <initialValue>50</initialValue>
+      </input>
+      <viz type="wordcloud_app.wordcloud">
+        <search base="counts">
+          <query>| fields $textfield$ count 
+| head $term_count$
+| rename $textfield$ as "Top keywords"</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="wordcloud_app.wordcloud.alignmentMode">horizontal</option>
+        <option name="wordcloud_app.wordcloud.backgroundColor">#fff</option>
+        <option name="wordcloud_app.wordcloud.colorBy">colorMode</option>
+        <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
+        <option name="wordcloud_app.wordcloud.maxColor">#3fc77a</option>
+        <option name="wordcloud_app.wordcloud.minColor">#d93f3c</option>
+        <option name="wordcloud_app.wordcloud.numOfBins">8</option>
+        <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
+        <option name="wordcloud_app.wordcloud.useColors">true</option>
+      </viz>
+    </panel>
+  </row>
+</form>

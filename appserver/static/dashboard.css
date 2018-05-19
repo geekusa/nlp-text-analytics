@@ -1,0 +1,17 @@
+/*change top bar color*/
+div.view---pages-enterprise---7-1-0---1zrJY {
+    background-color: #9C1E5D;
+}
+/*change unhighlighted text on the bar color*/
+a.viewEnterprise---pages-enterprise---7-1-0---2Xt56 {
+    /*color: #D1C1E8;*/
+    color: #E6C7D6;
+}
+/*change color of underline highlight of current tab*/
+div.underline---pages-enterprise---7-1-0---bxeh0 {
+    background-color: #F3E3EB !important;
+}
+/*make a longer text input to be used for searches*/
+#text_long .splunk-textinput input{
+    width: 700px !important;
+}
