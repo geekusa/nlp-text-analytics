@@ -8,6 +8,13 @@ $master_search$
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
+  <search base="base_search" id="counts">
+    <query>
+| stats count BY $textfield$
+| search $textfield$!=""
+| sort -count
+</query>
+  </search>
   <fieldset submitButton="true" autoRun="false">
     <input type="time" token="time">
       <label>Time Range</label>
@@ -36,31 +43,34 @@ $master_search$
       <title>Top Parts-of-Speech Tags</title>
       <chart>
         <search base="base_search">
-          <query>| stats count by pos_tag |sort -count</query>
+          <query>| stats count by pos_tag 
+| sort -count
+| eventstats avg(count) AS avgCount 
+| where count &gt; (avgCount /3)
+| fields pos_tag count</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">45</option>
         <option name="charting.chart">column</option>
         <option name="charting.drilldown">none</option>
         <option name="charting.legend.placement">none</option>
-        <option name="height">557</option>
+        <option name="height">385</option>
+        <option name="refresh.display">progressbar</option>
       </chart>
     </panel>
     <panel>
       <title>Top Terms</title>
       <table id="tabledatabar">
-        <search base="base_search" id="counts">
-          <query>
-| stats count BY $textfield$
-| search $textfield$!=""
-| sort -count
+        <search base="counts">
+          <query>| head 20
 | eventstats sum(count) AS total
-| eval percent = (count/total) * 100
+| eval proportion = (count/total) * 100
 | fields - total</query>
         </search>
-        <option name="count">15</option>
+        <option name="count">10</option>
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">none</option>
         <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
         <format type="color" field="count">
           <colorPalette type="minMidMax" maxColor="#EC9960" minColor="#FFFFFF"></colorPalette>
           <scale type="minMidMax"></scale>

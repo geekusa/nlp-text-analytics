@@ -7,7 +7,7 @@ require([
 ], function($, _, mvc, BaseCellRenderer) {
     var DataBarCellRenderer = BaseCellRenderer.extend({
         canRender: function(cell) {
-            return (cell.field === 'percent');
+            return (cell.field === 'proportion');
         },
         render: function($td, cell) {
             $td.addClass('data-bar-cell').html(_.template('<div class="data-bar-wrapper"><div class="data-bar" style="width:<%- percent %>%"></div></div>', {
