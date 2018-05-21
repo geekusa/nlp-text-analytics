@@ -1,9 +1,9 @@
-<!--<dashboard hideEdit="true">--><form script="tabledatabar.js" stylesheet="tabledatabar.css">
+<!--<dashboard hideEdit="true">--><form script="tabledatabar.js">
   <label>Counts</label>
   <search id="base_search">
     <query>
 $master_search$
-| cleantext textfield=$textfield$ base_type=lemma_pos
+| cleantext textfield=$textfield$ base_type=lemma_pos $stopwords$
     </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
@@ -37,7 +37,32 @@ $master_search$
     <input type="text" token="textfield">
       <label>Text Field</label>
     </input>
+    <input type="radio" token="stopwords">
+      <label>Remove Stopwords (en)</label>
+      <choice value="remove_stopwords=t">Yes</choice>
+      <choice value="remove_stopwords=f">No</choice>
+      <default>remove_stopwords=t</default>
+      <initialValue>remove_stopwords=t</initialValue>
+    </input>
   </fieldset>
+  <row>
+    <panel>
+      <title>Total # Words</title>
+      <single>
+        <search base="base_search">
+          <query>| stats count BY $textfield$ 
+| stats sum(count)</query>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">70</option>
+        <option name="rangeColors">["0x1E9C1E","0x1E9C1E"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
   <row>
     <panel>
       <title>Top Parts-of-Speech Tags</title>
@@ -81,6 +106,10 @@ $master_search$
   <row>
     <panel>
       <title>WordCloud</title>
+      <!--<input type="text" token="term_count" id="range" searchWhenChanged="true">
+        <label>Terms (25-400)</label>
+        <default>50</default>
+      </input>-->
       <input type="dropdown" token="term_count" searchWhenChanged="true">
         <label>Terms</label>
         <choice value="">25</choice>
