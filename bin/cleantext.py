@@ -1,17 +1,9 @@
 #!/opt/splunk/bin/python
 
-#from splunklib.searchcommands import *
-#import sys
-#import csv
-
-#from __future__ import absolute_import, division, print_function, unicode_literals
-#import app
-#import logging
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
 import sys
 import re
 import os
-#import nltk
 from nltk import word_tokenize, pos_tag
 from nltk.data import path as nltk_data_path
 from nltk.corpus import wordnet, stopwords as stop_words
@@ -19,8 +11,6 @@ from nltk.stem import WordNetLemmatizer, PorterStemmer
 from splunklib import six
 from string import punctuation, digits, maketrans
 from splunk.appserver.mrsparkle.lib.util import make_splunkhome_path
-
-#logger = logging.getLogger('splunk')
 
 BASE_DIR = make_splunkhome_path(["etc","apps","nlp-text-analytics"])
 CORPORA_DIR = os.path.join(BASE_DIR,'bin','nltk_data')
@@ -124,7 +114,6 @@ class CleanText(StreamingCommand):
         )
 
     def stream(self, records):
-        #self.logger.debug('CleanTextCommand: %s', self)  # logs command line
         for record in records:
             #URL removal
             if self.remove_urls:
@@ -133,59 +122,71 @@ class CleanText(StreamingCommand):
                 )
             #Tokenization
             if (self.base_word and self.base_type == 'lemma_pos') or self.force_nltk_tokenize:
+                #lemma_pos - if option is lemmatization with POS tagging do cleaning and stopword options now
                 if (self.base_word and self.base_type == 'lemma_pos'):
-                    record[self.textfield] = word_tokenize(
-                        record[self.textfield]
-                    )
-                    record['pos_tag'] = pos_tag(
-                        record[self.textfield],
+                    record['pos_tuple'] = pos_tag(word_tokenize(
+                        record[self.textfield]),
                         tagset=self.pos_tagset
                     )
+                    if self.default_clean and self.remove_stopwords:
+                        stopwords = set(stop_words.words('english'))
+                        record['pos_tuple'] = [
+                            [
+                            re.sub(r'[\W\d]','',text[0]).lower(),
+                            text[1]
+                            ]
+                            for text in
+                            record['pos_tuple']
+                            if re.sub(r'[\W\d]','',text[0]).lower() not in stopwords
+                            and not re.search(r'[\W]',text[0])
+                        ]
+                    elif self.default_clean and not self.remove_stopwords:
+                        record['pos_tuple'] = [
+                            [
+                            re.sub(r'[\W\d]','',text[0]).lower(),
+                            text[1]
+                            ]
+                            for text in
+                            record['pos_tuple']
+                            if not re.search(r'[\W]',text[0])
+                        ]
                 elif self.force_nltk_tokenize:
                     record[self.textfield] = word_tokenize(
                         record[self.textfield]
                     )
             elif self.default_clean or (self.base_word and self.base_type == 'lemma'):
                 #https://stackoverflow.com/a/1059601
-                #record[self.textfield] = re.split('\W+', six.text_type(record[self.textfield].decode("utf-8")))
                 record[self.textfield] = re.split('\W+', record[self.textfield])
             else:
                 record[self.textfield] = record[self.textfield].split()
             #Default Clean
-            if self.default_clean:
+            if self.default_clean and not self.base_type == 'lemma_pos':
                 record[self.textfield] = [
                     re.sub(r'[\W\d]','',text).lower()
-                    #text.lower().translate(
-                    #    None,
-                    #    punctuation + digits
-                    #)
                     for text in
-                    #six.text_type(record[self.textfield].decode("utf-8"))
                     record[self.textfield]
                 ]
-            #Lemmatization, Lemmatization with POS tagging, or Stemming with stopword removal
-            if self.remove_stopwords and self.base_word:
-                stopwords = set(stop_words.words('english'))
-                if self.base_type == 'lemma_pos':
+            #Lemmatization with POS tagging
+            if self.base_word and self.base_type == 'lemma_pos':
                     lm = WordNetLemmatizer()
-                    record[self.textfield] = [
-                        lm.lemmatize(
-                            #text[0],
-                            re.sub(r'[\W\d]','',text[0]).lower(),
-                            self.get_wordnet_pos(text[1])
-                        )
-                        for text in
-                        record['pos_tag']
-                        #if text[0] not in stopwords
-                        if re.sub(r'[\W\d]','',text[0]).lower() not in stopwords
-                    ]
-                    record['pos_tag'] = [ 
-                        text[1]
-                        for text in
-                        record['pos_tag']
-                        if re.sub(r'[\W\d]','',text[0]).lower() not in stopwords
-                        and not re.search(r'[\W]',text[0])
-                    ]
+                    tuple_list = []
+                    tag_list = []
+                    record[self.textfield] = []
+                    record['pos_tag'] = []
+                    for text in record['pos_tuple']:
+                        keep_text = lm.lemmatize(
+                                text[0],
+                                self.get_wordnet_pos(text[1])
+                            )
+                        if keep_text:
+                            record[self.textfield].append(keep_text)
+                            tuple_list.append((keep_text,text[1]))
+                            tag_list.append(text[1])
+                            record['pos_tag'] = tag_list
+                            record['pos_tuple'] = tuple_list
+            #Lemmatization or Stemming with stopword removal
+            if self.remove_stopwords and self.base_word and self.base_type != 'lemma_pos':
+                stopwords = set(stop_words.words('english'))
                 if self.base_type == 'lemma':
                     lm = WordNetLemmatizer()
                     record[self.textfield] = [
@@ -202,18 +203,8 @@ class CleanText(StreamingCommand):
                         record[self.textfield]
                         if text not in stopwords
                     ]
-            #Lemmatization, Lemmatization with POS tagging, or Stemming without stopword removal
+            #Lemmatization or Stemming without stopword removal
             if not self.remove_stopwords and self.base_word:
-                if self.base_type == 'lemma_pos':
-                    lm = WordNetLemmatizer()
-                    record[self.textfield] = [
-                        lm.lemmatize(
-                            text[0],
-                            self.get_wordnet_pos(text[1])
-                        )
-                        for text in
-                        record['pos_tag']
-                    ]
                 if self.base_type == 'lemma':
                     lm = WordNetLemmatizer()
                     record[self.textfield] = [
@@ -240,8 +231,11 @@ class CleanText(StreamingCommand):
             #Final Multi-Value Output
             if not self.mv:
                 record[self.textfield] = ' '.join(record[self.textfield])
-                record['pos_tag'] = ' '.join(record['pos_tag'])
-                    
+                try:
+                    record['pos_tag'] = ' '.join(record['pos_tag'])
+                except:
+                    pass
+
             yield record
 
 dispatch(CleanText, sys.argv, sys.stdin, sys.stdout, __name__)
