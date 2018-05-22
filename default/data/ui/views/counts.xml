@@ -1,4 +1,4 @@
-<!--<dashboard hideEdit="true">--><form script="tabledatabar.js">
+<!--<dashboard hideEdit="true">--><form script="tabledatabar.js" stylesheet="tabledatabar.css">
   <label>Counts</label>
   <search id="base_search">
     <query>
@@ -41,6 +41,14 @@ $master_search$
       <label>Remove Stopwords (en)</label>
       <choice value="remove_stopwords=t">Yes</choice>
       <choice value="remove_stopwords=f">No</choice>
+      <change>
+        <condition value="remove_stopwords=t">
+          <unset token="sw_hidden"></unset>
+        </condition>
+        <condition value="remove_stopwords=f">
+          <set token="sw_hidden">True</set>
+        </condition>
+      </change>
       <default>remove_stopwords=t</default>
       <initialValue>remove_stopwords=t</initialValue>
     </input>
@@ -76,10 +84,14 @@ $master_search$
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">45</option>
         <option name="charting.chart">column</option>
-        <option name="charting.drilldown">none</option>
+        <option name="charting.drilldown">all</option>
         <option name="charting.legend.placement">none</option>
         <option name="height">385</option>
         <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="pos">$click.value$</set>
+          <set token="pos_hidden">TRUE</set>
+        </drilldown>
       </chart>
     </panel>
     <panel>
@@ -93,13 +105,76 @@ $master_search$
         </search>
         <option name="count">10</option>
         <option name="dataOverlayMode">none</option>
-        <option name="drilldown">none</option>
+        <option name="drilldown">cell</option>
         <option name="percentagesRow">false</option>
         <option name="refresh.display">progressbar</option>
         <format type="color" field="count">
           <colorPalette type="minMidMax" maxColor="#EC9960" minColor="#FFFFFF"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
+        <drilldown>
+          <set token="specific_word">$row.sentence$</set>
+          <set token="word_hidden">TRUE</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$pos_hidden$">
+      <table>
+        <title>$pos$ Explanation</title>
+        <search>
+          <query>| inputlookup pos_tags.csv
+| where TAG=="$pos$"
+| table TAG DESCRIPTION EXAMPLE*</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <drilldown>
+          <unset token="pos_hidden"></unset>
+        </drilldown>
+      </table>
+      <table>
+        <title>Top $pos$ Terms</title>
+        <search base="base_search">
+          <query>| stats count BY pos_tuple
+| sort -count
+| search pos_tuple=*$pos$*
+| rex field=pos_tuple mode=sed "s/\[\"([^\"]+)\",\"[^\"]+\"\]/\1/"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <format type="color" field="count">
+          <colorPalette type="minMidMax" maxColor="#EC9960" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <drilldown>
+          <unset token="pos_hidden"></unset>
+        </drilldown>
+      </table>
+    </panel>
+    <panel depends="$word_hidden$">
+      <table>
+        <title>$specific_word$ Occurences</title>
+        <search>
+          <query>$master_search$
+| regex $textfield$="\b$specific_word$\b"
+| table $textfield$</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <unset token="word_hidden"></unset>
+        </drilldown>
       </table>
     </panel>
   </row>
@@ -112,12 +187,14 @@ $master_search$
       </input>-->
       <input type="dropdown" token="term_count" searchWhenChanged="true">
         <label>Terms</label>
-        <choice value="">25</choice>
+        <choice value="25">25</choice>
         <choice value="50">50</choice>
         <choice value="100">100</choice>
         <choice value="200">200</choice>
-        <default>50</default>
-        <initialValue>50</initialValue>
+        <choice value="300">300</choice>
+        <choice value="400">400</choice>
+        <default>200</default>
+        <initialValue>200</initialValue>
       </input>
       <viz type="wordcloud_app.wordcloud">
         <search base="counts">
@@ -137,6 +214,31 @@ $master_search$
         <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
         <option name="wordcloud_app.wordcloud.useColors">true</option>
       </viz>
+    </panel>
+    <panel>
+      <title>Zipf Plot</title>
+      <chart depends="$sw_hidden$">
+        <search base="counts">
+          <query>| fields "$textfield$" count 
+| streamstats count AS rank
+| stats first(sentence) AS sentence first(rank) AS rank BY count
+| sort -count
+| table "$textfield$" rank count</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">auto</option>
+        <option name="charting.axisX.scale">log</option>
+        <option name="charting.axisY.abbreviation">auto</option>
+        <option name="charting.axisY.scale">log</option>
+        <option name="charting.chart">scatter</option>
+        <option name="charting.chart.showDataLabels">minmax</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="height">450</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
     </panel>
   </row>
 </form>

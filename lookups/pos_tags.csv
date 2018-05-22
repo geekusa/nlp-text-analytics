@@ -1,0 +1,48 @@
+TAG,DESCRIPTION,EXAMPLE(S)
+CC,Coordinating Conjunction,"and, or"
+CD,Cardinal Number,"five, one, 2"
+DT,Determiner,"a, the"
+EX,Existential there ,there were two cars
+FW,Foreign Word,"d'hoevre, mais"
+IN,Preposition/ Subordinating Conjunction ,"of, in, on, that"
+JJ,Adjective,"quick, lazy "
+JJR,"Adjective, comparative","quicker, lazier"
+JJS,"Adjective, superlative","quickest, laziest"
+LS,List item marker,2)
+MD,"Verb, modal","could, should"
+NN,"Noun, singular or mass","fox, dog"
+NNS,"Noun, plural","foxes, dogs"
+NNP,"Noun, proper singular","John, Alice"
+NNPS,"Noun, proper plural","Vikings, Indians, Germans"
+PDT,Predeterminer,both the cats
+POS,Possessive ending,boss's
+PRP,"Pronoun, personal","me, you"
+PRP$,"Pronoun, possessive","our, my, your"
+RB,Adverb,"naturally, extremely, hardly"
+RBR,"Adverb, comparative",better
+RBS,"Adverb, superlative",best
+RP,"Adverb, particle","about, up"
+SYM,Symbol,"%, $"
+TO,Infinitival to,"how to, what to do"
+UH,Interjection,"oh, gosh, wow"
+VB,"Verb, base form","run, give"
+VBD,"Verb, past tense","ran, gave"
+VBG,"Verb, gerund/ present participle","running, giving"
+VBN,"Verb, past participle",given
+VBP,"Verb, non-3rd person singular present","I think, I take"
+VBZ,"Verb, 3rd person singular present","he thinks, he takes"
+WDT,Wh-determiner,"which, whatever"
+WP,"Wh-pronoun, personal","who, what"
+WP$,"Wh-pronoun, possessive",whose
+WRB,Wh-adverb,"where, when"
+NP,Noun Phrase,the brown fox
+PP,Prepositional Phrase,"in between, over the dog"
+VP,Verb Phrase,was jumping
+ADJP,Adjective Phrase,warm and snug
+ADVP,Adverb Phrase,also
+SBAR,Subordinating Conjunction,whether or not
+PRT,Particle,up
+INTJ,Interjection,hello
+PNP,Prepositional Noun Phrase,"over the dog, as of today"
+-SBJ,Sentence Subject,the fox jumped over the dog
+-OBJ,Sentence Object,the fox jumped over the dog
