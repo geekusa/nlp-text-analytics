@@ -1,4 +1,85 @@
-<!--<dashboard hideEdit="true">-->
-<dashboard>
+<!--<dashboard hideEdit="true">--><form>
   <label>Themes</label>
-</dashboard>
+  <search id="base_search">
+    <query>
+$master_search$
+| cleantext textfield=$textfield$ base_type=lemma_pos mv=f
+| fit TFIDF $textfield$ max_features=$max_features$
+| fit $cluster_algo$ k=$clusters$ "$textfield$_*"
+| table cluster $textfield$
+    </query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <search base="base_search" id="counts">
+    <query>
+| eval "$textfield$" = split('$textfield$', " ")
+| stats count BY "$textfield$" cluster
+| sort cluster -count
+| streamstats count AS clusterCount BY cluster
+</query>
+  </search>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="time" token="time">
+      <label>Time Range</label>
+      <default>
+        <earliest>-1d@d</earliest>
+        <latest>@d</latest>
+      </default>
+    </input>
+    <input id="text_long" type="text" token="master_search">
+      <label>Text Search</label>
+      <default></default>
+    </input>
+    <html>
+      <p/>
+      <p/>
+      <p/>
+      <p/>
+      <p/>
+    </html>
+    <input type="text" token="textfield">
+      <label>Text Field</label>
+    </input>
+    <input type="text" token="clusters">
+      <label># of Clusters</label>
+      <default>7</default>
+    </input>
+    <input type="text" token="max_features">
+      <label>Max Features</label>
+      <default>7</default>
+    </input>
+    <input type="dropdown" token="cluster_algo">
+      <label>Cluster Algorithm</label>
+      <choice value="KMeans">KMeans</choice>
+      <default>KMeans</default>
+      <initialValue>KMeans</initialValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <input type="dropdown" token="topterms" searchWhenChanged="true">
+        <label>Top Terms Per Cluster</label>
+        <choice value="2">2</choice>
+        <choice value="5">5</choice>
+        <choice value="10">10</choice>
+        <choice value="20">20</choice>
+        <choice value="30">30</choice>
+        <choice value="40">40</choice>
+        <default>10</default>
+        <initialValue>10</initialValue>
+      </input>
+      <table>
+        <search base="counts">
+          <query>
+| where clusterCount &lt;= $topterms$
+| stats values($textfield$) AS terms BY cluster
+| table terms cluster
+| eval terms = mvjoin(terms, " ")
+          </query>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>
