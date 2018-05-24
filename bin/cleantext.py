@@ -1,16 +1,20 @@
 #!/opt/splunk/bin/python
 
-from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
 import sys
 import re
 import os
+import logging, logging.handlers
+
+from string import punctuation, digits, maketrans
+
+from splunk.appserver.mrsparkle.lib.util import make_splunkhome_path
+from splunk import setupSplunkLogger
 from nltk import word_tokenize, pos_tag
 from nltk.data import path as nltk_data_path
 from nltk.corpus import wordnet, stopwords as stop_words
 from nltk.stem import WordNetLemmatizer, PorterStemmer
 from splunklib import six
-from string import punctuation, digits, maketrans
-from splunk.appserver.mrsparkle.lib.util import make_splunkhome_path
+from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
 
 BASE_DIR = make_splunkhome_path(["etc","apps","nlp-text-analytics"])
 CORPORA_DIR = os.path.join(BASE_DIR,'bin','nltk_data')
@@ -93,6 +97,34 @@ class CleanText(StreamingCommand):
         doc='''**Syntax:** **remove_punct=***<boolean>*
         **Description:** Options are universal, wsj, or brown; defaults to universal and subject to base_type set to "lemma_pos"''',
         ) 	
+
+    #http://dev.splunk.com/view/logging/SP-CAAAFCN
+    def setup_logging(self):
+        logger = logging.getLogger('splunk.foo')    
+        SPLUNK_HOME = os.environ['SPLUNK_HOME']
+        
+        LOGGING_DEFAULT_CONFIG_FILE = os.path.join(SPLUNK_HOME, 'etc', 'log.cfg')
+        LOGGING_LOCAL_CONFIG_FILE = os.path.join(SPLUNK_HOME, 'etc', 'log-local.cfg')
+        LOGGING_STANZA_NAME = 'python'
+        LOGGING_FILE_NAME = "nlp-text-analytics.log"
+        BASE_LOG_PATH = os.path.join('var', 'log', 'splunk')
+        LOGGING_FORMAT = "%(asctime)s %(levelname)-s\t%(module)s:%(lineno)d - %(message)s"
+        splunk_log_handler = logging.handlers.RotatingFileHandler(
+            os.path.join(
+                SPLUNK_HOME,
+                BASE_LOG_PATH,
+                LOGGING_FILE_NAME
+            ), mode='a') 
+        splunk_log_handler.setFormatter(logging.Formatter(LOGGING_FORMAT))
+        logger.addHandler(splunk_log_handler)
+        setupSplunkLogger(
+            logger,
+            LOGGING_DEFAULT_CONFIG_FILE,
+            LOGGING_LOCAL_CONFIG_FILE,
+            LOGGING_STANZA_NAME
+        )
+        return logger
+
     #https://stackoverflow.com/a/15590384
     def get_wordnet_pos(self, treebank_tag):
         if treebank_tag.startswith('J'):
@@ -114,6 +146,8 @@ class CleanText(StreamingCommand):
         )
 
     def stream(self, records):
+        logger = self.setup_logging()
+        logger.info('textfield set to: ' + self.textfield)
         for record in records:
             #URL removal
             if self.remove_urls:
