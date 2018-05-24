@@ -97,6 +97,10 @@ class CleanText(StreamingCommand):
         doc='''**Syntax:** **remove_punct=***<boolean>*
         **Description:** Options are universal, wsj, or brown; defaults to universal and subject to base_type set to "lemma_pos"''',
         ) 	
+    custom_stopwords = Option(
+        doc='''**Syntax:** **custom_stopwords=***<stopwords>*
+        **Description:** comma-seperated list of custom stopwords, enclose in quotes''',
+        )
 
     #http://dev.splunk.com/view/logging/SP-CAAAFCN
     def setup_logging(self):
@@ -148,6 +152,8 @@ class CleanText(StreamingCommand):
     def stream(self, records):
         logger = self.setup_logging()
         logger.info('textfield set to: ' + self.textfield)
+        if self.custom_stopwords:
+            custom_stopwords = self.custom_stopwords.split(',')
         for record in records:
             #URL removal
             if self.remove_urls:
@@ -165,7 +171,10 @@ class CleanText(StreamingCommand):
                         tagset=self.pos_tagset
                     )
                     if self.default_clean and self.remove_stopwords:
-                        stopwords = set(stop_words.words('english'))
+                        if self.custom_stopwords:
+                            stopwords = set(stop_words.words('english') + custom_stopwords)
+                        else:
+                            stopwords = set(stop_words.words('english'))
                         record['pos_tuple'] = [
                             [
                             re.sub(r'[\W\d]','',text[0]).lower(),
@@ -222,7 +231,10 @@ class CleanText(StreamingCommand):
                             record['pos_tuple'] = tuple_list
             #Lemmatization or Stemming with stopword removal
             if self.remove_stopwords and self.base_word and self.base_type != 'lemma_pos':
-                stopwords = set(stop_words.words('english'))
+                if self.custom_stopwords:
+                    stopwords = set(stop_words.words('english') + custom_stopwords)
+                else:
+                    stopwords = set(stop_words.words('english'))
                 if self.base_type == 'lemma':
                     lm = WordNetLemmatizer()
                     record[self.textfield] = [
@@ -257,7 +269,10 @@ class CleanText(StreamingCommand):
                     ]
             #Stopword Removal
             if self.remove_stopwords and not self.base_word:
-                stopwords = set(stop_words.words('english'))
+                if self.custom_stopwords:
+                    stopwords = set(stop_words.words('english') + custom_stopwords)
+                else:
+                    stopwords = set(stop_words.words('english'))
                 record[self.textfield] = [
                     text 
                     for text in

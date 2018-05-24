@@ -3,7 +3,7 @@
   <search id="base_search">
     <query>
 $master_search$
-| cleantext textfield=$textfield$ base_type=lemma_pos $stopwords$
+| cleantext textfield=$textfield$ base_type=lemma_pos $stopwords$ $custom_stopwords$
     </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
@@ -51,6 +51,12 @@ $master_search$
       </change>
       <default>remove_stopwords=t</default>
       <initialValue>remove_stopwords=t</initialValue>
+    </input>
+    <input type="text" token="custom_stopwords" rejects="$sw_hidden$">
+      <label>Custom Stopwords (comma separated)</label>
+      <prefix>custom_stopwords="</prefix>
+      <suffix>"</suffix>
+      <default></default>
     </input>
   </fieldset>
   <row>
@@ -221,7 +227,7 @@ $master_search$
         <search base="counts">
           <query>| fields "$textfield$" count 
 | streamstats count AS rank
-| stats first("$textfield$") AS "$textfield$" first(rank) AS rank BY count
+| stats first(sentence) AS sentence first(rank) AS rank BY count
 | sort -count
 | table "$textfield$" rank count</query>
         </search>
