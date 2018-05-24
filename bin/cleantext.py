@@ -158,8 +158,10 @@ class CleanText(StreamingCommand):
             if (self.base_word and self.base_type == 'lemma_pos') or self.force_nltk_tokenize:
                 #lemma_pos - if option is lemmatization with POS tagging do cleaning and stopword options now
                 if (self.base_word and self.base_type == 'lemma_pos'):
-                    record['pos_tuple'] = pos_tag(word_tokenize(
-                        record[self.textfield]),
+                    record['pos_tuple'] = pos_tag(
+                        word_tokenize(
+                            six.text_type(record[self.textfield].decode("utf-8"))
+                        ),
                         tagset=self.pos_tagset
                     )
                     if self.default_clean and self.remove_stopwords:

@@ -28,7 +28,7 @@ $master_search$
       <default></default>
     </input>
     <html>
-      <p>Split input fields here</p>
+      <p></p>
       <p/>
       <p/>
       <p/>
@@ -221,7 +221,7 @@ $master_search$
         <search base="counts">
           <query>| fields "$textfield$" count 
 | streamstats count AS rank
-| stats first(sentence) AS sentence first(rank) AS rank BY count
+| stats first("$textfield$") AS "$textfield$" first(rank) AS rank BY count
 | sort -count
 | table "$textfield$" rank count</query>
         </search>
