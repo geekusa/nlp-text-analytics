@@ -170,7 +170,7 @@ $master_search$
         <title>$specific_word$ Occurences</title>
         <search>
           <query>$master_search$
-| regex $textfield$="\b$specific_word$\b"
+| regex $textfield$="(?i)\b$specific_word$\b"
 | table $textfield$</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
