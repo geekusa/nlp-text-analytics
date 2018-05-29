@@ -16,6 +16,10 @@ See [associated blog](https://github.com/geekusa/nlp-text-analytics/blob/master/
 
 Have you ever wanted to perform advanced text analytics inside Splunk? Splunk has some ways to handle text but also lacks some more advanced features that NLP libraries can offer. This can also benefit use-cases that involve using Splunk’s ML Toolkit.
 
+## Requirements
+Splunk ML Toolkit 3.2 or greater [https://splunkbase.splunk.com/app/2890/](https://splunkbase.splunk.com/app/2890/)
+Wordcloud Custom Visualization [https://splunkbase.splunk.com/app/3212/](https://splunkbase.splunk.com/app/3212/)
+
 ## How to use
 
 ### Install
@@ -81,13 +85,23 @@ The app comes with an example Gutenberg texts formatted as CSV lookups.
 >     **Usage:** None or universal</br>
 >     **Default:** None
 
+### ML Algorithms
 
+> _TruncantedSVD_
+> #### Description
+> From sklearn. Used for dimension reduction (especially on a TFIDF). This is also known in text analytics as Latent Semantic Analysis or LSA. See [http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html#sklearn-decomposition-truncatedsvd](http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html#sklearn-decomposition-truncatedsvd)
+> #### Syntax
+> ```fit TruncatedSVD <fields> [into <model name>] [k=<int>]```</br><br>
+> The `k` option sets the number of components to change the data into. It is important that the value is less than the number of features or documents. The documentation on the algorithm recommends to be set to at least 100 for LSA.
 
 ### Support
 Support will be provided through Splunkbase (click on Contact Developer) or Splunk Answers or [submit an issue in Github](https://github.com/geekusa/nlp-text-analytics/issues/new). Expected responses will depend on issue and as time permits, but every attempt will be made to fix within 2 weeks. 
 
 ### Documentation
 This README file constitutes the documenation for the app and will be kept upto date on [Github](https://github.com/geekusa/nlp-text-analytics/blob/master/README.md) as well as on the Splunkbase page.
+
+### Known Issues
+Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when using free or developer's license see [https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html](https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html). Has not been fixed as of 7.1.1.
 
 ### Release Notes
 Initial Beta Release
