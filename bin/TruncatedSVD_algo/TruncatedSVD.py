@@ -1,38 +1,13 @@
-from sklearn.decomposition import TruncatedSVD as _TruncatedSVD
-from base import BaseAlgo, TransformerMixin
-from codec import codecs_manager
-from util.param_util import convert_params
-
 '''
 Based on Template from 
 https://docs.splunk.com/Documentation/MLApp/latest/API/Writeanalgorithmclass#BaseAlgo_class
 and using existing Splunk PCA implementation as it is the most similar algorithim
-
-class CustomAlgoTemplate(BaseAlgo):
-    def __init__(self, options):
-        # Option checking & initializations here
-        pass
-
-    def fit(self, df, options):
-        # Fit an estimator to df, a pandas DataFrame of the search results
-        pass
-
-    def partial_fit(self, df, options):
-        # Incrementally fit a model
-        pass
-
-    def apply(self, df, options):
-        # Apply a saved model
-        # Modify df, a pandas DataFrame of the search results
-        return df
-
-    @staticmethod
-    def register_codecs():
-        # Add codecs to the codec manager
-        pass
 '''
 
-
+from sklearn.decomposition import TruncatedSVD as _TruncatedSVD
+from base import BaseAlgo, TransformerMixin
+from codec import codecs_manager
+from util.param_util import convert_params
 
 class TruncatedSVD(TransformerMixin, BaseAlgo):
 
