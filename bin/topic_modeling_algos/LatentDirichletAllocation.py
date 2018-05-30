@@ -2,6 +2,9 @@
 Based on Template from 
 https://docs.splunk.com/Documentation/MLApp/latest/API/Writeanalgorithmclass#BaseAlgo_class
 and using existing Splunk PCA implementation as it is the most similar algorithim
+
+Splunk is using an older version of sklearn
+https://stackoverflow.com/a/48121678
 '''
 
 from sklearn.decomposition import LatentDirichletAllocation as _LatentDirichletAllocation
