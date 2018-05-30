@@ -1,11 +1,18 @@
 <!--<dashboard hideEdit="true">--><form>
   <label>Themes</label>
+  <init>
+    <set token="topic_model_apply">
+      <![CDATA[| fit TruncatedSVD k=$topic_k$ $textfield$_* ]]>
+    </set>
+    <set token="featurefield">SVD</set>
+  </init>
   <search id="base_search">
     <query>
 $master_search$
-| cleantext textfield=$textfield$ base_type=lemma_pos mv=f
-| fit TFIDF $textfield$ max_features=$max_features$
-| fit $cluster_algo$ k=$clusters$ "$textfield$_*"
+| cleantext textfield=$textfield$ base_type=lemma_pos mv=f $custom_stopwords$
+| fit TFIDF $textfield$ max_features=$max_features$ ngram_range=$ngram$
+| fit $topic_algo$ k=$topic_k$ $textfield$_* 
+| fit $cluster_algo$ $clusters$ "$featurefield$_*"
 | table cluster $textfield$
     </query>
     <earliest>$time.earliest$</earliest>
@@ -17,7 +24,7 @@ $master_search$
 | stats count BY "$textfield$" cluster
 | sort cluster -count
 | streamstats count AS clusterCount BY cluster
-</query>
+  </query>
   </search>
   <fieldset submitButton="true" autoRun="false">
     <input type="time" token="time">
@@ -33,33 +40,119 @@ $master_search$
     </input>
     <html>
       <p/>
-      <p/>
-      <p/>
-      <p/>
-      <p/>
     </html>
     <input type="text" token="textfield">
       <label>Text Field</label>
     </input>
-    <input type="text" token="clusters">
-      <label># of Clusters</label>
-      <default>7</default>
+    <input id="text_medium" type="text" token="custom_stopwords">
+      <label>Custom Stopwords (comma separated)</label>
+      <prefix>custom_stopwords="</prefix>
+      <suffix>"</suffix>
+      <default></default>
     </input>
+    <html>
+      <p/>
+      <p/>
+      <p>
+        <b>TFIDF Options</b>
+      </p>
+    </html>
     <input type="text" token="max_features">
       <label>Max Features</label>
-      <default>7</default>
+      <default>1000</default>
+      <initialValue>1000</initialValue>
     </input>
+    <input type="dropdown" token="ngram">
+      <label>TFIDF n-gram range</label>
+      <choice value="1-1">1-1</choice>
+      <choice value="1-2">1-2</choice>
+      <choice value="1-3">1-3</choice>
+      <choice value="1-4">1-4</choice>
+      <default>1-1</default>
+    </input>
+    <html>
+      <p>
+        <b>Topic Modeling Options</b>
+      </p>
+    </html>
+    <input type="dropdown" token="topic_algo" rejects="$topic_hidden$" searchWhenChanged="false">
+      <label>Topic Model Algorithm</label>
+      <choice value="TruncatedSVD">TruncatedSVD</choice>
+      <choice value="LatentDirichletAllocation">LatentDirichletAllocation</choice>
+      <choice value="NMF">NMF</choice>
+      <default>TruncatedSVD</default>
+      <initialValue>TruncatedSVD</initialValue>
+      <change>
+        <condition value="TruncatedSVD">
+          <set token="topic_model_apply">
+            <![CDATA[| fit TruncatedSVD k=$topic_k$ $textfield$_* ]]>
+          </set>
+          <set token="featurefield">SVD</set>
+        </condition>
+        <condition value="LatentDirichletAllocation">
+          <set token="topic_model_apply">
+            <![CDATA[| fit LatentDirichletAllocation k=$topic_k$ $textfield$_* ]]>
+          </set>
+          <set token="featurefield">LDA</set>
+        </condition>
+        <condition value="NMF">
+          <set token="topic_model_apply">
+            <![CDATA[| fit NMF k=$topic_k$ $textfield$_* ]]>
+          </set>
+          <set token="featurefield">NMF</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="topic_k" rejects="$topic_hidden$">
+      <label>#Topic Components</label>
+      <default>100</default>
+      <initialValue>100</initialValue>
+    </input>
+    <html>
+      <p>
+        <b>Clustering Options</b>
+      </p>
+    </html>
     <input type="dropdown" token="cluster_algo">
       <label>Cluster Algorithm</label>
       <choice value="KMeans">KMeans</choice>
+      <choice value="Birch">Birch</choice>
+      <choice value="SpectralClustering">SpectralClustering</choice>
+      <choice value="DBSCAN">DBSCAN</choice>
+      <choice value="XMeans">XMeans</choice>
       <default>KMeans</default>
       <initialValue>KMeans</initialValue>
+      <change>
+        <condition value="KMeans">
+          <unset token="k_hidden"></unset>
+        </condition>
+        <condition value="Birch">
+          <unset token="k_hidden"></unset>
+        </condition>
+        <condition value="SpectralClustering">
+          <unset token="k_hidden"></unset>
+        </condition>
+        <condition value="DBSCAN">
+          <set token="k_hidden">true</set>
+          <set token="clusters"></set>
+        </condition>
+        <condition value="XMeans">
+          <set token="k_hidden">true</set>
+          <set token="clusters"></set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="clusters" rejects="$k_hidden$">
+      <label># of Clusters</label>
+      <default>7</default>
+      <prefix>k=</prefix>
     </input>
   </fieldset>
   <row>
     <panel>
+      <title>Top Terms Per Cluster</title>
       <input type="dropdown" token="topterms" searchWhenChanged="true">
-        <label>Top Terms Per Cluster</label>
+        <label>Term Count</label>
         <choice value="2">2</choice>
         <choice value="5">5</choice>
         <choice value="10">10</choice>

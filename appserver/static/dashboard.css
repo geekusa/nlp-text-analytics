@@ -5,20 +5,26 @@
 [data-view="views/shared/appbar/AppLabel"] {
     background-color: #9C1E5D;
 }
-/*change unhighlighted text on the bar color
-[data-role="label"] {
-    /*color: #D1C1E8;
+/*change unhighlighted text on the bar color*/
+[data-role="app-nav-container"] [data-role="label"] {
+    /*color: #D1C1E8;*/
     color: #E6C7D6;
-}*/
-/*change color of underline highlight of current tab*/
+}
+/*change color of underline and text of current tab*/
 [data-role="underline"] {
     /*background-color: #F3E3EB !important;*/
     background-color: #FFFFFF !important;
 }
+[data-role="app-nav-container"] [data-active="active"] [data-role="label"] {
+    color: #FFFFFF;
+}
 /*make a longer text input to be used for searches*/
-#text_long .splunk-textinput input{
+#text_long input {
     width: 700px !important;
 }
-[data-active="active"] {
-    color: #FFFFFF;
+#text_medium input {
+    width: 300px !important;
+}
+#text_medium label {
+    width: 300px !important;
 }
