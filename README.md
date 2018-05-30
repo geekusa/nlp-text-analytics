@@ -32,7 +32,7 @@ The app comes with an example Gutenberg texts formatted as CSV lookups.
 
 ### Custom Commands
 
-> _cleantext_
+_cleantext_
 > #### Description
 > Tokenize and normalize text (remove punctuation, digits, change to base_word). Different options result in better and slower cleaning. base_type="lemma_pos" being the slowest option, base_type="lemma" assumes every word is a noun, which is faster but still results in decent lemmatization. Many fields have a default already set, textfield is only     required field. By default results in a multi-valued field which is ready for used with mvexpand.
 > #### Syntax
@@ -87,12 +87,27 @@ The app comes with an example Gutenberg texts formatted as CSV lookups.
 
 ### ML Algorithms
 
-> _TruncantedSVD_
+_TruncantedSVD_
 > #### Description
-> From sklearn. Used for dimension reduction (especially on a TFIDF). This is also known in text analytics as Latent Semantic Analysis or LSA. See [http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html#sklearn-decomposition-truncatedsvd](http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html#sklearn-decomposition-truncatedsvd)
+> From sklearn. Used for dimension reduction (especially on a TFIDF). This is also known in text analytics as Latent Semantic Analysis or LSA. See [http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html](http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html)
 > #### Syntax
 > ```fit TruncatedSVD <fields> [into <model name>] [k=<int>]```</br><br>
 > The `k` option sets the number of components to change the data into. It is important that the value is less than the number of features or documents. The documentation on the algorithm recommends to be set to at least 100 for LSA.
+
+_LatentDirichletAllocation_
+> #### Description
+> From sklearn. Used for dimension reduction. This is also known as LDA. See [http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.LatentDirichletAllocation.html](http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.LatentDirichletAllocation.html)
+> #### Syntax
+> ```fit LatentDirichletAllocation <fields> [into <model name>] [k=<int>]```</br><br>
+> The `k` option sets the number of components (topics) to change the data into. It is important that the value is less than the number of features or documents. 
+ 
+
+_NMF_
+> #### Description
+> From sklearn. Used for dimension reduction. This is also known as Non-Negative Matrix Factorization. See [http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html](http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html)
+> #### Syntax
+> ```fit NMF <fields> [into <model name>] [k=<int>]```</br><br>
+> The `k` option sets the number of components (topics) to change the data into. It is important that the value is less than the number of features or documents. 
 
 ### Support
 Support will be provided through Splunkbase (click on Contact Developer) or Splunk Answers or [submit an issue in Github](https://github.com/geekusa/nlp-text-analytics/issues/new). Expected responses will depend on issue and as time permits, but every attempt will be made to fix within 2 weeks. 
