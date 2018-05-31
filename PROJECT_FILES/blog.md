@@ -1,12 +1,79 @@
+
 # NLP Text Analytics Splunk App - Blog
 ##### Author: Nathan Worsham
 ##### Created for MSDS692 Data Science Practicum I at Regis University, 2018
 
-Most projects for the Data Science Practicum revolved around collecting a dataset, cleaning it, exploring it, and then using machine learning algorithms on it to perform some sort of prediction or classification. I decided to go a bit outside the box and instead build a Splunk App for my project.
+Most other projects for the Data Science Practicum revolved around collecting a dataset, cleaning it, exploring it, and then using machine learning algorithms on it to perform some sort of prediction or classification. I decided to go a bit outside the box and instead build a Splunk App for my project.
 
 ## Inspiration
-I have built a few Splunk Apps previously so I was at least familiar with the practice and just before this class took a class on text analytics. I am fascinated with the subject and already had a few (internal) dashboards trying to do some text analytics. After I took the text analytics course though, I realized some of the shortcommings that Splunk had. Granted system logs are not something you think of immediately having natural language but that is not the only source of text in Splunk as it can consume anything human readable. In my own place of work, one immediate example that stood out in my mind was support ticket summaries and descriptions but I'm sure sources do not stop there. 
+Let me first preface by stating I am not a developer... but I don't let that stop me. Like many of my cohorts, I have always worked in information technology but I have a completely unrelated background--music. I tinker, I experiment, I'm curious, I push and push until I find an answer. I don't always know the correct or proper methodolgies but I am willing to learn. I have however built a few Splunk Apps previously (using the same techniques just mentioned) so I was at least familiar with the practice and just before this class, I took a class on text analytics. I am fascinated with Splunk, Python, and the subject of text analytics. I already had a few (internal) dashboards taking a shot at text analytics if only mildly. After the course though, I realized some of the shortcomings that Splunk had regarding text analytics. Granted system logs are not something you think of immediately having natural language (some actually do) but that is not the only source of text in Splunk as it can consume anything human readable. In my own place of work, one immediate example that stood out in my mind was support ticket summaries and descriptions but I'm sure the sources do not stop there. 
 
 ## Description
+So given that information, the intent of this project is create a Splunk app that will provide a simple interface for analyzing text in Splunk using Python natural language processing libraries (currently just NLTK 3.3). The app provides custom commands and dashboards to show how to use it.
 
-So given that information, the intent of this app is to provide a simple interface for analyzing text in Splunk using python natural language processing libraries (currently just NLTK 3.3). The app provides custom commands and dashboards to show how to use it.
+## The Details
+This project represents exisiting knowledge I already have in Splunk (regarding developing apps, administration, using SPL, building dashboards and I'm sure more) and building upon it. Splunk apps that want to use new Python libraries generally get packaged with those additional libraries needed to run the custom commands within the app, doing so by importing locally--when you say `import` in Python, the first place it looks is in the current working directory. This of course makes sense as Splunk doesn't want to break their existing Python environment by allowing admins to add to and change it permanently. Splunk also supplies a Python SDK (http://dev.splunk.com/python) which takes care of many remedial tasks and keeps things consistent. I will be relying on this heavily and using the documenting standards they give in their examples within the SDK which are a bit different then say sphinx markup or at least I think so. 
+
+#### Getting NLTK Working
+
+As far as Python libraries go for natural language processing there are really two major contenders spaCy (https://spacy.io) and nltk or _natural language toolkit_ (http://www.nltk.org). I really like the features and performance of spaCy but during this project I found one major downfall for spaCy. Since it is is a C extension--simple way to tell is if the package extension is `.so`--it would have to be compiled for the host system first before it can be imported locally. Is this an impossible step to overcome? No, I'm sure it is not. However this practicum class is only 8 weeks long, so time is of the essense. Relatedly, early on in the process I decided to go with the concept of MVP or minimum viable product, to get the pieces working as best I could and if there was still time, go back and iterate to make improvements. There is a saying I am always telling my kids... "Do the best with what you got"... so it was time to take my own advice.
+
+I started my app by making a shell of just the app name and a bin directory--granted Splunk does provide an add-on builder app to help with this but maybe I am just lazy or stubborn as I am yet to use it--and downloaded and placed the nltk directory there. Consequently pypi.org is a great place to manually download Python packages and where I did so (https://pypi.org/project/nltk/). I then changed my directory into the bin folder (I split my development time between a Mac and a Linux server) and ran Splunk's CLI command to get into its Python IDE. The command is `$SPLUNK_HOME/bin/splunk cmd python` (replacing `$SPLUNK_HOME` with the actualy directory if this is not in your environment path), and is great way to test out to see if Splunk will succeed in simply importing the library or has further dependancies. 
+
+The first problem I ran into is that it could not import six (https://pypi.org/project/six/), but I have needed that package for other apps before, so I copied it over and tried again. I then received an error of wanting to import sqlite3. This was a bit more confusing as allegedly this is supposed to be packaged in Python since 2.5 which was captured nicely in a stackoverflow (2013) answer https://stackoverflow.com/questions/19530974/how-can-i-install-sqlite3-to-python, Splunk’s mini python environment is currently 2.7.14. However the very next answer from the same post was truly what I needed, which showed me I could download pysqlite to satisfy the condition. However once downloading the files, it wasn’t evident which were the right files, I finally figured out to just grab the folder called “lib” into my app’s bin directory and rename it to sqllite3. Now importing nltk works. 
+
+The next problem for packaging nltk however is that nltk expects certain documents to be downloaded and available. This includes corpora, tagsets, tokenizers and more. In my case though I would want to control what is downloaded and where it is downloaded to. A great Medium article (satoru, 2016) pointed me to the place where all of this data could be downloaded which is http://www.nltk.org/nltk_data/. Though ultimately a stackoverflow.com (2018) answer showed that I could either append the value nltk.data.path or set an environment variable. Once I appended the value and downloaded the data I was able to import stop words successfully. So my custom command would need to add to that path every time.
+
+#### Custom Command - cleantext
+
+First order of business was creating a new custom command to package with the app for cleaning text. Now I knew that Splunk natively could certainly handle pieces of this already--like lowercase, split words by spaces, remove digits and punctuation--but having a single command to complete this is compelling and useful but more importantly Splunk does not have a native way to complete word stemming or lemmatization. Stemming and lemmatization are all about changing words back to their base word. Personally I don't really like stemming as often the result is not a real word at all as often it just chops off suffixes but if I am already providing lemmatization maybe someone else has a good reason for it--plus stemming is very fast comparatively. So my command would provide the cleaning options I mentioned earlier, changing words back to their base, and also an option to remove URLs because when you remove the punctuation out of a URL you are left with jibberish. 
+
+The first part of creating a custom command with Splunk's SDK that I would deal with was options. Referring specically to what options the command would take.  I learned that the SDK’s options are quite involved, it has validators that can validate if the option the user gave is any of these:
+
+
+```python
+        Boolean
+        Code
+        Duration
+        File
+        Integer
+        List
+        Map
+        RegularExpression
+        Set
+```
+
+I also learned I could set a default for the option with simply providing `default=<myvalue>` and even require the option with `require=True`. Putting it all together, an example option looks like:
+
+
+```python
+    default_clean = Option(
+        default=True,
+        doc='''**Syntax:** **lowercase=***<boolean>*
+        **Description:** Change text to lowercase, remove punctuation, and removed numbers, defaults to true''',
+        validate=validators.Boolean()
+        )
+```
+
+The validators for boolean are great in Splunk, because it will take lots of different options to equal true or false like t or true or TRUE or 1 or True. 
+
+I started with just making my command simple and changing text to lowercase by default, I successfully changed it to lowercase based on the options given at the Splunk search input. 
+I also found that six.py is already included in the splunklib for the SDK so I can just use that and apparently six is used for smoothing between 2 and 3, there was a good example in one of the example commands that comes with the SDK to use six to decode the text as utf-8 but it works either way so I’m not sure yet if I will need that (more on that later). 
+
+I made a decision that it would be more efficient to lowercase, remove punctuation and numbers all at the same time and that these could be treated as one option (on or off) given that this is something you can already do in Splunk so it is more of a convenience factor more than anything (at least that is my current state of mind it may change given other use cases I see) though I struggled with what to call the combined option: 
+
+std_clean <br/>
+basic_wash <br/>
+basic_clean <br/>
+std_options <br/>
+basic_option_group <br/>
+default_clean
+
+I settled on the last… default_clean (obviously since that is the example I gave). Actually writing out the possible options was a good exercise this goes back to the old adage by Phil Karlton “There are only two hard things in Computer Science: cache invalidation and naming things.” (Hilton, 2016), which is so true but also can be pretty important and sometimes difficult to change. I ran into similar difficulty for the other options I needed to name as well and the command ended up with A LOT of options which is especially painful when it comes to documenting the command--something I find that often takes longer to write than the code itself.
+
+I would say throughout the creation of the cleantext command I played tug-of-war with the following:
+* order of operations in general
+* DRY (Do Not Repeat Yourself) programming versus providing user options
+* speed of the command (`set` by the way is awesome, turn a list into a set and Python does not have to look at each element)
+
+Anyway these can have competing interests. 

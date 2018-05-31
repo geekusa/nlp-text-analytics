@@ -1,9 +1,15 @@
 
 # References
 
+Bird, S. (2018). nltk. Retrieved from https://pypi.org/project/nltk/
+
+
 Conger, J. (2016). Using HTML5 Input Types on Splunk Forms. Retrieved from https://www.splunk.com/content/splunk-blogs/en/2016/09/21/using-html5-input-types-on-splunk-forms.html
 
 Conger, J. (2017). SplunkInputTypesExample: Example Splunk application that demonstrates how to use HTLM5 input types in Simple XML Forms. JavaScript. Retrieved from https://github.com/JasonConger/SplunkInputTypesExample (Original work published 2016)
+
+
+Haering, G. (2016). pysqlite. Retrieved from https://pypi.org/project/pysqlite/
 
 
 Hilton, P. (2016). Why naming things is hard - Peter Hilton. Retrieved from http://hilton.org.uk/blog/why-naming-things-is-hard
@@ -11,6 +17,8 @@ Hilton, P. (2016). Why naming things is hard - Peter Hilton. Retrieved from http
 nltk. (2018). Consistent pos argument between wn.synsets() and WordNetLemmatizer.lemmatize() · Issue #1978 ·
 nltk/nltk. Retrieved from https://github.com/nltk/nltk/issues/1978
 
+
+Peterson, B. (2017). six. Retrieved from https://pypi.org/project/six/
 
 satoru. (2016, April 21). How to manually download a nltk corpus? Retrieved from https://medium.com/@satorulogic/how-to-manually-download-a-nltk-corpus-f01569861da9
 
