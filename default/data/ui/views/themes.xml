@@ -30,8 +30,8 @@ $master_search$
     <input type="time" token="time">
       <label>Time Range</label>
       <default>
-        <earliest>-1d@d</earliest>
-        <latest>@d</latest>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
       </default>
     </input>
     <input id="text_long" type="text" token="master_search">
