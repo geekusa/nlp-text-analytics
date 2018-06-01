@@ -1,4 +1,4 @@
-<!--<dashboard hideEdit="true">--><form>
+<!--<dashboard hideEdit="true">--><form script="themes_bar.js" stylesheet="tabledatabar.css">
   <label>Themes</label>
   <init>
     <set token="topic_model_apply">
@@ -162,17 +162,60 @@ $master_search$
         <default>10</default>
         <initialValue>10</initialValue>
       </input>
-      <table>
+      <table id="tabledatabar">
+        <search base="counts">
+          <query>| eventstats count($textfield$) AS documentCount BY cluster
+| where clusterCount &lt;= $topterms$
+| stats values($textfield$) AS terms values(documentCount) AS documentCount BY cluster
+| eventstats sum(documentCount) as total
+| eval documentProportion = documentCount/total * 100
+| table terms cluster documentProportion documentCount
+| eval terms = mvjoin(terms, " ")</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <input type="dropdown" token="trellis_size" searchWhenChanged="true">
+        <label>Trellis Size</label>
+        <choice value="small">Small</choice>
+        <choice value="medium">Medium</choice>
+        <choice value="large">Large</choice>
+        <default>large</default>
+        <initialValue>large</initialValue>
+        <change>
+          <condition value="small">
+            <set token="trellis_height">250</set>
+          </condition>
+          <condition value="medium">
+            <set token="trellis_height">500</set>
+          </condition>
+          <condition value="large">
+            <set token="trellis_height">1000</set>
+          </condition>
+        </change>
+      </input>
+      <chart>
         <search base="counts">
           <query>
 | where clusterCount &lt;= $topterms$
-| stats values($textfield$) AS terms BY cluster
-| table terms cluster
-| eval terms = mvjoin(terms, " ")
+| fields - clusterCount
           </query>
         </search>
-        <option name="drilldown">none</option>
-      </table>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="height">$trellis_height$</option>
+        <option name="trellis.enabled">1</option>
+        <option name="trellis.size">$trellis_size$</option>
+        <option name="trellis.splitBy">cluster</option>
+      </chart>
     </panel>
   </row>
 </form>
