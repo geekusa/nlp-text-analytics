@@ -24,7 +24,7 @@ $master_search$
       </default>
     </input>
     <input id="text_long" type="text" token="master_search">
-      <label>Text Search</label>
+      <label>Text Search (output must be tabular-i.e. ... | table text)</label>
       <default></default>
     </input>
     <html>
