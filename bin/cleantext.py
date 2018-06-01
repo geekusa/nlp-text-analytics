@@ -21,8 +21,8 @@ CORPORA_DIR = os.path.join(BASE_DIR,'bin','nltk_data')
 nltk_data_path.append(CORPORA_DIR)
 
 
-@Configuration()
-class CleanText(StreamingCommand, local=True):
+@Configuration(streaming=True, local=True)
+class CleanText(StreamingCommand):
     """ Counts the number of non-overlapping matches to a regular expression in a set of fields.
 
     ##Syntax
