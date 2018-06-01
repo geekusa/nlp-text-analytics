@@ -22,7 +22,7 @@ nltk_data_path.append(CORPORA_DIR)
 
 
 @Configuration()
-class CleanText(StreamingCommand):
+class CleanText(StreamingCommand, local=True):
     """ Counts the number of non-overlapping matches to a regular expression in a set of fields.
 
     ##Syntax

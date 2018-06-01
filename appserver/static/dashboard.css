@@ -28,3 +28,13 @@
 #text_medium label {
     width: 300px !important;
 }
+#small_label label {
+    font-size: 12px !important;
+}
+/*Horizontal 2-radio button to save space*/
+#horiz_two_radio [data-test="radio-list"] {
+    flex-direction: row !important;
+}
+#horiz_two_radio [data-test="option"] {
+    margin-right: 6px;
+}

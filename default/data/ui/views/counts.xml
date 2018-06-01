@@ -37,7 +37,7 @@ $master_search$
     <input type="text" token="textfield">
       <label>Text Field</label>
     </input>
-    <input type="radio" token="stopwords">
+    <input id="horiz_two_radio" type="radio" token="stopwords">
       <label>Remove Stopwords (en)</label>
       <choice value="remove_stopwords=t">Yes</choice>
       <choice value="remove_stopwords=f">No</choice>
