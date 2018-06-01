@@ -128,7 +128,7 @@ $master_search$
   <row>
     <panel depends="$pos_hidden$">
       <table>
-        <title>$pos$ Explanation</title>
+        <title>$pos$ Explanation (Sarkar, D. (2016). Text Analytics with Python)</title>
         <search>
           <query>| inputlookup pos_tags.csv
 | where TAG=="$pos$"

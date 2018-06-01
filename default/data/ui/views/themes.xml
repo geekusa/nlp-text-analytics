@@ -1,4 +1,4 @@
-<!--<dashboard hideEdit="true">--><form script="themes_bar.js" stylesheet="tabledatabar.css">
+<!--<dashboard hideEdit="true">--><form script="theme_bar.js" stylesheet="tabledatabar.css">
   <label>Themes</label>
   <init>
     <set token="topic_model_apply">
@@ -173,7 +173,10 @@ $master_search$
 | eval terms = mvjoin(terms, " ")</query>
         </search>
         <option name="drilldown">none</option>
-        <option name="refresh.display">progressbar</option>
+        <format type="color" field="documentCount">
+          <colorPalette type="minMidMax" maxColor="#EC9960" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
       </table>
     </panel>
   </row>
