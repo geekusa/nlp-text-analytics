@@ -13,7 +13,6 @@ from nltk import word_tokenize, pos_tag
 from nltk.data import path as nltk_data_path
 from nltk.corpus import wordnet, stopwords as stop_words
 from nltk.stem import WordNetLemmatizer, PorterStemmer
-from splunklib import six
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
 
 BASE_DIR = make_splunkhome_path(["etc","apps","nlp-text-analytics"])
@@ -166,7 +165,7 @@ class CleanText(StreamingCommand):
                 if (self.base_word and self.base_type == 'lemma_pos'):
                     record['pos_tuple'] = pos_tag(
                         word_tokenize(
-                            six.text_type(record[self.textfield].decode("utf-8"))
+                            record[self.textfield].decode('utf-8').encode('ascii', 'ignore')
                         ),
                         tagset=self.pos_tagset
                     )

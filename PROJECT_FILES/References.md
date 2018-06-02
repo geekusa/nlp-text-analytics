@@ -20,6 +20,8 @@ nltk/nltk. Retrieved from https://github.com/nltk/nltk/issues/1978
 
 Peterson, B. (2017). six. Retrieved from https://pypi.org/project/six/
 
+Sarkar, D. (2016). Text Analytics with Python: A Practical Real-World Approach to Gaining Actionable Insights from your Data. Berkeley, CA: Apress : Imprint: Apress. 
+
 satoru. (2016, April 21). How to manually download a nltk corpus? Retrieved from https://medium.com/@satorulogic/how-to-manually-download-a-nltk-corpus-f01569861da9
 
 splunkanswers.com. (n.d.). How to format inputs on my dashboard to always display in 2 rows? Retrieved from https://answers.splunk.com/answers/419122/how-to-format-inputs-on-my-dashboard-to-always-dis.html
@@ -27,7 +29,10 @@ splunkanswers.com. (n.d.). How to format inputs on my dashboard to always displa
 splunkanswers.com. (2014). Set token in the value of another token? Retrieved from https://answers.splunk.com/answers/138803/set-token-in-the-value-of-another-token.html
 
 
-Splunk. (n.d.). Add an algorithm - Splunk Documentation. Retrieved from https://docs.splunk.com/Documentation/MLApp/3.2.0/API/Overview
+Splunk. (2018). Add an algorithm - Splunk Documentation. Retrieved from https://docs.splunk.com/Documentation/MLApp/3.2.0/API/Overview
+
+Splunk. (2018). How to create custom search commands | Splunk SDK for Python. Retrieved from http://dev.splunk.com/view/python-sdk/SP-CAAAEU2
+
 
 splunk.com. (2018). Logging for Splunk extensions | Splunk app intelligence. Retrieved from http://dev.splunk.com/view/logging/SP-CAAAFCN
 
