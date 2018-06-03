@@ -31,17 +31,17 @@ class CleanText(StreamingCommand):
 
     ##Description
 
-    A count of the number of non-overlapping matches to the regular expression specified by `pattern` is computed for
-    each record processed. The result is stored in the field specified by `fieldname`. If `fieldname` exists, its value
-    is replaced. If `fieldname` does not exist, it is created. Event records are otherwise passed through to the next
-    pipeline processor unmodified.
+    Tokenize and normalize text (remove punctuation, digits, change to base_word)
+    Different options result in better and slower cleaning. base_type="lemma_pos" being the
+    slowest option, base_type="lemma" assumes every word is a noun, which is faster but still
+    results in decent lemmatization. Many fields have a default already set, textfield is only
+    required field. By default results in a multi-valued field which is ready for used with
+    stats count by.
 
     ##Example
 
-    Count the number of words in the `text` of each tweet in tweets.csv and store the result in `word_count`.
-
     .. code-block::
-        | inputlookup tweets | countmatches fieldname=word_count pattern="\\w+" text
+        * | cleantext textfield=sentence
     """
 
     textfield = Option(
