@@ -1,4 +1,158 @@
-<!--<dashboard hideEdit="true">-->
-<dashboard>
+<!--<dashboard hideEdit="true">--><form script="tabledatabar.js" stylesheet="tabledatabar.css">
   <label>Sentiment</label>
-</dashboard>
+  <search id="base_search">
+    <query>
+$master_search$
+| vader textfield=$textfield$ full_output=t
+    </query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="time" token="time">
+      <label>Time Range</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input id="text_long" type="text" token="master_search">
+      <label>Text Search (output must be tabular-i.e. ... | table text)</label>
+      <default></default>
+    </input>
+    <html>
+      <p/>
+      <p/>
+      <p/>
+      <p/>
+      <p/>
+    </html>
+    <input type="text" token="textfield">
+      <label>Text Field</label>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Average Sentiment</title>
+      <viz type="status_indicator_app.status_indicator">
+        <search base="base_search">
+          <query>| stats avg(sentiment) AS sentiment
+| eval sentiment = case(sentiment&gt;0,"Positive",sentiment&lt;0,"Negative",true(),"Neutral")
+| eval color = case(sentiment=="Positive","#5D9C1E", sentiment=="Negative","#9C1E1E", sentiment=="Neutral", "#1E5D9C")</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">75</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="status_indicator_app.status_indicator.colorBy">field_value</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">background</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">warning</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">3</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#555</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+      <viz type="status_indicator_app.status_indicator">
+        <search base="base_search">
+          <query>| stats avg(sentiment) AS sentiment
+| eval sentiment = round(sentiment, 3)
+| eval color = case(sentiment&gt;0,"#5D9C1E",sentiment&lt;0,"#9C1E1E",true(),"#1E5D9C")</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">75</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="status_indicator_app.status_indicator.colorBy">field_value</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">background</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">warning</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">3</option>
+        <option name="status_indicator_app.status_indicator.showOption">3</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#555</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <chart>
+        <search base="base_search">
+          <query>| eval sentiment = case(sentiment&gt;0,"Positive",sentiment&lt;0,"Negative",true(),"Neutral")
+| stats count BY sentiment</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.fieldColors">{"Positive":0x5D9C1E,"Negative":0x9C1E1E,"Neutral":0x1E5D9C}</option>
+        <option name="height">204</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Sentiment Scores Per $textfield$</title>
+      <input type="dropdown" token="sample" searchWhenChanged="true">
+        <label>Sample Ratio</label>
+        <choice value="0.01">0.01</choice>
+        <choice value="0.05">0.05</choice>
+        <choice value="0.1">0.1</choice>
+        <choice value="0.15">0.15</choice>
+        <choice value="0.25">0.25</choice>
+        <choice value="0.5">0.5</choice>
+        <choice value="0.75">0.75</choice>
+        <choice value="1">1</choice>
+        <default>0.1</default>
+        <initialValue>0.1</initialValue>
+      </input>
+      <chart>
+        <search base="base_search">
+          <query>|eval sentiment_negative = sentiment_negative * -1
+|streamstats count AS $textfield$
+|table $textfield$ sentiment*
+|fields - sentiment_neutral
+|sample ratio=$sample$
+|streamstats avg(sentiment) AS avg_sentiment</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.overlayFields">sentiment,avg_sentiment</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="height">400</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+      <chart>
+        <title>Neutral Scores</title>
+        <search base="base_search">
+          <query>|eval sentiment_negative = sentiment_negative * -1
+|streamstats count AS $textfield$
+|table $textfield$ sentiment*
+|fields $textfield$ sentiment_neutral
+|sample ratio=$sample$
+|streamstats avg(sentiment_neutral) AS avg_sentiment_neutral</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.overlayFields">avg_sentiment_neutral</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+      <viz type="parallel_coordinates_app.parallel_coordinates">
+        <title>Parellel Coordinates</title>
+        <search base="base_search">
+          <query>|eval sentiment_negative = sentiment_negative * -1
+|streamstats count AS $textfield$
+|streamstats avg(sentiment) AS avg_sentiment
+|table $textfield$ sentiment sentiment_negative sentiment_positive sentiment_neutral avg_sentiment
+|sample ratio=$sample$</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+  </row>
+</form>

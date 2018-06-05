@@ -18,8 +18,11 @@
 [data-role="app-nav-container"] [data-active="active"] [data-role="label"] {
     color: #FFFFFF;
 }
-/*make a longer text input to be used for searches*/
+/*make a longer text input to be used for searches and stopword lists*/
 #text_long input {
+    width: 700px !important;
+}
+#text_long label {
     width: 700px !important;
 }
 #text_medium input {
