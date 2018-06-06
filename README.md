@@ -19,12 +19,13 @@ Have you ever wanted to perform advanced text analytics inside Splunk? Splunk ha
 ## Requirements
 Splunk ML Toolkit 3.2 or greater [https://splunkbase.splunk.com/app/2890/](https://splunkbase.splunk.com/app/2890/)
 Wordcloud Custom Visualization [https://splunkbase.splunk.com/app/3212/](https://splunkbase.splunk.com/app/3212/)
+Parallel Coordinates Custom Visualization [https://splunkbase.splunk.com/app/3137/](https://splunkbase.splunk.com/app/3137/)
 
 ## How to use
 
 ### Install
 
-Normal app installation can be followed from https://docs.splunk.com/Documentation/AddOns/released/Overview/AboutSplunkadd-ons. Essentially download app and install from Web UI or extract file in $SPLUNK_HOME/etc/apps folder.
+Normal app installation can be followed from https://docs.splunk.com/Documentation/AddOns/released/Overview/AboutSplunkadd-ons. Essentially download app and install from Web UI or extract file in $SPLUNK\_HOME/etc/apps folder.
 
 ### Example Texts
 
@@ -34,7 +35,7 @@ The app comes with an example Gutenberg texts formatted as CSV lookups.
 
 _cleantext_
 > #### Description
-> Tokenize and normalize text (remove punctuation, digits, change to base_word). Different options result in better and slower cleaning. base_type="lemma_pos" being the slowest option, base_type="lemma" assumes every word is a noun, which is faster but still results in decent lemmatization. Many fields have a default already set, textfield is only     required field. By default results in a multi-valued field which is ready for used with mvexpand.
+> Tokenize and normalize text (remove punctuation, digits, change to base\_word). Different options result in better and slower cleaning. base\_type="lemma\_pos" being the slowest option, base\_type="lemma" assumes every word is a noun, which is faster but still results in decent lemmatization. Many fields have a default already set, textfield is only required field. By default results in a multi-valued field which is ready for used with stats count by.
 > #### Syntax
 > \* | cleantext textfield=\<field> [default\_clean=\<bool>] [remove\_urls=\<bool>] [remove\_stopwords=\<bool>] [base\_word=\<bool>] [base\_type=\<string>] [mv=\<bool>] [pos\_tagset=\<string>]
 > ##### Required Arguments
@@ -85,26 +86,43 @@ _cleantext_
 >     **Usage:** None or universal</br>
 >     **Default:** None
 
+_vader_
+> #### Description
+> Sentiment analysis using Valence Aware Dictionary and sEntiment Reasoner. Using option full_output will return scores for neutral, positive, and negative which are the scores that make up the compound score (that is just returned as the field "sentiment". Best to feed in uncleaned data as it takes into account capitalization and punctuation.
+> #### Syntax
+> \* | vader textfield=sentence [full_output=<bool>]
+> ##### Required Arguments
+> **textfield** </br>
+>     **Syntax:** textfield=\<field> </br>
+>     **Description:** The search field that contains the text that is the target of the analysis. </br>
+>     **Usage:** Option only takes a single field
+> ##### Optional Arguments
+> **full_output** </br>
+>     **Syntax:** full_output=\<bool> </br>
+>     **Description:** Return scores for neutral, positive, and negative which are the scores that make up the compound score. </br>
+>     **Usage:** Boolean value. True or False; true or false, t or f, 0 or 1</br>
+>     **Default:** False
+
 ### ML Algorithms
 
 _TruncantedSVD_
 > #### Description
-> From sklearn. Used for dimension reduction (especially on a TFIDF). This is also known in text analytics as Latent Semantic Analysis or LSA. See [http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html](http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html)
+> From sklearn. Used for dimension reduction (especially on a TFIDF). This is also known in text analytics as Latent Semantic Analysis or LSA. Returns fields prepended with "SVD_". See [http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html](http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html)
 > #### Syntax
-> ```fit TruncatedSVD <fields> [into <model name>] [k=<int>]```</br><br>
+> ```fit TruncatedSVD <fields> [into <model name>] k=<int>```</br><br>
 > The `k` option sets the number of components to change the data into. It is important that the value is less than the number of features or documents. The documentation on the algorithm recommends to be set to at least 100 for LSA.
 
 _LatentDirichletAllocation_
 > #### Description
-> From sklearn. Used for dimension reduction. This is also known as LDA. See [http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.LatentDirichletAllocation.html](http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.LatentDirichletAllocation.html)
+> From sklearn. Used for dimension reduction. This is also known as LDA. Returns fields prepended with "LDA_". See [http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.LatentDirichletAllocation.html](http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.LatentDirichletAllocation.html)
 > #### Syntax
-> ```fit LatentDirichletAllocation <fields> [into <model name>] [k=<int>]```</br><br>
+> ```fit LatentDirichletAllocation <fields> [into <model name>] k=<int>```</br><br>
 > The `k` option sets the number of components (topics) to change the data into. It is important that the value is less than the number of features or documents. 
  
 
 _NMF_
 > #### Description
-> From sklearn. Used for dimension reduction. This is also known as Non-Negative Matrix Factorization. See [http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html](http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html)
+> From sklearn. Used for dimension reduction. This is also known as Non-Negative Matrix Factorization. Returns fields prepended with "NMF_". See [http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html](http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html)
 > #### Syntax
 > ```fit NMF <fields> [into <model name>] [k=<int>]```</br><br>
 > The `k` option sets the number of components (topics) to change the data into. It is important that the value is less than the number of features or documents. 

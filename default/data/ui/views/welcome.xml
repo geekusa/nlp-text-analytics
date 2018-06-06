@@ -1,4 +1,44 @@
 <!--<dashboard hideEdit="true">-->
 <dashboard>
   <label>Welcome</label>
+  <row>
+    <panel>
+      <html>
+        <div>
+          The intent of this app is to provide a simple interface for analyzing text in Splunk using python natural language processing libraries (currently just NLTK 3.3). The app provides custom commands (currently 2), additional ML algorithms (currently 3) to use with Splunk's ML Toolkit, and dashboards to show how to use. The app is also packaged with Gutenberg texts (currenlty 3) formatted as CSV lookups. 
+        </div>
+        <h1>Requirements</h1>
+        <div>
+<a href="https://splunkbase.splunk.com/app/2890/">Splunk ML Toolkit 3.2 or greater</a><br/>
+<a href="https://splunkbase.splunk.com/app/3212/">Wordcloud Custom Visualization</a><br/>
+<a href="https://splunkbase.splunk.com/app/3137/">Parallel Coordinates Custom Visualization</a><br/>
+        </div>
+        <h1>Custom Commands</h1>
+        <h2>cleantext</h2>
+        <div>Tokenize and normalize text (remove punctuation, digits, change to base_word). Different options result in better and slower cleaning. base_type="lemma_pos" being the slowest option, base_type="lemma" assumes every word is a noun, which is faster but still results in decent lemmatization. Many fields have a default already set, textfield is only required field. By default results in a multi-valued field which is ready for used with stats count by.
+        </div>
+        <h3>Syntax</h3>
+        <pre>* | cleantext textfield=&lt;field&gt; [default_clean=&lt;bool&gt;] [remove_urls=&lt;bool&gt;] [remove_stopwords=&lt;bool&gt;] [base_word=&lt;bool&gt;] [base_type=&lt;string&gt;] [mv=&lt;bool&gt;] [pos_tagset=&lt;string&gt;]
+</pre>
+        <h2>vader</h2>
+        <div>Sentiment analysis using Valence Aware Dictionary and sEntiment Reasoner. Using option full_output will return scores for neutral, positive, and negative which are the scores that make up the compound score (that is just returned as the field "sentiment". Best to feed in uncleaned data as it takes into account capitalization and punctuation.
+        </div>
+        <h3>Syntax</h3>
+        <pre>* | vader textfield=&lt;field&gt; [full_output=&lt;bool&gt;]</pre>
+        <h1>ML Algorithms</h1>
+        <h2>TruncantedSVD</h2>
+        <div>From sklearn. Used for dimension reduction (especially on a TFIDF). This is also known in text analytics as Latent Semantic Analysis or LSA. Returns fields prepended with "SVD_". See <a href="http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html">http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html</a></div>
+        <h3>Syntax</h3>
+        <pre>* | fit TruncantedSVD &lt;fields&gt; [into &lt;model name&gt;] k=&lt;int&gt;</pre>
+        <h2>LatentDirichletAllocation</h2>
+        <div>From sklearn. Used for dimension reduction. This is also known as LDA. Returns fields prepended with "LDA_". See <a href="http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.LatentDirichletAllocation.html">http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.LatentDirichletAllocation.html</a></div>
+        <h3>Syntax</h3>
+        <pre>* | fit LatentDirichletAllocation &lt;fields&gt; [into &lt;model name&gt;] k=&lt;int&gt;</pre>
+        <h2>NMF</h2>
+        <div>From sklearn. Used for dimension reduction. This is also known as Non-Negative Matrix Factorization. Returns fields prepended with "NMF_". See <a href="http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html">http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html</a></div>
+        <h3>Syntax</h3>
+        <pre>* | fit NFM &lt;fields&gt; [into &lt;model name&gt;] [k=&lt;int&gt;]</pre>
+      </html>
+    </panel>
+  </row>
 </dashboard>
