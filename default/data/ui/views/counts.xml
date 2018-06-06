@@ -28,7 +28,7 @@ $master_search$
       <default></default>
     </input>
     <html>
-      <p></p>
+      <p/>
       <p/>
       <p/>
       <p/>
@@ -61,11 +61,27 @@ $master_search$
   </fieldset>
   <row>
     <panel>
-      <title>Total # Words</title>
+      <title>Total # Terms</title>
       <single>
         <search base="base_search">
           <query>| stats count BY $textfield$ 
 | stats sum(count)</query>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">70</option>
+        <option name="rangeColors">["0x1E9C1E","0x1E9C1E"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Avg # Terms Per $textfield$</title>
+      <single>
+        <search base="base_search">
+          <query>| eval count = mvcount($textfield$)
+| stats avg(count)</query>
         </search>
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
