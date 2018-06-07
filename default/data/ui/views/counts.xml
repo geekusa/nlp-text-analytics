@@ -1,5 +1,6 @@
 <!--<dashboard hideEdit="true">--><form script="tabledatabar.js" stylesheet="tabledatabar.css">
   <label>Counts</label>
+  <description>Click in panels with (+) for further action</description>
   <search id="base_search">
     <query>
 $master_search$
@@ -11,6 +12,13 @@ $master_search$
   <search base="base_search" id="counts">
     <query>
 | stats count BY $textfield$
+| search $textfield$!=""
+| sort -count
+</query>
+  </search>
+  <search base="base_search" id="group_count">
+    <query>
+| stats count BY $textfield$ $group$
 | search $textfield$!=""
 | sort -count
 </query>
@@ -52,10 +60,36 @@ $master_search$
       <default>remove_stopwords=t</default>
       <initialValue>remove_stopwords=t</initialValue>
     </input>
-    <input type="text" token="custom_stopwords" rejects="$sw_hidden$">
+    <input id="text_medium" type="text" token="custom_stopwords" rejects="$sw_hidden$">
       <label>Custom Stopwords (comma separated)</label>
       <prefix>custom_stopwords="</prefix>
       <suffix>"</suffix>
+      <default></default>
+    </input>
+    <html>
+      <p/>
+      <p/>
+      <p/>
+      <p/>
+      <p/>
+    </html>
+    <input id="horiz_two_radio_2" type="radio" token="use_group">
+      <label>Using Grouping Field</label>
+      <choice value="Yes">Yes</choice>
+      <choice value="No">No</choice>
+      <change>
+        <condition value="No">
+          <unset token="group_hidden"></unset>
+        </condition>
+        <condition value="Yes">
+          <set token="group_hidden">True</set>
+        </condition>
+      </change>
+      <default>No</default>
+      <initialValue>No</initialValue>
+    </input>
+    <input type="text" token="group" depends="$group_hidden$">
+      <label>Grouping Field</label>
       <default></default>
     </input>
   </fieldset>
@@ -77,10 +111,42 @@ $master_search$
       </single>
     </panel>
     <panel>
+      <title>Total # $textfield$</title>
+      <single>
+        <search base="base_search">
+          <query>| stats count</query>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">70</option>
+        <option name="rangeColors">["0x1E9C1E","0x1E9C1E"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
       <title>Avg # Terms Per $textfield$</title>
       <single>
         <search base="base_search">
           <query>| eval count = mvcount($textfield$)
+| stats avg(count)</query>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">70</option>
+        <option name="numberPrecision">0.0</option>
+        <option name="rangeColors">["0x1E9C1E","0x1E9C1E"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel depends="$group_hidden$">
+      <title>Avg # Terms Per $group$</title>
+      <single>
+        <search base="group_counts">
+          <query>
 | stats avg(count)</query>
         </search>
         <option name="colorMode">block</option>
@@ -95,7 +161,7 @@ $master_search$
   </row>
   <row>
     <panel>
-      <title>Top Parts-of-Speech Tags</title>
+      <title>Top Parts-of-Speech Tags (+)</title>
       <chart>
         <search base="base_search">
           <query>| stats count by pos_tag 
@@ -117,7 +183,7 @@ $master_search$
       </chart>
     </panel>
     <panel>
-      <title>Top Terms</title>
+      <title>Top Terms (+)</title>
       <table id="tabledatabar">
         <search base="counts">
           <query>| head 20
@@ -196,6 +262,51 @@ $master_search$
         <option name="refresh.display">progressbar</option>
         <drilldown>
           <unset token="word_hidden"></unset>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row depends="$group_hidden$">
+    <panel>
+      <title>Total # Terms Per $group$ (+)</title>
+      <chart>
+        <search base="base_search" id="group_counts">
+          <query>| stats count BY $textfield$ $group$
+| stats sum(count) AS count BY $group$
+| sort -count</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="height">398</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="subgroup">$click.value$</set>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel depends="$subgroup$">
+      <title>Top Terms by $subgroup$</title>
+      <table id="tabledatabar2">
+        <search base="group_count">
+          <query>| where $group$=="$subgroup$"
+| head 20</query>
+        </search>
+        <fields>$textfield$,count</fields>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <format type="color" field="count">
+          <colorPalette type="minMidMax" maxColor="#EC9960" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <drilldown>
+          <set token="specific_word">$row.sentence$</set>
+          <set token="word_hidden">TRUE</set>
         </drilldown>
       </table>
     </panel>
