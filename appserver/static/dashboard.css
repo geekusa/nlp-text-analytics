@@ -41,3 +41,10 @@
 #horiz_two_radio [data-test="option"] {
     margin-right: 6px;
 }
+/*Horizontal 2-radio button to save space second on same page*/
+#horiz_two_radio_2 [data-test="radio-list"] {
+    flex-direction: row !important;
+}
+#horiz_two_radio_2 [data-test="option"] {
+    margin-right: 6px;
+}
