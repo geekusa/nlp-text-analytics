@@ -58,42 +58,42 @@ class CleanText(StreamingCommand):
         ) 	
     remove_urls = Option(
         default=True,
-        doc='''**Syntax:** **remove_punct=***<boolean>*
+        doc='''**Syntax:** **remove_urls=***<boolean>*
         **Description:** Remove html links as part of text cleaning, defaults to true''',
         validate=validators.Boolean()
         ) 	
     remove_stopwords = Option(
         default=True,
-        doc='''**Syntax:** **remove_punct=***<boolean>*
+        doc='''**Syntax:** **remove_stopwords=***<boolean>*
         **Description:** Remove stopwords as part of text cleaning, defaults to true''',
         validate=validators.Boolean()
         ) 	
     base_word = Option(
         default=True,
-        doc='''**Syntax:** **remove_punct=***<boolean>*
+        doc='''**Syntax:** **base_word=***<boolean>*
         **Description:** Convert words to a base form as part of text cleaning, defaults to true and subject to value of base_type setting''',
         validate=validators.Boolean()
         ) 	
     base_type = Option(
         default='lemma',
-        doc='''**Syntax:** **remove_punct=***<boolean>*
+        doc='''**Syntax:** **base_type=***<boolean>*
         **Description:** Options are lemma, lemma_pos, or stem, defaults to lemma and subject to value of base_word setting being true''',
         ) 	
     mv = Option(
         default=True,
-        doc='''**Syntax:** **remove_punct=***<boolean>*
+        doc='''**Syntax:** **mv=***<boolean>*
         **Description:** Returns words as multivalue otherwise words are space seperated, defaults to true''',
         validate=validators.Boolean()
         ) 	
     force_nltk_tokenize = Option(
         default=False,
-        doc='''**Syntax:** **remove_punct=***<boolean>*
+        doc='''**Syntax:** **force_nltk_tokenize=***<boolean>*
         **Description:** Forces use of better NLTK word tokenizer but is slower, defaults to false''',
         validate=validators.Boolean()
         ) 	
     pos_tagset = Option(
         default=None,
-        doc='''**Syntax:** **remove_punct=***<boolean>*
+        doc='''**Syntax:** **pos_tagset=***<boolean>*
         **Description:** Options are universal, wsj, or brown; defaults to universal and subject to base_type set to "lemma_pos"''',
         ) 	
     custom_stopwords = Option(
