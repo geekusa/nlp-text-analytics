@@ -97,9 +97,23 @@ $master_search$
     <panel>
       <title>Total # Terms</title>
       <single>
+        <search base="counts">
+          <query>| stats sum(count)</query>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">70</option>
+        <option name="rangeColors">["0x1E9C1E","0x1E9C1E"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Total # Unique Terms</title>
+      <single>
         <search base="base_search">
-          <query>| stats count BY $textfield$ 
-| stats sum(count)</query>
+          <query>| stats dc($textfield$)</query>
         </search>
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
@@ -126,11 +140,11 @@ $master_search$
       </single>
     </panel>
     <panel>
-      <title>Avg # Terms Per $textfield$</title>
+      <title>Avg Terms Per $textfield$</title>
       <single>
         <search base="base_search">
-          <query>| eval count = mvcount($textfield$)
-| stats avg(count)</query>
+          <query>| eval mcount = mvcount(mvfilter(match($textfield$,"\w+")))
+| stats avg(mcount)</query>
         </search>
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
@@ -142,8 +156,25 @@ $master_search$
         <option name="useColors">1</option>
       </single>
     </panel>
-    <panel depends="$group_hidden$">
-      <title>Avg # Terms Per $group$</title>
+  </row>
+  <row depends="$group_hidden$">
+    <panel>
+      <title>Total # $group$</title>
+      <single>
+        <search base="base_search">
+          <query>| stats dc($group$)</query>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">70</option>
+        <option name="rangeColors">["0x555","0x555"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Avg Terms Per $group$</title>
       <single>
         <search base="group_counts">
           <query>
@@ -152,7 +183,8 @@ $master_search$
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
         <option name="height">70</option>
-        <option name="rangeColors">["0x1E9C1E","0x1E9C1E"]</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x555","0x555"]</option>
         <option name="rangeValues">[0]</option>
         <option name="refresh.display">progressbar</option>
         <option name="useColors">1</option>
