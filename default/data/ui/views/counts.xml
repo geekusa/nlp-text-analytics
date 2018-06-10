@@ -97,8 +97,8 @@ $master_search$
     <panel>
       <title>Total # Terms</title>
       <single>
-        <search base="counts">
-          <query>| stats sum(count)</query>
+        <search base="base_search">
+          <query>| stats count($textfield$)</query>
         </search>
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
@@ -143,8 +143,11 @@ $master_search$
       <title>Avg Terms Per $textfield$</title>
       <single>
         <search base="base_search">
-          <query>| eval mcount = mvcount(mvfilter(match($textfield$,"\w+")))
-| stats avg(mcount)</query>
+          <query>
+| stats count($textfield$) AS total count
+| eval avgCount = total/count
+| fields avgCount
+          </query>
         </search>
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
