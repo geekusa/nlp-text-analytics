@@ -13,6 +13,7 @@ from nltk import word_tokenize, pos_tag
 from nltk.data import path as nltk_data_path
 from nltk.corpus import wordnet, stopwords as stop_words
 from nltk.stem import WordNetLemmatizer, PorterStemmer
+from nltk.util import ngrams
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
 
 BASE_DIR = make_splunkhome_path(["etc","apps","nlp-text-analytics"])
@@ -82,7 +83,7 @@ class CleanText(StreamingCommand):
     mv = Option(
         default=True,
         doc='''**Syntax:** **mv=***<boolean>*
-        **Description:** Returns words as multivalue otherwise words are space seperated, defaults to true''',
+        **Description:** Returns words as multivalue otherwise words are space separated, defaults to true''',
         validate=validators.Boolean()
         ) 	
     force_nltk_tokenize = Option(
@@ -98,8 +99,19 @@ class CleanText(StreamingCommand):
         ) 	
     custom_stopwords = Option(
         doc='''**Syntax:** **custom_stopwords=***<stopwords>*
-        **Description:** comma-seperated list of custom stopwords, enclose in quotes''',
+        **Description:** comma-separated list of custom stopwords, enclose in quotes''',
         )
+    ngram_range = Option(
+        default='1-1',
+        doc='''**Syntax:** **ngram_rane=***<int>-<int>*
+        **Description:** Returns new ngram column with range of ngrams specified if max is greater than 1"''',
+        ) 	
+    ngram_mix = Option(
+        default=False,
+        doc='''**Syntax:** **ngram_mix=***<boolean>*
+        **Description:** Determines if ngram output is combined or separate columns. Defaults to false which results in separate columns''',
+        validate=validators.Boolean()
+        ) 	
 
     #http://dev.splunk.com/view/logging/SP-CAAAFCN
     def setup_logging(self):
@@ -147,6 +159,15 @@ class CleanText(StreamingCommand):
             '',
             text
         )
+
+    def ngram(self, text, min_n, max_n):
+        ngram_list = []
+        for n in range(min_n,max_n):
+            for ngram in ngrams(text, n):
+                if len(ngram) > 1:
+                    ngram_list.append((len(ngram),' '.join(ngram)))
+        return ngram_list
+
 
     def stream(self, records):
         logger = self.setup_logging()
@@ -278,6 +299,23 @@ class CleanText(StreamingCommand):
                     record[self.textfield]
                     if text not in stopwords
                     ]
+            #ngram column creation
+            (min_n,max_n) = self.ngram_range.split('-')
+            if max_n > 1 and max_n >= min_n:
+                max_n = int(max_n) + 1
+                for i in self.ngram(
+                    filter(None, record[self.textfield]), 
+                    int(min_n), 
+                    max_n
+                ):
+                    if not self.ngram_mix:
+                        if 'ngrams_' + str(i[0]) not in record:
+                            record['ngrams_' + str(i[0])] = []
+                        record['ngrams_' + str(i[0])].append(i[1])
+                    else:
+                        if 'ngrams' not in record:
+                            record['ngrams'] = []
+                        record['ngrams'].append(i[1])
             #Final Multi-Value Output
             if not self.mv:
                 record[self.textfield] = ' '.join(record[self.textfield])

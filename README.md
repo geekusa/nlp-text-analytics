@@ -76,7 +76,7 @@ _cleantext_
 > 
 >**mv** </br>
 >     **Syntax:** mv=\<bool> </br>
->     **Description:** Returns the output as a multi-value field (ready for use with mvexpand), otherwise returns as a space seperated string. </br>
+>     **Description:** Returns the output as a multi-value field (ready for use with stats count), otherwise returns as a space seperated string. </br>
 >     **Usage:** Boolean value. True or False; true or false, t or f, 0 or 1</br>
 >     **Default:** True
 > 
@@ -85,6 +85,18 @@ _cleantext_
 >     **Description:** Sets the option for the tagset used--Advanced Perceptron tagger (None) or universal. </br>
 >     **Usage:** None or universal</br>
 >     **Default:** None
+> 
+>**ngram\_range** </br>
+>     **Syntax:** ngram\_range=\<int>-<int> </br>
+>     **Description:** Returns new ngram column with range of ngrams specified if max is greater than 1. </br>
+>     **Usage:** Generally values like 1-2 (same as 2-2), 2-3, 2-4 are used, ngrams above 4 may not provide much value</br>
+>     **Default:** 1-1
+> 
+>**ngram\_mix** </br>
+>     **Syntax:** mv=\<bool> </br>
+>     **Description:** Determines if ngram output is combined or separate columns. Defaults to false which results in separate columns</br>
+>     **Usage:** Boolean value. True or False; true or false, t or f, 0 or 1</br>
+>     **Default:** False
 
 _vader_
 > #### Description
