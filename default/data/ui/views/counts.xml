@@ -4,7 +4,7 @@
   <search id="base_search">
     <query>
 $master_search$
-| cleantext textfield=$textfield$ base_type=lemma_pos $stopwords$ $custom_stopwords$
+| cleantext textfield=$textfield$ base_type=lemma_pos $stopwords$ $custom_stopwords$ ngram_range=$ngram$ ngram_mix=t
     </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
@@ -13,6 +13,12 @@ $master_search$
     <query>
 | stats count BY $textfield$
 | search $textfield$!=""
+| sort -count
+</query>
+  </search>
+  <search base="base_search" id="ngram_counts">
+    <query>
+| stats count BY ngrams
 | sort -count
 </query>
   </search>
@@ -73,6 +79,41 @@ $master_search$
       <p/>
       <p/>
     </html>
+    <input type="dropdown" token="ngram">
+      <label>ngram Range</label>
+      <choice value="1-1">1-1</choice>
+      <choice value="2-2">2-2</choice>
+      <choice value="2-3">2-3</choice>
+      <choice value="2-4">2-4</choice>
+      <choice value="3-3">3-3</choice>
+      <choice value="3-4">3-4</choice>
+      <choice value="4-4">4-4</choice>
+      <default>1-1</default>
+      <initialValue>1-1</initialValue>
+      <change>
+        <condition value="1-1">
+          <unset token="ngram_hidden"></unset>
+        </condition>
+        <condition value="2-2">
+          <set token="ngram_hidden">True</set>
+        </condition>
+        <condition value="2-3">
+          <set token="ngram_hidden">True</set>
+        </condition>
+        <condition value="2-4">
+          <set token="ngram_hidden">True</set>
+        </condition>
+        <condition value="3-3">
+          <set token="ngram_hidden">True</set>
+        </condition>
+        <condition value="3-4">
+          <set token="ngram_hidden">True</set>
+        </condition>
+        <condition value="4-4">
+          <set token="ngram_hidden">True</set>
+        </condition>
+      </change>
+    </input>
     <input id="horiz_two_radio_2" type="radio" token="use_group">
       <label>Using Grouping Field</label>
       <choice value="Yes">Yes</choice>
@@ -103,7 +144,7 @@ $master_search$
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
         <option name="height">70</option>
-        <option name="rangeColors">["0x1E9C1E","0x1E9C1E"]</option>
+        <option name="rangeColors">["0x1E9C5D","0x1E9C5D"]</option>
         <option name="rangeValues">[0]</option>
         <option name="refresh.display">progressbar</option>
         <option name="useColors">1</option>
@@ -118,7 +159,7 @@ $master_search$
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
         <option name="height">70</option>
-        <option name="rangeColors">["0x1E9C1E","0x1E9C1E"]</option>
+        <option name="rangeColors">["0x1E9C5D","0x1E9C5D"]</option>
         <option name="rangeValues">[0]</option>
         <option name="refresh.display">progressbar</option>
         <option name="useColors">1</option>
@@ -133,7 +174,7 @@ $master_search$
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
         <option name="height">70</option>
-        <option name="rangeColors">["0x1E9C1E","0x1E9C1E"]</option>
+        <option name="rangeColors">["0x1E9C5D","0x1E9C5D"]</option>
         <option name="rangeValues">[0]</option>
         <option name="refresh.display">progressbar</option>
         <option name="useColors">1</option>
@@ -153,15 +194,45 @@ $master_search$
         <option name="drilldown">none</option>
         <option name="height">70</option>
         <option name="numberPrecision">0.0</option>
-        <option name="rangeColors">["0x1E9C1E","0x1E9C1E"]</option>
+        <option name="rangeColors">["0x1E9C5D","0x1E9C5D"]</option>
         <option name="rangeValues">[0]</option>
         <option name="refresh.display">progressbar</option>
         <option name="useColors">1</option>
       </single>
     </panel>
   </row>
-  <row depends="$group_hidden$">
-    <panel>
+  <row>
+    <panel depends="$ngram_hidden$">
+      <title>Total # ngrams</title>
+      <single>
+        <search base="base_search">
+          <query>| stats count(ngrams)</query>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">70</option>
+        <option name="rangeColors">["0x9C9C1E","0x9C9C1E"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel depends="$ngram_hidden$">
+      <title>Total # Unique ngrams</title>
+      <single>
+        <search base="base_search">
+          <query>| stats dc(ngrams)</query>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">70</option>
+        <option name="rangeColors">["0x9C9C1E","0x9C9C1E"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel depends="$group_hidden$">
       <title>Total # $group$</title>
       <single>
         <search base="base_search">
@@ -170,13 +241,13 @@ $master_search$
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
         <option name="height">70</option>
-        <option name="rangeColors">["0x555","0x555"]</option>
+        <option name="rangeColors">["0x1E5D9C","0x1E5D9C"]</option>
         <option name="rangeValues">[0]</option>
         <option name="refresh.display">progressbar</option>
         <option name="useColors">1</option>
       </single>
     </panel>
-    <panel>
+    <panel depends="$group_hidden$">
       <title>Avg Terms Per $group$</title>
       <single>
         <search base="group_counts">
@@ -187,7 +258,7 @@ $master_search$
         <option name="drilldown">none</option>
         <option name="height">70</option>
         <option name="numberPrecision">0</option>
-        <option name="rangeColors">["0x555","0x555"]</option>
+        <option name="rangeColors">["0x1E5D9C","0x1E5D9C"]</option>
         <option name="rangeValues">[0]</option>
         <option name="refresh.display">progressbar</option>
         <option name="useColors">1</option>
@@ -211,6 +282,7 @@ $master_search$
         <option name="charting.legend.placement">none</option>
         <option name="height">385</option>
         <option name="refresh.display">progressbar</option>
+        <option name="charting.fieldColors">{"count":0x555555}</option>
         <drilldown>
           <set token="pos">$click.value$</set>
           <set token="pos_hidden">TRUE</set>
@@ -233,6 +305,29 @@ $master_search$
         <option name="refresh.display">progressbar</option>
         <format type="color" field="count">
           <colorPalette type="minMidMax" maxColor="#EC9960" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <drilldown>
+          <set token="specific_word">$row.sentence$</set>
+          <set token="word_hidden">TRUE</set>
+        </drilldown>
+      </table>
+    </panel>
+    <panel depends="$ngram_hidden$">
+      <title>Top ngrams</title>
+      <table>
+        <search base="ngram_counts">
+          <query>
+| head 20
+| fields - total</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <format type="color" field="count">
+          <colorPalette type="minMidMax" maxColor="#9C9C1E" minColor="#FFFFFF"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
         <drilldown>
@@ -317,6 +412,7 @@ $master_search$
         <option name="charting.legend.placement">none</option>
         <option name="height">398</option>
         <option name="refresh.display">progressbar</option>
+        <option name="charting.fieldColors">{"count":0x1E5D9C}</option>
         <drilldown>
           <set token="subgroup">$click.value$</set>
         </drilldown>
@@ -364,6 +460,19 @@ $master_search$
         <default>200</default>
         <initialValue>200</initialValue>
       </input>
+      <input id="horiz_two_radio_3" type="radio" token="ngram_cloud" depends="$ngram_hidden$">
+        <label>Show ngram Cloud</label>
+        <choice value="Yes">Yes</choice>
+        <choice value="No">No</choice>
+        <change>
+          <condition value="No">
+            <unset token="ngram_cloud"></unset>
+          </condition>
+          <condition value="Yes">
+            <set token="ngram_cloud">True</set>
+          </condition>
+        </change>
+      </input>
       <viz type="wordcloud_app.wordcloud">
         <search base="counts">
           <query>| fields $textfield$ count 
@@ -378,6 +487,40 @@ $master_search$
         <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
         <option name="wordcloud_app.wordcloud.maxColor">#3fc77a</option>
         <option name="wordcloud_app.wordcloud.minColor">#d93f3c</option>
+        <option name="wordcloud_app.wordcloud.numOfBins">8</option>
+        <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
+        <option name="wordcloud_app.wordcloud.useColors">true</option>
+      </viz>
+    </panel>
+    <panel depends="$ngram_cloud$">
+      <title>ngram Cloud</title>
+      <!--<input type="text" token="term_count" id="range" searchWhenChanged="true">
+        <label>Terms (25-400)</label>
+        <default>50</default>
+      </input>-->
+      <input type="dropdown" token="ngram_count" searchWhenChanged="true">
+        <label>ngram Combos</label>
+        <choice value="25">25</choice>
+        <choice value="50">50</choice>
+        <choice value="100">100</choice>
+        <choice value="200">200</choice>
+        <default>50</default>
+        <initialValue>50</initialValue>
+      </input>
+      <viz type="wordcloud_app.wordcloud">
+        <search base="ngram_counts">
+          <query> 
+| head $ngram_count$
+| rename ngrams as "Top ngrams"</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="wordcloud_app.wordcloud.alignmentMode">horizontal</option>
+        <option name="wordcloud_app.wordcloud.backgroundColor">#fff</option>
+        <option name="wordcloud_app.wordcloud.colorBy">colorMode</option>
+        <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
+        <option name="wordcloud_app.wordcloud.maxColor">#9C1E5D</option>
+        <option name="wordcloud_app.wordcloud.minColor">#9C9C1E</option>
         <option name="wordcloud_app.wordcloud.numOfBins">8</option>
         <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
         <option name="wordcloud_app.wordcloud.useColors">true</option>
