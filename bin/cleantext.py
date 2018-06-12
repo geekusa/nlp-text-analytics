@@ -173,7 +173,7 @@ class CleanText(StreamingCommand):
         logger = self.setup_logging()
         logger.info('textfield set to: ' + self.textfield)
         if self.custom_stopwords:
-            custom_stopwords = self.custom_stopwords.split(',')
+            custom_stopwords = self.custom_stopwords.replace(' ','').split(',')
         for record in records:
             #URL removal
             if self.remove_urls:
