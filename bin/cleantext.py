@@ -101,6 +101,12 @@ class CleanText(StreamingCommand):
         doc='''**Syntax:** **custom_stopwords=***<stopwords>*
         **Description:** comma-separated list of custom stopwords, enclose in quotes''',
         )
+    term_min_len = Option(
+        default=0,
+        doc='''**Syntax:** **term_min_len=***<int>*
+        **Description:** Only terms greater than or equal to this number will be returned. Useful if data has a lot of HTML markup.''',
+        validate=validators.Integer()
+        ) 	
     ngram_range = Option(
         default='1-1',
         doc='''**Syntax:** **ngram_rane=***<int>-<int>*
@@ -173,7 +179,7 @@ class CleanText(StreamingCommand):
         logger = self.setup_logging()
         logger.info('textfield set to: ' + self.textfield)
         if self.custom_stopwords:
-            custom_stopwords = self.custom_stopwords.replace(' ','').split(',')
+            custom_stopwords = self.custom_stopwords.split(',')
         for record in records:
             #URL removal
             if self.remove_urls:
@@ -299,6 +305,13 @@ class CleanText(StreamingCommand):
                     record[self.textfield]
                     if text not in stopwords
                     ]
+            #Minimum term length
+            if self.term_min_len > 0:
+                record[self.textfield] = [
+                     i
+                     for i in record[self.textfield]
+                     if len(i) >= self.term_min_len
+                     ]
             #ngram column creation
             (min_n,max_n) = self.ngram_range.split('-')
             if max_n > 1 and max_n >= min_n:

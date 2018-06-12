@@ -86,6 +86,12 @@ _cleantext_
 >     **Usage:** None or universal</br>
 >     **Default:** None
 > 
+>**term\_min\_len** </br>
+>     **Syntax:** term\_min\_len=\<int> </br>
+>     **Description:** Only terms greater than or equal to this number will be returned. Useful if data has a lot of HTML markup. </br>
+>     **Usage:** Interger value of minimum length of terms to return</br>
+>     **Default:** 0
+
 >**ngram\_range** </br>
 >     **Syntax:** ngram\_range=\<int>-<int> </br>
 >     **Description:** Returns new ngram column with range of ngrams specified if max is greater than 1. </br>
