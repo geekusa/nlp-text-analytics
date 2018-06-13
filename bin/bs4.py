@@ -121,8 +121,13 @@ class Bs4(StreamingCommand):
                 soup = soup.findChild(self.find_child)
             if self.find_children:
                 soup = soup.findChildren(self.find_children)
-            if self.get_text:
+            if self.get_text and not self.find_children:
                 record['get_text'] = soup.get_text()
+            elif self.get_text and self.find_children:
+                record['get_text'] = [
+                    i.get_text()
+                    for i in soup
+                ]
             else:
                 record['soup'] = soup
 
