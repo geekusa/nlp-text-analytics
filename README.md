@@ -33,11 +33,55 @@ The app comes with an example Gutenberg texts formatted as CSV lookups.
 
 ### Custom Commands
 
+_bs4_
+> #### Description
+> A wrapper for BeautifulSoup4 to extract html/xml tags and text from them to use in Splunk. A wrapper script to bring some functionality from BeautifulSoup to Splunk. Default is to get the text and send it to a new field 'get\_text', otherwise the selection is returned in a field named 'soup'. Default is to use the 'lxml' parser, though you can specify others, 'html5lib' is not currently included. The find methods can be used in conjuction, their order of operation is find > find\_all > find\_child > find children. Currently only supports specifying the tag name from those methods, future TODO will be to provide way to specify attrs dictionary to the methods.
+> #### Syntax
+> \* | bs4 textfield=<field> [get\_text=<bool>] [parser=<string>] [find=<tag>] [find\_all=<tag>] [find\_child=<tag>] [find\_children=<tag>]
+> ##### Required Arguments
+> **textfield** </br>
+>     **Syntax:** textfield=\<field> </br>
+>     **Description:** The search field that contains the text that is the target. </br>
+>     **Usage:** Option only takes a single field
+> ##### Optional Arguments
+> **get\_text** </br>
+>     **Syntax:** get\_text=\<bool> </br>
+>     **Description:** If true, returns text minus html/xml formatting for given selection and places in field `get_text` otherwise returns the selection in a field called `soup1`. </br>
+>     **Usage:** Boolean value. True or False; true or false, t or f, 0 or 1</br>
+>     **Default:** True
+> 
+> **parser** </br>
+>     **Syntax:** parser=\<string> </br>
+>     **Description:** Corresponds to parsers listed [here](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-a-parser) (currently html5lib not packaged with so not an option). </br>
+>     **Usage:** Possible values are html.parser, lxml, lxml-xml, or xml
+>     **Default:** lxml
+> 
+>**find** </br>
+>     **Syntax:** find=\<tag> </br>
+>     **Description:** Corresponds to the name attribute of BeautifulSoup's find method. </br>
+>     **Usage:** HTML or XML element name
+> 
+>**find\_all** </br>
+>     **Syntax:** find\_all=\<tag> </br>
+>     **Description:** Corresponds to the name attribute of BeautifulSoup's find_all method. Order of operation is find > find_all > find_child > find_children so can be used in conjunction. </br>
+>     **Usage:** HTML or XML element name
+> 
+>**find\_child** </br>
+>     **Syntax:** find\_child=\<tag> </br>
+>     **Description:** Corresponds to the name attribute of BeautifulSoup's find_child method. Order of operation is find > find_all > find_child > find_children so can be used in conjunction. </br>
+>     **Usage:** HTML or XML element name
+> 
+>**find\_children** </br>
+>     **Syntax:** find\_children=\<tag> </br>
+>     **Description:** Corresponds to the name attribute of BeautifulSoup's find_children method. Order of operation is find > find_all > find_child > find_children so can be used in conjunction. </br>
+>     **Usage:** HTML or XML element name
+> 
 _cleantext_
 > #### Description
 > Tokenize and normalize text (remove punctuation, digits, change to base\_word). Different options result in better and slower cleaning. base\_type="lemma\_pos" being the slowest option, base\_type="lemma" assumes every word is a noun, which is faster but still results in decent lemmatization. Many fields have a default already set, textfield is only required field. By default results in a multi-valued field which is ready for used with stats count by.
 > #### Syntax
 > \* | cleantext textfield=\<field> [default\_clean=\<bool>] [remove\_urls=\<bool>] [remove\_stopwords=\<bool>] [base\_word=\<bool>] [base\_type=\<string>] [mv=\<bool>] [pos\_tagset=\<string>]
+> \* | cleantext textfield=<field> [default\_clean=<bool>] [remove\_urls=<bool>] [remove\_stopwords=<bool>] [base\_word=<bool>] [base\_type=<string>] [mv=<bool>] [force\_nltk\_tokenize=<bool>] [pos\_tagset=<string>] [custom\_stopwords=<comma\_separated\_string\_list>] [term\_min\_len=<int>] [ngram\_range=<int>-<int>] [ngram\_mix=<bool>]
 > ##### Required Arguments
 > **textfield** </br>
 >     **Syntax:** textfield=\<field> </br>
@@ -88,7 +132,7 @@ _cleantext_
 > 
 >**term\_min\_len** </br>
 >     **Syntax:** term\_min\_len=\<int> </br>
->     **Description:** Only terms greater than or equal to this number will be returned. Useful if data has a lot of HTML markup. </br>
+>     **Description:** Only terms greater than or equal to this number will be returned. </br>
 >     **Usage:** Interger value of minimum length of terms to return</br>
 >     **Default:** 0
 

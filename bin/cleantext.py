@@ -28,7 +28,10 @@ class CleanText(StreamingCommand):
     ##Syntax
 
     .. code-block::
-        cleantext lowercase=<boolean> pattern=<regular_expression> <field-list>
+        cleantext textfield=<field> [default_clean=<bool>] [remove_urls=<bool>] [remove_stopwords=<bool>] 
+            [base_word=<bool>] [base_type=<string>] [mv=<bool>] [force_nltk_tokenize=<bool>] 
+            [pos_tagset=<string>] [custom_stopwords=<comma_separated_string_list>] [term_min_len=<int>] 
+            [ngram_range=<int>-<int>] [ngram_mix=<bool>]
 
     ##Description
 
@@ -77,7 +80,7 @@ class CleanText(StreamingCommand):
         ) 	
     base_type = Option(
         default='lemma',
-        doc='''**Syntax:** **base_type=***<boolean>*
+        doc='''**Syntax:** **base_type=***<string>*
         **Description:** Options are lemma, lemma_pos, or stem, defaults to lemma and subject to value of base_word setting being true''',
         ) 	
     mv = Option(
@@ -94,11 +97,11 @@ class CleanText(StreamingCommand):
         ) 	
     pos_tagset = Option(
         default=None,
-        doc='''**Syntax:** **pos_tagset=***<boolean>*
+        doc='''**Syntax:** **pos_tagset=***<string>*
         **Description:** Options are universal, wsj, or brown; defaults to universal and subject to base_type set to "lemma_pos"''',
         ) 	
     custom_stopwords = Option(
-        doc='''**Syntax:** **custom_stopwords=***<stopwords>*
+        doc='''**Syntax:** **custom_stopwords=***<string>*
         **Description:** comma-separated list of custom stopwords, enclose in quotes''',
         )
     term_min_len = Option(
