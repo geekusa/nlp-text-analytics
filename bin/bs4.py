@@ -181,9 +181,9 @@ class Bs4(StreamingCommand):
                     )
                 else:
                     soup = soup.findChildren(self.find_children)
-            if self.get_text and not self.find_children:
+            if self.get_text and not (self.find_all or self.find_children):
                 record[self.get_text_label] = soup.get_text()
-            elif self.get_text and self.find_children:
+            elif self.get_text and (self.find_all or self.find_children):
                 record[self.get_text_label] = [
                     i.get_text()
                     for i in soup
