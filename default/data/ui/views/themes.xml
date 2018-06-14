@@ -44,6 +44,21 @@ $master_search$
     <input type="text" token="textfield">
       <label>Text Field</label>
     </input>
+    <input id="horiz_two_radio_1" type="radio" token="html_dummy">
+      <label>Remove HTML</label>
+      <choice value="Yes">Yes</choice>
+      <choice value="No">No</choice>
+      <change>
+        <condition value="Yes">
+          <set token="html"><![CDATA[bs4 textfield=$textfield$]]></set>
+        </condition>
+        <condition value="No">
+          <set token="html">noop</set>
+        </condition>
+      </change>
+      <default>No</default>
+      <initialValue>No</initialValue>
+    </input>
     <input id="text_medium" type="text" token="custom_stopwords">
       <label>Custom Stopwords (comma separated)</label>
       <prefix>custom_stopwords="</prefix>

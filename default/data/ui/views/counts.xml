@@ -65,7 +65,7 @@ $master_search$
         </condition>
       </change>
       <default>No</default>
-      <initialValue>noop</initialValue>
+      <initialValue>No</initialValue>
     </input>
     <input id="horiz_two_radio_2" type="radio" token="stopwords">
       <label>Remove Stopwords (en)</label>
