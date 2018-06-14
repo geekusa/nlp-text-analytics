@@ -16,7 +16,7 @@ class Bs4(StreamingCommand):
     ##Syntax
 
     .. code-block::
-       bs4 textfield=<field> [get_text=<bool>] [parser=<string>] [find=<tag>] [find_all=<tag>] [find_child=<tag>] [find_children=<tag>]
+       bs4 textfield=<field> [get_text=<bool>] [get_text_label=<string>] [parser=<string>] [find=<tag>] [find_all=<tag>] [find_child=<tag>] [find_children=<tag>]
 
     ##Description
 

@@ -37,7 +37,7 @@ _bs4_
 > #### Description
 > A wrapper for BeautifulSoup4 to extract html/xml tags and text from them to use in Splunk. A wrapper script to bring some functionality from BeautifulSoup to Splunk. Default is to get the text and send it to a new field 'get\_text', otherwise the selection is returned in a field named 'soup'. Default is to use the 'lxml' parser, though you can specify others, 'html5lib' is not currently included. The find methods can be used in conjuction, their order of operation is find > find\_all > find\_child > find children. Currently only supports specifying the tag name from those methods, future TODO will be to provide way to specify attrs dictionary to the methods.
 > #### Syntax
-> \* | bs4 textfield=<field> [get\_text=<bool>] [parser=<string>] [find=<tag>] [find\_all=<tag>] [find\_child=<tag>] [find\_children=<tag>]
+> \* | bs4 textfield=<field> [get\_text=<bool>] [get\_text\_label=<string>] [parser=<string>] [find=<tag>] [find\_all=<tag>] [find\_child=<tag>] [find\_children=<tag>]
 > ##### Required Arguments
 > **textfield** </br>
 >     **Syntax:** textfield=\<field> </br>
@@ -49,6 +49,12 @@ _bs4_
 >     **Description:** If true, returns text minus html/xml formatting for given selection and places in field `get_text` otherwise returns the selection in a field called `soup1`. </br>
 >     **Usage:** Boolean value. True or False; true or false, t or f, 0 or 1</br>
 >     **Default:** True
+> 
+> **get\_text\_label** </br>
+>     **Syntax:** get\_text\_label=\<string> </br>
+>     **Description:** If get_text is true, sets the label for the return field. </br>
+>     **Usage:** Boolean value. True or False; true or false, t or f, 0 or 1</br>
+>     **Default:** get_text
 > 
 > **parser** </br>
 >     **Syntax:** parser=\<string> </br>
