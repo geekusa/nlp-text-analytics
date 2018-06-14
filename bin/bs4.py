@@ -83,6 +83,13 @@ class Bs4(StreamingCommand):
         **Description:** If true, returns text minus html/xml formatting for given selection and places in field `get_text` otherwise returns the selection in a field called `soup1`''',
         validate=validators.Boolean())
 
+    get_text_label = Option(
+        default='get_text',
+        doc='''
+        **Syntax:** **get_text_label=***<string>*
+        **Description:** If get_text is true, sets the label for the return field''',
+        )
+
     #http://dev.splunk.com/view/logging/SP-CAAAFCN
     def setup_logging(self):
         logger = logging.getLogger('splunk.foo')    
@@ -122,9 +129,9 @@ class Bs4(StreamingCommand):
             if self.find_children:
                 soup = soup.findChildren(self.find_children)
             if self.get_text and not self.find_children:
-                record['get_text'] = soup.get_text()
+                record[self.get_text_label] = soup.get_text()
             elif self.get_text and self.find_children:
-                record['get_text'] = [
+                record[self.get_text_label] = [
                     i.get_text()
                     for i in soup
                 ]
