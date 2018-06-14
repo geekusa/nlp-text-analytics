@@ -35,7 +35,7 @@ The app comes with an example Gutenberg texts formatted as CSV lookups.
 
 _bs4_
 > #### Description
-> A wrapper for BeautifulSoup4 to extract html/xml tags and text from them to use in Splunk. A wrapper script to bring some functionality from BeautifulSoup to Splunk. Default is to get the text and send it to a new field 'get\_text', otherwise the selection is returned in a field named 'soup'. Default is to use the 'lxml' parser, though you can specify others, 'html5lib' is not currently included. The find methods can be used in conjuction, their order of operation is find > find\_all > find\_child > find children. Currently only supports specifying the tag name from those methods, future TODO will be to provide way to specify attrs dictionary to the methods.
+> A wrapper for BeautifulSoup4 to extract html/xml tags and text from them to use in Splunk. A wrapper script to bring some functionality from BeautifulSoup to Splunk. Default is to get the text and send it to a new field 'get\_text', otherwise the selection is returned in a field named 'soup'. Default is to use the 'lxml' parser, though you can specify others, 'html5lib' is not currently included. The find methods can be used in conjuction, their order of operation is find > find\_all > find\_child > find children. Each option has a similar named option appended '\_attrs' that will accept inner and outer quoted key:value pairs for more precise selections.
 > #### Syntax
 > \*| bs4 textfield=<field> [get\_text=<bool>] [get\_text\_label=<string>] [parser=<string>] [find=<tag>] [find\_attrs=<quoted\_key:value\_pairs>] [find\_all=<tag>] [find\_all\_attrs=<quoted\_key:value\_pairs>] [find\_child=<tag>] [find\_child\_attrs=<quoted\_key:value\_pairs>] [find\_children=<tag>] [find\_children\_attrs=<quoted\_key:value\_pairs>]
 > ##### Required Arguments
@@ -104,7 +104,7 @@ _bs4_
 > 
 _cleantext_
 > #### Description
-> Tokenize and normalize text (remove punctuation, digits, change to base\_word). Different options result in better and slower cleaning. base\_type="lemma\_pos" being the slowest option, base\_type="lemma" assumes every word is a noun, which is faster but still results in decent lemmatization. Many fields have a default already set, textfield is only required field. By default results in a multi-valued field which is ready for used with stats count by.
+> Tokenize and normalize text (remove punctuation, digits, change to base\_word). Different options result in better and slower cleaning. base\_type="lemma\_pos" being the slowest option, base\_type="lemma" assumes every word is a noun, which is faster but still results in decent lemmatization. Many fields have a default already set, textfield is only required field. By default results in a multi-valued field which is ready for used with stats count by. Optionally return special fields for analysis--pos\_tags and ngrams.
 > #### Syntax
 > \* | cleantext textfield=\<field> [default\_clean=\<bool>] [remove\_urls=\<bool>] [remove\_stopwords=\<bool>] [base\_word=\<bool>] [base\_type=\<string>] [mv=\<bool>] [pos\_tagset=\<string>]
 > \* | cleantext textfield=<field> [default\_clean=<bool>] [remove\_urls=<bool>] [remove\_stopwords=<bool>] [base\_word=<bool>] [base\_type=<string>] [mv=<bool>] [force\_nltk\_tokenize=<bool>] [pos\_tagset=<string>] [custom\_stopwords=<comma\_separated\_string\_list>] [term\_min\_len=<int>] [ngram\_range=<int>-<int>] [ngram\_mix=<bool>]
