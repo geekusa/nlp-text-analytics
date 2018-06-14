@@ -37,7 +37,7 @@ _bs4_
 > #### Description
 > A wrapper for BeautifulSoup4 to extract html/xml tags and text from them to use in Splunk. A wrapper script to bring some functionality from BeautifulSoup to Splunk. Default is to get the text and send it to a new field 'get\_text', otherwise the selection is returned in a field named 'soup'. Default is to use the 'lxml' parser, though you can specify others, 'html5lib' is not currently included. The find methods can be used in conjuction, their order of operation is find > find\_all > find\_child > find children. Currently only supports specifying the tag name from those methods, future TODO will be to provide way to specify attrs dictionary to the methods.
 > #### Syntax
-> \* | bs4 textfield=<field> [get\_text=<bool>] [get\_text\_label=<string>] [parser=<string>] [find=<tag>] [find\_all=<tag>] [find\_child=<tag>] [find\_children=<tag>]
+> \*| bs4 textfield=<field> [get\_text=<bool>] [get\_text\_label=<string>] [parser=<string>] [find=<tag>] [find\_attrs=<quoted\_key:value\_pairs>] [find\_all=<tag>] [find\_all\_attrs=<quoted\_key:value\_pairs>] [find\_child=<tag>] [find\_child\_attrs=<quoted\_key:value\_pairs>] [find\_children=<tag>] [find\_children\_attrs=<quoted\_key:value\_pairs>]
 > ##### Required Arguments
 > **textfield** </br>
 >     **Syntax:** textfield=\<field> </br>
@@ -67,20 +67,40 @@ _bs4_
 >     **Description:** Corresponds to the name attribute of BeautifulSoup's find method. </br>
 >     **Usage:** HTML or XML element name
 > 
+>**find\_attrs** </br>
+>     **Syntax:** find\_attrs=\<quoted_key:value_pairs> </br>
+>     **Description:** Corresponds to the attrs attribute of BeautifulSoup's find method. Expects inner and outer quoted key:value pairs comma-separated but contained in outer quotes.
+>     **Usage:** "'key1':'value1','key2':'value2'"
+> 
 >**find\_all** </br>
 >     **Syntax:** find\_all=\<tag> </br>
 >     **Description:** Corresponds to the name attribute of BeautifulSoup's find_all method. Order of operation is find > find_all > find_child > find_children so can be used in conjunction. </br>
 >     **Usage:** HTML or XML element name
+> 
+>**find\_all\_attrs** </br>
+>     **Syntax:** find\_all\_attrs=\<quoted_key:value_pairs> </br>
+>     **Description:** Corresponds to the attrs attribute of BeautifulSoup's find_all method. Expects inner and outer quoted key:value pairs comma-separated but contained in outer quotes.
+>     **Usage:** "'key1':'value1','key2':'value2'"
 > 
 >**find\_child** </br>
 >     **Syntax:** find\_child=\<tag> </br>
 >     **Description:** Corresponds to the name attribute of BeautifulSoup's find_child method. Order of operation is find > find_all > find_child > find_children so can be used in conjunction. </br>
 >     **Usage:** HTML or XML element name
 > 
+>**find\_child\_attrs** </br>
+>     **Syntax:** find\_child\_attrs=\<quoted_key:value_pairs> </br>
+>     **Description:** Corresponds to the attrs attribute of BeautifulSoup's find_child method. Expects inner and outer quoted key:value pairs comma-separated but contained in outer quotes.
+>     **Usage:** "'key1':'value1','key2':'value2'"
+> 
 >**find\_children** </br>
 >     **Syntax:** find\_children=\<tag> </br>
 >     **Description:** Corresponds to the name attribute of BeautifulSoup's find_children method. Order of operation is find > find_all > find_child > find_children so can be used in conjunction. </br>
 >     **Usage:** HTML or XML element name
+> 
+>**find\_children\_attrs** </br>
+>     **Syntax:** find\_children\_attrs=\<quoted_key:value_pairs> </br>
+>     **Description:** Corresponds to the attrs attribute of BeautifulSoup's find_children method. Expects inner and outer quoted key:value pairs comma-separated but contained in outer quotes.
+>     **Usage:** "'key1':'value1','key2':'value2'"
 > 
 _cleantext_
 > #### Description
