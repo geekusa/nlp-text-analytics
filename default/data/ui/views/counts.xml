@@ -4,6 +4,7 @@
   <search id="base_search">
     <query>
 $master_search$
+| $html$
 | cleantext textfield=$textfield$ base_type=lemma_pos $stopwords$ $custom_stopwords$ ngram_range=$ngram$ ngram_mix=t
     </query>
     <earliest>$time.earliest$</earliest>
@@ -51,7 +52,22 @@ $master_search$
     <input type="text" token="textfield">
       <label>Text Field</label>
     </input>
-    <input id="horiz_two_radio" type="radio" token="stopwords">
+    <input id="horiz_two_radio_1" type="radio" token="html_dummy">
+      <label>Remove HTML</label>
+      <choice value="Yes">Yes</choice>
+      <choice value="No">No</choice>
+      <change>
+        <condition value="Yes">
+          <set token="html"><![CDATA[bs4 textfield=$textfield$]]></set>
+        </condition>
+        <condition value="No">
+          <set token="html">noop</set>
+        </condition>
+      </change>
+      <default>No</default>
+      <initialValue>noop</initialValue>
+    </input>
+    <input id="horiz_two_radio_2" type="radio" token="stopwords">
       <label>Remove Stopwords (en)</label>
       <choice value="remove_stopwords=t">Yes</choice>
       <choice value="remove_stopwords=f">No</choice>
@@ -114,7 +130,7 @@ $master_search$
         </condition>
       </change>
     </input>
-    <input id="horiz_two_radio_2" type="radio" token="use_group">
+    <input id="horiz_two_radio_3" type="radio" token="use_group">
       <label>Using Grouping Field</label>
       <choice value="Yes">Yes</choice>
       <choice value="No">No</choice>
@@ -460,10 +476,11 @@ $master_search$
         <default>200</default>
         <initialValue>200</initialValue>
       </input>
-      <input id="horiz_two_radio_3" type="radio" token="ngram_cloud" depends="$ngram_hidden$">
+      <input id="horiz_two_radio_4" type="radio" token="ngram_cloud" depends="$ngram_hidden$">
         <label>Show ngram Cloud</label>
         <choice value="Yes">Yes</choice>
         <choice value="No">No</choice>
+        <default>No</default>
         <change>
           <condition value="No">
             <unset token="ngram_cloud"></unset>

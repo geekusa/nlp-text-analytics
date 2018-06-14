@@ -35,10 +35,10 @@
     font-size: 12px !important;
 }
 /*Horizontal 2-radio button to save space 4 of them*/
-#horiz_two_radio [data-test="radio-list"] {
+#horiz_two_radio_1 [data-test="radio-list"] {
     flex-direction: row !important;
 }
-#horiz_two_radio [data-test="option"] {
+#horiz_two_radio_1 [data-test="option"] {
     margin-right: 6px;
 }
 #horiz_two_radio_2 [data-test="radio-list"] {
