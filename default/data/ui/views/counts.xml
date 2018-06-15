@@ -4,7 +4,7 @@
   <search id="base_search">
     <query>
 $master_search$
-| $html$
+$html_begin$| bs4 textfield=$textfield$ $html_end$
 | cleantext textfield=$textfield$ base_type=lemma_pos $stopwords$ $custom_stopwords$ ngram_range=$ngram$ ngram_mix=t
     </query>
     <earliest>$time.earliest$</earliest>
@@ -58,10 +58,12 @@ $master_search$
       <choice value="No">No</choice>
       <change>
         <condition value="Yes">
-          <set token="html"><![CDATA[bs4 textfield=$textfield$]]></set>
+          <set token="html_begin"></set>
+          <set token="html_end"></set>
         </condition>
         <condition value="No">
-          <set token="html">noop</set>
+          <set token="html_begin">`comment(&quot;</set>
+          <set token="html_end">&quot;)`</set>
         </condition>
       </change>
       <default>No</default>
