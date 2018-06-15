@@ -27,7 +27,7 @@ class Bs4(StreamingCommand):
     'html5lib' is not currently included. The find methods can be used in conjuction, their order 
     of operation is find > find_all > find_child > find children. Each option has a similar
     named option appended '_attrs' that will accept inner and outer quoted key:value pairs for
-    more precise selections.attrs dictionary to the methods.
+    more precise selections.
 
     ##Example
 

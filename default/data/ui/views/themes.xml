@@ -1,4 +1,4 @@
-<!--<dashboard hideEdit="true">--><form script="theme_bar.js" stylesheet="tabledatabar.css">
+<!--<dashboard hideEdit="true">--><form script="themes_bar.js" stylesheet="tabledatabar.css">
   <label>Themes</label>
   <init>
     <set token="topic_model_apply">
@@ -50,7 +50,9 @@ $master_search$
       <choice value="No">No</choice>
       <change>
         <condition value="Yes">
-          <set token="html"><![CDATA[bs4 textfield=$textfield$]]></set>
+          <set token="html">
+            <![CDATA[bs4 textfield=$textfield$]]>
+          </set>
         </condition>
         <condition value="No">
           <set token="html">noop</set>
@@ -163,6 +165,25 @@ $master_search$
       <prefix>k=</prefix>
     </input>
   </fieldset>
+  <row depends="$k_hidden$">
+    <panel>
+      <title># of Clusters</title>
+      <single>
+        <search base="counts">
+          <query>| stats dc(cluster) as total_clusters</query>
+          <done>
+            <eval token="radius">case($result.total_clusters$&lt;=6,9,$result.total_clusters$&lt;=14,7,true(),5)</eval>
+          </done>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">79</option>
+        <option name="rangeColors">["0x000","0x000"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
   <row>
     <panel>
       <title>Top Terms Per Cluster</title>
@@ -217,7 +238,7 @@ $master_search$
         </change>
       </input>
       <chart>
-        <search base="counts">
+        <search base="counts" id="final_cluster">
           <query>
 | where clusterCount &lt;= $topterms$
 | fields - clusterCount
@@ -234,6 +255,42 @@ $master_search$
         <option name="trellis.size">$trellis_size$</option>
         <option name="trellis.splitBy">cluster</option>
       </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <viz type="force_directed_viz.force_directed">
+        <search base="final_cluster"></search>
+        <option name="drilldown">all</option>
+        <option name="force_directed_viz.force_directed.AttractDistanceMax">200</option>
+        <option name="force_directed_viz.force_directed.AttractDistanceMin">60</option>
+        <option name="force_directed_viz.force_directed.AttractForceStrength">-300</option>
+        <option name="force_directed_viz.force_directed.CollisionIterations">1</option>
+        <option name="force_directed_viz.force_directed.CollisionRadius">20</option>
+        <option name="force_directed_viz.force_directed.CollisionStrength">0.7</option>
+        <option name="force_directed_viz.force_directed.ColorRange1">100</option>
+        <option name="force_directed_viz.force_directed.ColorRange1Code">#65a637</option>
+        <option name="force_directed_viz.force_directed.ColorRange2">500</option>
+        <option name="force_directed_viz.force_directed.ColorRange2Code">#6db7c6</option>
+        <option name="force_directed_viz.force_directed.ColorRange3">1000</option>
+        <option name="force_directed_viz.force_directed.ColorRange3Code">#f7bc38</option>
+        <option name="force_directed_viz.force_directed.ColorRange4">10000</option>
+        <option name="force_directed_viz.force_directed.ColorRange4Code">#f58f39</option>
+        <option name="force_directed_viz.force_directed.ColorRange5">1000000</option>
+        <option name="force_directed_viz.force_directed.ColorRange5Code">#d93f3c</option>
+        <option name="force_directed_viz.force_directed.ForceCollision">20</option>
+        <option name="force_directed_viz.force_directed.LineColor">disabled</option>
+        <option name="force_directed_viz.force_directed.LinkDistance">100</option>
+        <option name="force_directed_viz.force_directed.LinkLength">1</option>
+        <option name="force_directed_viz.force_directed.RepelDistanceMax">50</option>
+        <option name="force_directed_viz.force_directed.RepelDistanceMin">10</option>
+        <option name="force_directed_viz.force_directed.RepelForceStrength">-140</option>
+        <option name="force_directed_viz.force_directed.StrokeWidth">1</option>
+        <option name="force_directed_viz.force_directed.arrows">enabled</option>
+        <option name="force_directed_viz.force_directed.circleSize">$radius$</option>
+        <option name="force_directed_viz.force_directed.panzoom">enabled</option>
+        <option name="force_directed_viz.force_directed.theme">dark</option>
+      </viz>
     </panel>
   </row>
 </form>
