@@ -59,3 +59,7 @@
 #horiz_two_radio_4 [data-test="option"] {
     margin-right: 6px;
 }
+/*make a longer link input*/
+div#long_link_input {
+    width: 1000px !important;
+}

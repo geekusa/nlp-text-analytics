@@ -1,6 +1,39 @@
-<!--<dashboard hideEdit="true">-->
-<dashboard>
+<form hideEdit="true">
   <label>Welcome</label>
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel>
+      <title>NLP Terminology</title>
+      <input id="long_link_input" type="link" token="nlp">
+        <label></label>
+        <fieldForLabel>Terminology</fieldForLabel>
+        <fieldForValue>Terminology</fieldForValue>
+        <search>
+          <query>| inputlookup nlp_terminology.csv</query>
+        </search>
+        <default>NLP</default>
+        <initialValue>NLP</initialValue>
+      </input>
+      <single>
+        <search>
+          <query>| inputlookup nlp_terminology.csv 
+| where Terminology=="$nlp$"
+| table Explanation Link</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">all</option>
+        <option name="height">56</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+        <drilldown>
+          <link target="_blank">https://en.wikipedia.org/wiki/$row.Link$</link>
+        </drilldown>
+      </single>
+    </panel>
+  </row>
   <row>
     <panel>
       <html>
@@ -9,14 +42,18 @@
         </div>
         <h1>Requirements</h1>
         <div>
-<a href="https://splunkbase.splunk.com/app/2890/">Splunk ML Toolkit 3.2 or greater</a><br/>
-<a href="https://splunkbase.splunk.com/app/3212/">Wordcloud Custom Visualization</a><br/>
-<a href="https://splunkbase.splunk.com/app/3137/">Parallel Coordinates Custom Visualization</a><br/>
-<a href="https://splunkbase.splunk.com/app/3767/">Force Directed App For Splunk</a><br/>
+<a href="https://splunkbase.splunk.com/app/2890/">Splunk ML Toolkit 3.2 or greater</a>
+          <br/>
+<a href="https://splunkbase.splunk.com/app/3212/">Wordcloud Custom Visualization</a>
+          <br/>
+<a href="https://splunkbase.splunk.com/app/3137/">Parallel Coordinates Custom Visualization</a>
+          <br/>
+<a href="https://splunkbase.splunk.com/app/3767/">Force Directed App For Splunk</a>
+          <br/>
         </div>
         <h1>Custom Commands</h1>
         <h2>bs4</h2>
-        <div> A wrapper for BeautifulSoup4 to extract html/xml tags and text from them to use in Splunk. A wrapper script to bring some functionality from BeautifulSoup to Splunk. Default is to get the text and send it to a new field 'get\_text', otherwise the selection is returned in a field named 'soup'. Default is to use the 'lxml' parser, though you can specify others, 'html5lib' is not currently included. The find methods can be used in conjuction, their order of operation is find > find\_all > find\_child > find children. Each option has a similar named option appended '\_attrs' that will accept inner and outer quoted key:value pairs for more precise selections.
+        <div> A wrapper for BeautifulSoup4 to extract html/xml tags and text from them to use in Splunk. A wrapper script to bring some functionality from BeautifulSoup to Splunk. Default is to get the text and send it to a new field 'get\_text', otherwise the selection is returned in a field named 'soup'. Default is to use the 'lxml' parser, though you can specify others, 'html5lib' is not currently included. The find methods can be used in conjuction, their order of operation is find &gt; find\_all &gt; find\_child &gt; find children. Each option has a similar named option appended '\_attrs' that will accept inner and outer quoted key:value pairs for more precise selections.
         </div>
         <h3>Syntax</h3>
         <pre>* | bs4 textfield=&lt;field&gt; [get_text=&lt;bool&gt;] [get_text_label=&lt;string&gt;] [parser=&lt;string&gt;] [find=&lt;tag&gt;] [find_attrs=&lt;quoted_key:value_pairs&gt;] [find_all=&lt;tag&gt;] [find_all_attrs=&lt;quoted_key:value_pairs&gt;] [find_child=&lt;tag&gt;] [find_child_attrs=&lt;quoted_key:value_pairs&gt;] [find_children=&lt;tag&gt;] [find_children_attrs=&lt;quoted_key:value_pairs&gt;]</pre>
@@ -33,18 +70,21 @@
         <pre>* | vader textfield=&lt;field&gt; [full_output=&lt;bool&gt;]</pre>
         <h1>ML Algorithms</h1>
         <h2>TruncantedSVD</h2>
-        <div>From sklearn. Used for dimension reduction (especially on a TFIDF). This is also known in text analytics as Latent Semantic Analysis or LSA. Returns fields prepended with "SVD_". See <a href="http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html">http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html</a></div>
+        <div>From sklearn. Used for dimension reduction (especially on a TFIDF). This is also known in text analytics as Latent Semantic Analysis or LSA. Returns fields prepended with "SVD_". See <a href="http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html">http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html</a>
+        </div>
         <h3>Syntax</h3>
         <pre>* | fit TruncantedSVD &lt;fields&gt; [into &lt;model name&gt;] k=&lt;int&gt;</pre>
         <h2>LatentDirichletAllocation</h2>
-        <div>From sklearn. Used for dimension reduction. This is also known as LDA. Returns fields prepended with "LDA_". See <a href="http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.LatentDirichletAllocation.html">http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.LatentDirichletAllocation.html</a></div>
+        <div>From sklearn. Used for dimension reduction. This is also known as LDA. Returns fields prepended with "LDA_". See <a href="http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.LatentDirichletAllocation.html">http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.LatentDirichletAllocation.html</a>
+        </div>
         <h3>Syntax</h3>
         <pre>* | fit LatentDirichletAllocation &lt;fields&gt; [into &lt;model name&gt;] k=&lt;int&gt;</pre>
         <h2>NMF</h2>
-        <div>From sklearn. Used for dimension reduction. This is also known as Non-Negative Matrix Factorization. Returns fields prepended with "NMF_". See <a href="http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html">http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html</a></div>
+        <div>From sklearn. Used for dimension reduction. This is also known as Non-Negative Matrix Factorization. Returns fields prepended with "NMF_". See <a href="http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html">http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html</a>
+        </div>
         <h3>Syntax</h3>
         <pre>* | fit NFM &lt;fields&gt; [into &lt;model name&gt;] [k=&lt;int&gt;]</pre>
       </html>
     </panel>
   </row>
-</dashboard>
+</form>
