@@ -31,4 +31,4 @@ class TruncatedSVD(TransformerMixin, BaseAlgo):
     def register_codecs():
         from codec.codecs import SimpleObjectCodec
         codecs_manager.add_codec('algos.TruncatedSVD', 'TruncatedSVD', SimpleObjectCodec)
-        codecs_manager.add_codec('sklearn.decomposition.truncatedsvd', 'TruncatedSVD', SimpleObjectCodec)
+        codecs_manager.add_codec('sklearn.decomposition.truncated_svd', 'TruncatedSVD', SimpleObjectCodec)
