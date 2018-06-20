@@ -30,6 +30,14 @@ $master_search$
     <input type="text" token="textfield">
       <label>Text Field</label>
     </input>
+    <input type="dropdown" token="neutral" searchWhenChanged="true">
+      <label>Neutral Zone Size</label>
+      <choice value="0.01">Small</choice>
+      <choice value="0.05">Medium</choice>
+      <choice value="0.1">Large</choice>
+      <default>0.05</default>
+      <initialValue>0.05</initialValue>
+    </input>
   </fieldset>
   <row>
     <panel>
@@ -39,7 +47,7 @@ $master_search$
           <query>| stats avg(sentiment) AS sentiment</query>
         </search>
         <option name="charting.chart">radialGauge</option>
-        <option name="charting.chart.rangeValues">[-1,-0.1,0.1,1]</option>
+        <option name="charting.chart.rangeValues">[-1,-$neutral$,$neutral$,1]</option>
         <option name="charting.chart.style">minimal</option>
         <option name="charting.gaugeColors">["0x9C1E1E","0x1E5D9C","0x5D9C1E"]</option>
         <option name="height">225</option>
@@ -50,7 +58,7 @@ $master_search$
       <viz type="status_indicator_app.status_indicator">
         <search base="base_search">
           <query>| stats avg(sentiment) AS sentiment
-| eval sentiment = case(sentiment&gt;0,"Positive",sentiment&lt;0,"Negative",true(),"Neutral")
+| eval sentiment = case(sentiment&gt;$neutral$,"Positive",sentiment&lt;-$neutral$,"Negative",true(),"Neutral")
 | eval color = case(sentiment=="Positive","#5D9C1E", sentiment=="Negative","#9C1E1E", sentiment=="Neutral", "#1E5D9C")</query>
         </search>
         <option name="drilldown">none</option>
@@ -70,7 +78,7 @@ $master_search$
         <search base="base_search">
           <query>| stats avg(sentiment) AS sentiment
 | eval sentiment = round(sentiment, 3)
-| eval color = case(sentiment&gt;0,"#5D9C1E",sentiment&lt;0,"#9C1E1E",true(),"#1E5D9C")</query>
+| eval color = case(sentiment&gt;$neutral$,"#5D9C1E",sentiment&lt;-$neutral$,"#9C1E1E",true(),"#1E5D9C")</query>
         </search>
         <option name="drilldown">none</option>
         <option name="height">133</option>
@@ -89,7 +97,7 @@ $master_search$
     <panel>
       <chart>
         <search base="base_search">
-          <query>| eval sentiment = case(sentiment&gt;0.1,"Positive",sentiment&lt;-0.1,"Negative",true(),"Neutral")
+          <query>| eval sentiment = case(sentiment&gt;$neutral$,"Positive",sentiment&lt;-$neutral$,"Negative",true(),"Neutral")
 | stats count BY sentiment</query>
         </search>
         <option name="charting.chart">pie</option>
