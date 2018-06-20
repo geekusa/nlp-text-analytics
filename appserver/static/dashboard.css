@@ -20,10 +20,10 @@
 }
 /*make a longer text input to be used for searches and stopword lists*/
 #text_long input {
-    width: 700px !important;
+    width: 760px !important;
 }
 #text_long label {
-    width: 700px !important;
+    width: 760px !important;
 }
 #text_medium input {
     width: 300px !important;

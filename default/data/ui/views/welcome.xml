@@ -84,6 +84,12 @@
         </div>
         <h3>Syntax</h3>
         <pre>* | fit NFM &lt;fields&gt; [into &lt;model name&gt;] [k=&lt;int&gt;]</pre>
+        <h1>Known Issues</h1>
+	<div>Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when using free or developer's license see <a href="https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html">https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html</a>. Has not been fixed as of 7.1.1.</div>
+<div>Splunk SDK crashes when too much data is sent through it, gets a buffer error. See <a href="https://github.com/splunk/splunk-sdk-python/issues/150">https://github.com/splunk/splunk-sdk-python/issues/150</a>. Workaround would be to used the sample command to down sample the data until it works.</div>
+        <div>
+Topic Modeling Algorithms currently cannot be saved into models (using the "into" argument).
+        </div>
       </html>
     </panel>
   </row>

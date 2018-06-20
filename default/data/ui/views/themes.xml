@@ -5,9 +5,9 @@
 $master_search$
 $html_begin$| bs4 textfield=$textfield$ $html_end$
 | cleantext textfield=$textfield$ base_type=lemma_pos mv=f $custom_stopwords$
-| fit TFIDF $textfield$ max_features=$max_features$ ngram_range=$ngram$
+| fit TFIDF $textfield$ max_features=$max_features$ ngram_range=$ngram$ $tfidf_model$
 $topic_begin$| fit $topic_algo$ k=$topic_k$ $textfield$_* $topic_end$
-| fit $cluster_algo$ $clusters$ $topic_begin$"$featurefield$_*"$topic_end$ $tfidf_begin$"$textfield$_*"$tfidf_end$
+| fit $cluster_algo$ $clusters$ $topic_begin$"$featurefield$_*"$topic_end$ $tfidf_begin$"$textfield$_*"$tfidf_end$ $cluster_model$
 | table cluster $textfield$
     </query>
     <earliest>$time.earliest$</earliest>
@@ -95,13 +95,13 @@ $topic_begin$| fit $topic_algo$ k=$topic_k$ $textfield$_* $topic_end$
         <condition value="Yes">
           <set token="topic_begin"></set>
           <set token="topic_end"></set>
-          <set token="tfidf_begin">`comment(&quot;</set>
-          <set token="tfidf_end">&quot;)`</set>
+          <set token="tfidf_begin">`comment("</set>
+          <set token="tfidf_end">")`</set>
           <unset token="topic_hidden"></unset>
         </condition>
         <condition value="No">
-          <set token="topic_begin">`comment(&quot;</set>
-          <set token="topic_end">&quot;)`</set>
+          <set token="topic_begin">`comment("</set>
+          <set token="topic_end">")`</set>
           <set token="tfidf_begin"></set>
           <set token="tfidf_end"></set>
           <set token="topic_hidden">True</set>
@@ -119,21 +119,12 @@ $topic_begin$| fit $topic_algo$ k=$topic_k$ $textfield$_* $topic_end$
       <initialValue>TruncatedSVD</initialValue>
       <change>
         <condition value="TruncatedSVD">
-          <set token="topic_model_apply">
-            <![CDATA[| fit TruncatedSVD k=$topic_k$ $textfield$_* ]]>
-          </set>
           <set token="featurefield">SVD</set>
         </condition>
         <condition value="LatentDirichletAllocation">
-          <set token="topic_model_apply">
-            <![CDATA[| fit LatentDirichletAllocation k=$topic_k$ $textfield$_* ]]>
-          </set>
           <set token="featurefield">LDA</set>
         </condition>
         <condition value="NMF">
-          <set token="topic_model_apply">
-            <![CDATA[| fit NMF k=$topic_k$ $textfield$_* ]]>
-          </set>
           <set token="featurefield">NMF</set>
         </condition>
       </change>
@@ -181,6 +172,41 @@ $topic_begin$| fit $topic_algo$ k=$topic_k$ $textfield$_* $topic_end$
       <label># of Clusters</label>
       <default>7</default>
       <prefix>k=</prefix>
+    </input>
+    <input id="horiz_two_radio_3" type="radio" token="save_dummy">
+      <label>Save Models?</label>
+      <choice value="Yes">Yes</choice>
+      <choice value="No">No</choice>
+      <change>
+        <condition value="No">
+          <unset token="save_hidden"></unset>
+        </condition>
+        <condition value="Yes">
+          <set token="save_hidden">True</set>
+        </condition>
+      </change>
+      <default>No</default>
+      <initialValue>No</initialValue>
+    </input>
+    <html depends="$save_hidden$">
+      <p>
+        <b>Save Mode Names</b>
+      </p>
+    </html>
+    <input type="text" token="tfidf_model" depends="$save_hidden$">
+      <label>TFIDF Model Name</label>
+      <default></default>
+      <prefix>into </prefix>
+    </input>
+    <!--<input type="text" token="topic_model" depends="$save_hidden$">
+      <label>Topic Model Name</label>
+      <default></default>
+      <prefix>into </prefix>
+    </input>-->
+    <input type="text" token="cluster_model" depends="$save_hidden$">
+      <label>Cluster Model Name</label>
+      <default></default>
+      <prefix>into </prefix>
     </input>
   </fieldset>
   <row depends="$k_hidden$">

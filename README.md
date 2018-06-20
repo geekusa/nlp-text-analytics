@@ -6,7 +6,7 @@ Available at:
 
 [Github](https://github.com/geekusa/nlp-text-analytics)
 
-Version: 0.1
+Version: 0.9
 
 ##### Author: Nathan Worsham 
 Created for MSDS692 Data Science Practicum I at Regis University, 2018 </br>
@@ -223,6 +223,8 @@ This README file constitutes the documenation for the app and will be kept upto 
 
 ### Known Issues
 Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when using free or developer's license see [https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html](https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html). Has not been fixed as of 7.1.1.
+Splunk SDK crashes when too much data is sent through it, gets a buffer error. See [https://github.com/splunk/splunk-sdk-python/issues/150](https://github.com/splunk/splunk-sdk-python/issues/150). Workaround would be to used the sample command to down sample the data until it works. 
+Topic Modeling Algorithms currently cannot be saved into models (using the "into" argument).
 
 ### Release Notes
 Initial Beta Release
