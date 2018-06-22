@@ -6,7 +6,7 @@ Available at:
 
 [Github](https://github.com/geekusa/nlp-text-analytics)
 
-Version: 0.9
+Version: 0.9.1
 
 ##### Author: Nathan Worsham 
 Created for MSDS692 Data Science Practicum I at Regis University, 2018 </br>
