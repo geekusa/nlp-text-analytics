@@ -140,6 +140,7 @@ $master_search$
         <option name="charting.chart.overlayFields">sentiment,avg_sentiment</option>
         <option name="charting.drilldown">none</option>
         <option name="charting.legend.placement">right</option>
+        <option name="charting.fieldColors">{"sentiment_positive":0x5D9C1E,"sentiment_negative":0x9C1E1E,"sentiment":0xec9960}</option>
         <option name="height">400</option>
         <option name="refresh.display">progressbar</option>
       </chart>
