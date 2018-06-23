@@ -1,4 +1,4 @@
-<!--<dashboard hideEdit="true">--><form script="tabledatabar.js" stylesheet="tabledatabar.css">
+<form script="tabledatabar.js" stylesheet="tabledatabar.css" hideEdit="true">
   <label>Sentiment</label>
   <search id="base_search">
     <query>

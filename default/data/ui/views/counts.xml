@@ -1,4 +1,4 @@
-<!--<dashboard hideEdit="true">--><form script="tabledatabar.js" stylesheet="tabledatabar.css">
+<form script="tabledatabar.js" stylesheet="tabledatabar.css" hideEdit="true">
   <label>Counts</label>
   <description>Click in panels with (+) for further action</description>
   <search id="base_search">

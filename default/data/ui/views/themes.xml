@@ -1,4 +1,4 @@
-<!--<dashboard hideEdit="true">--><form script="themes_bar.js" stylesheet="tabledatabar.css">
+<form script="themes_bar.js" stylesheet="tabledatabar.css" hideEdit="true">
   <label>Themes</label>
   <search id="base_search">
     <query>
