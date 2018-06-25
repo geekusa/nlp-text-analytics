@@ -3,8 +3,10 @@
 The intent of this app is to provide a simple interface for analyzing text in Splunk using python natural language processing libraries (currently just NLTK 3.3). The app provides custom commands and dashboards to show how to use. 
 
 Available at:
-
 [Github](https://github.com/geekusa/nlp-text-analytics)
+
+Splunk App Available at:
+[https://splunkbase.splunk.com/app/4066/](https://splunkbase.splunk.com/app/4066/)
 
 Version: 0.9.1
 
