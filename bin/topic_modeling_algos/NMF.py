@@ -30,5 +30,5 @@ class NMF(TransformerMixin, BaseAlgo):
     @staticmethod
     def register_codecs():
         from codec.codecs import SimpleObjectCodec
-        codecs_manager.add_codec('algos.NMF', 'NMF', SimpleObjectCodec)
+        codecs_manager.add_codec('topic_modeling_algos.NMF', 'NMF', SimpleObjectCodec)
         codecs_manager.add_codec('sklearn.decomposition.nmf', 'NMF', SimpleObjectCodec)

@@ -198,11 +198,11 @@ $topic_begin$| fit $topic_algo$ k=$topic_k$ $textfield$_* $topic_end$
       <default></default>
       <prefix>into </prefix>
     </input>
-    <!--<input type="text" token="topic_model" depends="$save_hidden$">
+    <input type="text" token="topic_model" depends="$save_hidden$">
       <label>Topic Model Name</label>
       <default></default>
       <prefix>into </prefix>
-    </input>-->
+    </input>
     <input type="text" token="cluster_model" depends="$save_hidden$">
       <label>Cluster Model Name</label>
       <default></default>

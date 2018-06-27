@@ -33,5 +33,5 @@ class LatentDirichletAllocation(TransformerMixin, BaseAlgo):
     @staticmethod
     def register_codecs():
         from codec.codecs import SimpleObjectCodec
-        codecs_manager.add_codec('algos.LatentDirichletAllocation', 'LatentDirichletAllocation', SimpleObjectCodec)
+        codecs_manager.add_codec('topic_modeling_algos.LatentDirichletAllocation', 'LatentDirichletAllocation', SimpleObjectCodec)
         codecs_manager.add_codec('sklearn.decomposition.online_lda', 'LatentDirichletAllocation', SimpleObjectCodec)
