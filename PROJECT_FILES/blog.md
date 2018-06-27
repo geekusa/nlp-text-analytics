@@ -175,5 +175,9 @@ Taking out the text analytics magnifying glass on the support tickets showed sev
 
 I am excited to see what additional uses I or others can find for the app in the future.
 
+## Update
+
+Shortly after releasing the app, I found my syntax error that was causing the problem where the topic modeling algorithms could not be saved (using the `into` argument). Isn't that always the case... syntax? The robot invasion of the future will be stopped by a simple syntax issue, I'm sure of it. Thanks to Xander at Splunk for offering to help. I have found on more than one occasion that the process of writing out the problem with the intention of getting help has caused me to find the flaw without actually getting the external help. It is the kind offer and knowing that there is someone who might find the problem that forces me to want to make sure I have covered my bases and actually understand the problem before reaching out, so I am not wasting their time.
+
 ### References
 See https://github.com/geekusa/nlp-text-analytics/blob/master/PROJECT_FILES/References.md for the list of references for this paper and project.
