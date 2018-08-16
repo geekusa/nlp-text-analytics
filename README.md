@@ -8,12 +8,15 @@ Available at:
 Splunk App Available at:
 [https://splunkbase.splunk.com/app/4066/](https://splunkbase.splunk.com/app/4066/)
 
-Version: 0.9.3
+Version: 0.9.4
 
 ##### Author: Nathan Worsham 
 Created for MSDS692 Data Science Practicum I at Regis University, 2018 </br>
 See [associated blog](https://github.com/geekusa/nlp-text-analytics/blob/master/PROJECT_FILES/blog.md) for detailed information on the project creation.
 
+Update
+Additional content (combined features algorithms) created for MSDS696 Data Science Practicum II at Regis University, 2018 </br>
+See [associated blog](https://github.com/geekusa/combined-feature-classifier) for detailed information on the project creation.
 ## Description and Use-cases
 
 Have you ever wanted to perform advanced text analytics inside Splunk? Splunk has some ways to handle text but also lacks some more advanced features that NLP libraries can offer. This can also benefit use-cases that involve using Splunk’s ML Toolkit.
@@ -55,8 +58,8 @@ _bs4_
 > 
 > **get\_text\_label** </br>
 >     **Syntax:** get\_text\_label=\<string> </br>
->     **Description:** If get_text is true, sets the label for the return field. </br>
->     **Usage:** Boolean value. True or False; true or false, t or f, 0 or 1</br>
+>     **Description:** If get_text is set, sets the label for the return field. </br>
+>     **Usage:** String value</br>
 >     **Default:** get_text
 > 
 > **parser** </br>
@@ -210,13 +213,40 @@ _LatentDirichletAllocation_
 > ```fit LatentDirichletAllocation <fields> [into <model name>] k=<int>```</br><br>
 > The `k` option sets the number of components (topics) to change the data into. It is important that the value is less than the number of features or documents. 
  
-
 _NMF_
 > #### Description
 > From sklearn. Used for dimension reduction. This is also known as Non-Negative Matrix Factorization. Returns fields prepended with "NMF_". See [http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html](http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.NMF.html)
 > #### Syntax
 > ```fit NMF <fields> [into <model name>] [k=<int>]```</br><br>
 > The `k` option sets the number of components (topics) to change the data into. It is important that the value is less than the number of features or documents. 
+
+_TFBinary_
+> #### Description
+> A modified implemenation of TfidfVectorizer from sklearn. The current MLTK version has TfidfVectorizer but it does not allow the option of turning off IDF or setting `binary` to True. This is to create a document-term matrix of whether the document has the given term or not. See [http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html](http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html)
+> #### Syntax
+> ```fit TFBinary <fields> [into <model name>] [max_features=<int>] [max_df=<int>] [min_df=<int>] [ngram_range=<int>-<int>] [analyzer=<str>] [norm=<str>] [token_pattern=<str>] [stop_words=english] [use_idf=<true|false>] [binary=<true|false>]```</br><br> 
+> In this implementation, the following settings are already set in order to create a binary output: `use_idf` is set to False, `binary` has been set to True, and `norm` has been set to None. The rest of the settings and options are exactly like the current MLTK (3.4) implementation.
+
+_MinMaxScaler_
+> #### Description
+> From sklearn. Transforms each feature to a given range. Returns fields prepended with "MMS_". See [http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html)
+> #### Syntax
+> ```fit MinMaxScaler <fields> [into <model name>] [copy=<true|false>] [feature_range=<int>-<int>]```</br><br>
+> Default `feature_range=0-1` `copy=true`.
+
+_LinearSVC_
+> #### Description
+> From sklearn. Similar to SVC with parameter kernel=’linear’, but implemented in terms of liblinear rather than libsvm, so it has more flexibility in the choice of penalties and loss functions and should scale better to large numbers of samples. See [http://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html](http://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html)
+> #### Syntax
+> ```fit LinearSVC <fields> [into <model name>] [gamma=<int>] [C=<int>] [tol=<int>] [intercept_scaling=<int>] [random_state=<int>] [max_iter=<int>] [penalty=<l1|l2>] [loss=<hinge|squared_hinge>] [multi_class=<ovr|crammer_singer>] [dual=<true|false>] [fit_intercept=<true|false>]```</br><br>
+> The `C` option sets the penalty parameter of the error term.
+
+_ExtraTreesClassifier_
+> #### Description
+> From sklearn. This class implements a meta estimator that fits a number of randomized decision trees (a.k.a. extra-trees) on various sub-samples of the dataset and use averaging to improve the predictive accuracy and control over-fitting. See [http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html)
+> #### Syntax
+> ```fit ExtraTreesClassifier <fields> [into <model name>] [random_state=<int>] [n_estimators=<int>] [max_depth=<int>] [max_leaf_nodes=<int>] [max_features=<int|auto|sqrt|log|None>] [criterion=<gini|entropy>]```</br><br>
+> The `n_estimators` option sets the number of trees in the forest, defaults to 10.
 
 ### Support
 Support will be provided through Splunkbase (click on Contact Developer) or Splunk Answers or [submit an issue in Github](https://github.com/geekusa/nlp-text-analytics/issues/new). Expected responses will depend on issue and as time permits, but every attempt will be made to fix within 2 weeks. 
@@ -225,8 +255,8 @@ Support will be provided through Splunkbase (click on Contact Developer) or Splu
 This README file constitutes the documenation for the app and will be kept upto date on [Github](https://github.com/geekusa/nlp-text-analytics/blob/master/README.md) as well as on the Splunkbase page.
 
 ### Known Issues
-Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when using free or developer's license see [https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html](https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html). Has not been fixed as of 7.1.1.
+Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when using free or developer's license see [https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html](https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html). Fixed as of 7.1.2.
 Splunk SDK crashes when too much data is sent through it, gets a buffer error. See [https://github.com/splunk/splunk-sdk-python/issues/150](https://github.com/splunk/splunk-sdk-python/issues/150). Workaround would be to used the sample command to down sample the data until it works. 
 
 ### Release Notes
-Fix removal of unicode escape characters on bs4 get_text option.
+Added related combined features algorithms--TFBinary, MinMaxScaler, LinearSVC, ExtraTreesClassifier

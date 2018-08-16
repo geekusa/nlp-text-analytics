@@ -38,7 +38,7 @@
     <panel>
       <html>
         <div>
-          The intent of this app is to provide a simple interface for analyzing text in Splunk using python natural language processing libraries (currently just NLTK 3.3). The app provides custom commands (currently 3), additional ML algorithms (currently 3) to use with Splunk's ML Toolkit, and dashboards to show how to use. The app is also packaged with Gutenberg texts (currenlty 3) formatted as CSV lookups. 
+          The intent of this app is to provide a simple interface for analyzing text in Splunk using python natural language processing libraries (currently just NLTK 3.3). The app provides custom commands (currently 3), additional ML algorithms (currently 7) to use with Splunk's ML Toolkit, and dashboards to show how to use. The app is also packaged with Gutenberg texts (currenlty 3) formatted as CSV lookups. 
         </div>
         <h1>Requirements</h1>
         <div>
@@ -84,12 +84,29 @@
         </div>
         <h3>Syntax</h3>
         <pre>* | fit NFM &lt;fields&gt; [into &lt;model name&gt;] [k=&lt;int&gt;]</pre>
-        <h1>Known Issues</h1>
-	<div>Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when using free or developer's license see <a href="https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html">https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html</a>. Has not been fixed as of 7.1.1.</div>
-<div>Splunk SDK crashes when too much data is sent through it, gets a buffer error. See <a href="https://github.com/splunk/splunk-sdk-python/issues/150">https://github.com/splunk/splunk-sdk-python/issues/150</a>. Workaround would be to used the sample command to down sample the data until it works.</div>
-        <div>
-Topic Modeling Algorithms currently cannot be saved into models (using the "into" argument).
+        <h2>TFBinary</h2>
+        <div>A modified implemenation of TfidfVectorizer from sklearn. The current MLTK version has TfidfVectorizer but it does not allow the option of turning off IDF or setting `binary` to True. This is to create a document-term matrix of whether the document has the given term or not. In this implementation, the following settings are already set in order to create a binary output: `use_idf` is set to False, `binary` has been set to True, and `norm` has been set to None. The rest of the settings and options are exactly like the current MLTK (3.4) implementation. See <a href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html">http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html</a>
         </div>
+        <h3>Syntax</h3>
+        <pre>* | fit TFBinary &lt;fields&gt; [into &lt;model name&gt;] [max_features=&lt;int&gt;] [max_df=&lt;int&gt;] [min_df=&lt;int&gt;] [ngram_range=&lt;int&gt;-&lt;int&gt;] [analyzer=&lt;str&gt;] [norm=&lt;str&gt;] [token_pattern=&lt;str&gt;] [stop_wordsenglish] [use_idf=&lt;true|false&gt;] [binary=&lt;true|false&gt;]</pre>
+        <h2>MinMaxScaler</h2>
+        <div>From sklearn. Transforms each feature to a given range. Returns fields prepended with "MMS_". See <a href="http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html">http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html</a>
+        </div>
+        <h3>Syntax</h3>
+        <pre>* | fit MinMaxScaler &lt;fields&gt; [into &lt;model name&gt;] [copy=&lt;true|false&gt;] [feature_range=&lt;int&gt;-&lt;int&gt;]</pre>
+        <h2>LinearSVC</h2>
+        <div>From sklearn. Similar to SVC with parameter kernel=’linear’, but implemented in terms of liblinear rather than libsvm, so it has more flexibility in the choice of penalties and loss functions and should scale better to large numbers of samples. See <a href="http://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html">http://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html</a>
+        </div>
+        <h3>Syntax</h3>
+        <pre>* | fit LinearSVC &lt;fields&gt; [into &lt;model name&gt;] [gamma=&lt;int&gt;] [C=&lt;int&gt;] [tol=&lt;int&gt;] [intercept_scaling=&lt;int&gt;] [random_state=&lt;int&gt;] [max_iter=&lt;int&gt;] [penalty=&lt;l1|l2&gt;] [loss=&lt;hinge|squared_hinge&gt;] [multi_class=&lt;ovr|crammer_singer&gt;] [dual=&lt;true|false&gt;] [fit_intercept=&lt;true|false&gt;]</pre>
+        <h2>ExtraTreesClassifier</h2>
+        <div> From sklearn. This class implements a meta estimator that fits a number of randomized decision trees (a.k.a. extra-trees) on various sub-samples of the dataset and use averaging to improve the predictive accuracy and control over-fitting. See <a href="http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html">http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html</a>
+        </div>
+        <h3>Syntax</h3>
+        <pre>* | fit ExtraTreesClassifier &lt;fields&gt; [into &lt;model name&gt;] [random_state=&lt;int&gt;] [n_estimators=&lt;int&gt;] [max_depth=&lt;int&gt;] [max_leaf_nodes=&lt;int&gt;] [max_features=&lt;int|auto|sqrt|log|None&gt;] [criterion=&lt;gini|entropy&gt;]</pre>
+        <h1>Known Issues</h1>
+	<div>Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when using free or developer's license see <a href="https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html">https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html</a>. Has not been fixed as of 7.1.2.</div>
+<div>Splunk SDK crashes when too much data is sent through it, gets a buffer error. See <a href="https://github.com/splunk/splunk-sdk-python/issues/150">https://github.com/splunk/splunk-sdk-python/issues/150</a>. Workaround would be to used the sample command to down sample the data until it works.</div>
       </html>
     </panel>
   </row>
