@@ -319,19 +319,29 @@ class CleanText(StreamingCommand):
             (min_n,max_n) = self.ngram_range.split('-')
             if max_n > 1 and max_n >= min_n:
                 max_n = int(max_n) + 1
-                for i in self.ngram(
-                    filter(None, record[self.textfield]), 
-                    int(min_n), 
+                ngram_extract = self.ngram(
+                    filter(None, record[self.textfield]),
+                    int(min_n),
                     max_n
-                ):
+                )
+                if ngram_extract:
+                    for i in ngram_extract:
+                        if not self.ngram_mix:
+                            if 'ngrams_' + str(i[0]) not in record:
+                                record['ngrams_' + str(i[0])] = []
+                            record['ngrams_' + str(i[0])].append(i[1])
+                        else:
+                            if 'ngrams' not in record:
+                                record['ngrams'] = []
+                            record['ngrams'].append(i[1])
+                else:
                     if not self.ngram_mix:
-                        if 'ngrams_' + str(i[0]) not in record:
-                            record['ngrams_' + str(i[0])] = []
-                        record['ngrams_' + str(i[0])].append(i[1])
+                        for n in range(int(min_n),int(max_n)):
+                            if n!=1:
+                                record['ngrams_' + str(n)] = []
                     else:
                         if 'ngrams' not in record:
                             record['ngrams'] = []
-                        record['ngrams'].append(i[1])
             #Final Multi-Value Output
             if not self.mv:
                 record[self.textfield] = ' '.join(record[self.textfield])
