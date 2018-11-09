@@ -8,15 +8,19 @@ Available at:
 Splunk App Available at:
 [https://splunkbase.splunk.com/app/4066/](https://splunkbase.splunk.com/app/4066/)
 
-Version: 0.9.4.1
+Version: 0.9.4.2
 
 ##### Author: Nathan Worsham 
 Created for MSDS692 Data Science Practicum I at Regis University, 2018 </br>
 See [associated blog](https://github.com/geekusa/nlp-text-analytics/blob/master/PROJECT_FILES/blog.md) for detailed information on the project creation.
 
-Update
+Update:
 Additional content (combined features algorithms) created for MSDS696 Data Science Practicum II at Regis University, 2018 </br>
 See [associated blog](https://github.com/geekusa/combined-feature-classifier) for detailed information on the project creation.
+This app was part of the basis for a breakout session at Splunk Conf18 I was lucky enough to present at--[Extending Splunk MLTK using GitHub Community](https://conf.splunk.com/conf-online.html?search=fn1409#/).
+[Session Slides](https://static.rainfocus.com/splunk/splunkconf18/sess/1523381218451001Aj1y/finalPDF/FN1409_GitHubCollaboration_Final_1538799477337001rcTB.pdf)
+[Session Recording](https://conf.splunk.com/files/2018/recordings/extending-splunk-mltk-using-fn1409.mp4)
+
 ## Description and Use-cases
 
 Have you ever wanted to perform advanced text analytics inside Splunk? Splunk has some ways to handle text but also lacks some more advanced features that NLP libraries can offer. This can also benefit use-cases that involve using Splunk’s ML Toolkit.
@@ -112,14 +116,19 @@ _cleantext_
 > #### Description
 > Tokenize and normalize text (remove punctuation, digits, change to base\_word). Different options result in better and slower cleaning. base\_type="lemma\_pos" being the slowest option, base\_type="lemma" assumes every word is a noun, which is faster but still results in decent lemmatization. Many fields have a default already set, textfield is only required field. By default results in a multi-valued field which is ready for used with stats count by. Optionally return special fields for analysis--pos\_tags and ngrams.
 > #### Syntax
-> \* | cleantext textfield=\<field> [default\_clean=\<bool>] [remove\_urls=\<bool>] [remove\_stopwords=\<bool>] [base\_word=\<bool>] [base\_type=\<string>] [mv=\<bool>] [pos\_tagset=\<string>]
-> \* | cleantext textfield=<field> [default\_clean=<bool>] [remove\_urls=<bool>] [remove\_stopwords=<bool>] [base\_word=<bool>] [base\_type=<string>] [mv=<bool>] [force\_nltk\_tokenize=<bool>] [pos\_tagset=<string>] [custom\_stopwords=<comma\_separated\_string\_list>] [term\_min\_len=<int>] [ngram\_range=<int>-<int>] [ngram\_mix=<bool>]
+> \* | cleantext textfield=<field> [keep\_orig=<bool>] [default\_clean=<bool>] [remove\_urls=<bool>] [remove\_stopwords=<bool>] [base\_word=<bool>] [base\_type=<string>] [mv=<bool>] [force\_nltk\_tokenize=<bool>] [pos\_tagset=<string>] [custom\_stopwords=<comma\_separated\_string\_list>] [term\_min\_len=<int>] [ngram\_range=<int>-<int>] [ngram\_mix=<bool>]
 > ##### Required Arguments
 > **textfield** </br>
 >     **Syntax:** textfield=\<field> </br>
 >     **Description:** The search field that contains the text that is the target of the analysis. </br>
 >     **Usage:** Option only takes a single field
 > ##### Optional Arguments
+> **keep\_orig** </br>
+>     **Syntax:** keep\_orig=\<bool> </br>
+>     **Description:** Maintain a copy of the original text for comparison or searching into field called orig_text</br>
+>     **Usage:** Boolean value. True or False; true or false, t or f, 0 or 1</br>
+>     **Default:** False
+> 
 > **default\_clean** </br>
 >     **Syntax:** default\_clean=\<bool> </br>
 >     **Description:** Perform basic text cleaning--lowercase, remove punctuation and digits, and tokenization. </br>
@@ -259,4 +268,4 @@ Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when usin
 Splunk SDK crashes when too much data is sent through it, gets a buffer error. See [https://github.com/splunk/splunk-sdk-python/issues/150](https://github.com/splunk/splunk-sdk-python/issues/150). Workaround would be to used the sample command to down sample the data until it works. 
 
 ### Release Notes
-Minor redundant fix to algos.conf. Fix ngram output on text that has cleaned itself empty.
+Minor redundant fix to algos.conf. Fix ngram output on text that has cleaned itself empty. Add option to maintain a copy of the original text this makes it faster for the Counts dashboard to search the original text. Updated counts dashboard to use this capability.

@@ -58,10 +58,10 @@
         <h3>Syntax</h3>
         <pre>* | bs4 textfield=&lt;field&gt; [get_text=&lt;bool&gt;] [get_text_label=&lt;string&gt;] [parser=&lt;string&gt;] [find=&lt;tag&gt;] [find_attrs=&lt;quoted_key:value_pairs&gt;] [find_all=&lt;tag&gt;] [find_all_attrs=&lt;quoted_key:value_pairs&gt;] [find_child=&lt;tag&gt;] [find_child_attrs=&lt;quoted_key:value_pairs&gt;] [find_children=&lt;tag&gt;] [find_children_attrs=&lt;quoted_key:value_pairs&gt;]</pre>
         <h2>cleantext</h2>
-        <div>Tokenize and normalize text (remove punctuation, digits, change to base_word). Different options result in better and slower cleaning. base_type="lemma_pos" being the slowest option, base_type="lemma" assumes every word is a noun, which is faster but still results in decent lemmatization. Many fields have a default already set, textfield is only required field. By default results in a multi-valued field which is ready for used with stats count by. Optionally return special fields for analysis--pos_tags and ngrams.
+        <div>Tokenize and normalize text (remove punctuation, digits, change to base_word). Different options result in better and slower cleaning. base_type="lemma_pos" being the slowest option, base_type="lemma" assumes every word is a noun, which is faster but still results in decent lemmatization. Many fields have a default already set, textfield is only required field. By default results in a multi-valued field which is ready for used with stats count by. Optionally return special fields for analysis--pos_tags and ngrams as well as the original text.
         </div>
         <h3>Syntax</h3>
-        <pre>* | cleantext textfield=&lt;field&gt; [default_clean=&lt;bool&gt;] [remove_urls=&lt;bool&gt;] [remove_stopwords=&lt;bool&gt;] [base_word=&lt;bool&gt;] [base_type=&lt;string&gt;] [mv=&lt;bool&gt;] [force_nltk_tokenize=&lt;bool&gt;] [pos_tagset=&lt;string&gt;] [custom_stopwords=&lt;comma_separated_string_list&gt;] [term_min_len=&lt;int&gt;] [ngram_range=&lt;int&gt;-&lt;int&gt;] [ngram_mix=&lt;bool&gt;]
+        <pre>* | cleantext textfield=&lt;field&gt; [keep_orig=&lt;bool&gt;] [default_clean=&lt;bool&gt;] [remove_urls=&lt;bool&gt;] [remove_stopwords=&lt;bool&gt;] [base_word=&lt;bool&gt;] [base_type=&lt;string&gt;] [mv=&lt;bool&gt;] [force_nltk_tokenize=&lt;bool&gt;] [pos_tagset=&lt;string&gt;] [custom_stopwords=&lt;comma_separated_string_list&gt;] [term_min_len=&lt;int&gt;] [ngram_range=&lt;int&gt;-&lt;int&gt;] [ngram_mix=&lt;bool&gt;]
 	</pre>
         <h2>vader</h2>
         <div>Sentiment analysis using Valence Aware Dictionary and sEntiment Reasoner. Using option full_output will return scores for neutral, positive, and negative which are the scores that make up the compound score (that is just returned as the field "sentiment". Best to feed in uncleaned data as it takes into account capitalization and punctuation.
@@ -105,7 +105,7 @@
         <h3>Syntax</h3>
         <pre>* | fit ExtraTreesClassifier &lt;fields&gt; [into &lt;model name&gt;] [random_state=&lt;int&gt;] [n_estimators=&lt;int&gt;] [max_depth=&lt;int&gt;] [max_leaf_nodes=&lt;int&gt;] [max_features=&lt;int|auto|sqrt|log|None&gt;] [criterion=&lt;gini|entropy&gt;]</pre>
         <h1>Known Issues</h1>
-	<div>Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when using free or developer's license see <a href="https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html">https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html</a>. Has not been fixed as of 7.1.2.</div>
+	<div>Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when using free or developer's license see <a href="https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html">https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html</a>. Issue was fixed in version 7.1.2.</div>
 <div>Splunk SDK crashes when too much data is sent through it, gets a buffer error. See <a href="https://github.com/splunk/splunk-sdk-python/issues/150">https://github.com/splunk/splunk-sdk-python/issues/150</a>. Workaround would be to used the sample command to down sample the data until it works.</div>
       </html>
     </panel>

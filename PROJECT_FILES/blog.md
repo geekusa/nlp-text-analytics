@@ -5,6 +5,11 @@
 
 Most other projects for the Data Science Practicum revolved around collecting a dataset, cleaning it, exploring it, and then using machine learning algorithms on it to perform some sort of prediction, classification, or extrapolate some analysis. I decided to take a step a bit outside of the batter's box and instead build a Splunk App for my project. I would find out quickly however, that the app still ends up following these familiar steps in its own ways.
 
+##### Update:
+This app was part of the basis for a breakout session at Splunk Conf18 I was lucky enough to present at--[Extending Splunk MLTK using GitHub Community](https://conf.splunk.com/conf-online.html?search=fn1409#/).
+[Session Slides](https://static.rainfocus.com/splunk/splunkconf18/sess/1523381218451001Aj1y/finalPDF/FN1409_GitHubCollaboration_Final_1538799477337001rcTB.pdf)
+[Session Recording](https://conf.splunk.com/files/2018/recordings/extending-splunk-mltk-using-fn1409.mp4)
+
 ## Inspiration
 Let me first preface by stating I am not a developer... but I don't let that stop me. Like many of my cohorts, I have always worked in information technology but I have a completely unrelated background--music. I tinker, I experiment, I'm curious, I push and push until I find an answer. I don't always know the correct or proper methodologies but I am willing to learn. I have however built a few Splunk Apps previously (using the same techniques just mentioned) so I was at least familiar with the practice and just before this class, I took a class on text analytics. I am fascinated with Splunk, Python, and the subject of text analytics. 
 

@@ -54,9 +54,16 @@ class CleanText(StreamingCommand):
         **Syntax:** **textfield=***<fieldname>*
         **Description:** Name of the field that will contain the text to search against''',
         validate=validators.Fieldname())
+    keep_orig = Option(
+        default=False,
+        doc='''**Syntax:** **keep_orig=***<boolean>*
+        **Description:** Maintain a copy of the original text for comparison or searching into field called
+        orig_text''',
+        validate=validators.Boolean()
+        )
     default_clean = Option(
         default=True,
-        doc='''**Syntax:** **lowercase=***<boolean>*
+        doc='''**Syntax:** **default_clean=***<boolean>*
         **Description:** Change text to lowercase, remove punctuation, and removed numbers, defaults to true''',
         validate=validators.Boolean()
         ) 	
@@ -184,6 +191,8 @@ class CleanText(StreamingCommand):
         if self.custom_stopwords:
             custom_stopwords = self.custom_stopwords.replace(' ','').split(',')
         for record in records:
+            if self.keep_orig:
+                record['orig_text'] = record[self.textfield]
             #URL removal
             if self.remove_urls:
                 record[self.textfield] = self.f_remove_urls(

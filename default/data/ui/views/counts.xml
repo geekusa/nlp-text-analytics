@@ -5,7 +5,7 @@
     <query>
 $master_search$
 $html_begin$| bs4 textfield=$textfield$ $html_end$
-| cleantext textfield=$textfield$ base_type=lemma_pos $stopwords$ $custom_stopwords$ ngram_range=$ngram$ ngram_mix=t
+| cleantext textfield=$textfield$ base_type=lemma_pos $stopwords$ $custom_stopwords$ ngram_range=$ngram$ ngram_mix=t keep_orig=t
     </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
@@ -349,7 +349,7 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
           <scale type="minMidMax"></scale>
         </format>
         <drilldown>
-          <set token="specific_word">$row.sentence$</set>
+          <eval token="specific_word">replace($row.ngrams$," ",".*")</eval>
           <set token="word_hidden">TRUE</set>
         </drilldown>
       </table>
@@ -398,12 +398,10 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
     <panel depends="$word_hidden$">
       <table>
         <title>$specific_word$ Occurences</title>
-        <search>
-          <query>$master_search$
-| regex $textfield$="(?i)\b$specific_word$\b"
-| table $textfield$</query>
-          <earliest>$time.earliest$</earliest>
-          <latest>$time.latest$</latest>
+        <search base="base_search">
+          <query>
+| regex orig_text="(?i)\b$specific_word$\b"
+| table orig_text</query>
         </search>
         <option name="count">10</option>
         <option name="drilldown">cell</option>
