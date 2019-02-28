@@ -314,8 +314,10 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
           <query>| head 20
 | eventstats sum(count) AS total
 | eval proportion = (count/total) * 100
-| fields - total</query>
+| fields - total
+| eval term = '$textfield$'</query>
         </search>
+        <fields>$textfield$,count</fields>
         <option name="count">10</option>
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">cell</option>
@@ -326,7 +328,7 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
           <scale type="minMidMax"></scale>
         </format>
         <drilldown>
-          <set token="specific_word">$row.sentence$</set>
+          <set token="specific_word">$row.term$</set>
           <set token="word_hidden">TRUE</set>
         </drilldown>
       </table>
@@ -439,7 +441,9 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
       <table id="tabledatabar2">
         <search base="group_count">
           <query>| where $group$=="$subgroup$"
-| head 20</query>
+| head 20
+| eval term = '$textfield$'        
+         </query>
         </search>
         <fields>$textfield$,count</fields>
         <option name="count">10</option>
@@ -452,7 +456,7 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
           <scale type="minMidMax"></scale>
         </format>
         <drilldown>
-          <set token="specific_word">$row.sentence$</set>
+          <set token="specific_word">$row.term$</set>
           <set token="word_hidden">TRUE</set>
         </drilldown>
       </table>
