@@ -268,4 +268,4 @@ Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when usin
 Splunk SDK crashes when too much data is sent through it, gets a buffer error. See [https://github.com/splunk/splunk-sdk-python/issues/150](https://github.com/splunk/splunk-sdk-python/issues/150). Workaround would be to used the sample command to down sample the data until it works. 
 
 ### Release Notes
-Fix to Counts dashboard when searching for usage of term.
+Fix to Counts dashboard when searching for usage of term. Fix to cleantext command for consistent output on POS tagging when only one result in the text block.
