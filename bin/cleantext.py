@@ -260,10 +260,10 @@ class CleanText(StreamingCommand):
                         keep_text = lm.lemmatize(
                                 text[0],
                                 self.get_wordnet_pos(text[1])
-                            )
+                            ).encode('ascii', 'ignore')
                         if keep_text:
                             record[self.textfield].append(keep_text)
-                            tuple_list.append((keep_text,text[1]))
+                            tuple_list.append([keep_text,text[1]])
                             tag_list.append(text[1])
                             record['pos_tag'] = tag_list
                             record['pos_tuple'] = tuple_list
