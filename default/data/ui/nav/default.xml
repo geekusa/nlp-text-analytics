@@ -2,7 +2,11 @@
 <nav color="#9C1E5D" search_view="search">
   <view default="true" name="welcome"/>
   <view name="counts"/>
-  <view name="themes"/>
+  <collection label="Themes">
+     <view name="cluster_themes"/>
+     <view name="named_entity_themes"/>
+  </collection>
   <view name="sentiment"/>
+  <view name="classification"/>
   <view name="search"/>
 </nav>

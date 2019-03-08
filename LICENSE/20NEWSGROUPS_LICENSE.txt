@@ -1,0 +1,11 @@
+The 20newsgroups.csv dataset is intended for educational purposes only and provided in this app for such reason. No available licenses found for the popular 20 newsgroups dataset. However it is found in numerous forms on the internet including the following references:
+
+Possible original author:
+Lang, K. (1995). Newsweeder: Learning to filter netnews. In Proceedings of the Twelfth International Conference on Machine Learning (pp. 331–339).
+
+Sited from:
+Jason, R. (2008). Home Page for 20 Newsgroups Data Set. Retrieved March 8, 2019, from http://qwone.com/~jason/20Newsgroups/
+
+Also listed on UCI Machine Learning Repository which sites Tom Mitchell from Carnegie Mellon University as donating the set:
+Mitchell, T. (1999, September 9). UCI Machine Learning Repository: Twenty Newsgroups Data Set. Retrieved from https://archive.ics.uci.edu/ml/datasets/Twenty+Newsgroups
+

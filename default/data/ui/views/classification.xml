@@ -1,0 +1,309 @@
+<form hideEdit="true">
+  <label>Classification</label>
+  <description>This dashboard shows how to use the LinearSVC classifier for document classification</description>
+  <search id="base_search">
+    <query>
+$master_search$
+$html_begin$| bs4 textfield=$textfield$ $html_end$
+`comment("clean and lemmatize the text")`
+| cleantext textfield=$textfield$ base_type=lemma_pos mv=f term_min_len=2 $custom_stopwords$
+| fields $target$ $textfield$
+    </query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <search base="base_search" id="train_split">
+    <query>
+| `comment("split the data into the training set, must set seed for selection to be repeatable")`
+ sample partitions=10 seed=$random_state$
+| search partition_number &lt;= $tt_split$
+  </query>
+  </search>
+  <search base="base_search" id="test_split">
+    <query>
+| `comment("split the data into the test set, must use seed from training selection")`
+ sample partitions=10 seed=$random_state$
+| search partition_number &gt; $tt_split$
+  </query>
+    <progress>
+      <unset token="noop1"></unset>
+    </progress>
+    <done>
+      <set token="noop1">noop</set>
+    </done>
+  </search>
+  <search base="train_split" id="tfidf">
+    <query>
+$noop1$ 
+`comment("create a Term Frequency Inverse Document Frequency matrix")`
+| fit TFIDF $textfield$ max_features=$max_features$ ngram_range=$ngram$ into nlp_tfidf_model
+| fields $target$ $textfield$_tfidf*
+`comment("standard scale the data which is good for linearSVC")`
+| fit MinMaxScaler * into nlp_mms
+| fields - MMS_$target$* $textfield$*
+    </query>
+    <progress>
+      <unset token="noop2"></unset>
+    </progress>
+    <done>
+      <set token="noop2">noop</set>
+    </done>
+  </search>
+  <search base="tfidf" id="create_model">
+    <query>
+$noop2$
+`comment("fit the linearSVC model on the features and save to a model")`
+| fit LinearSVC $target$ from MMS_* into nlp_svc      
+    </query>
+    <progress>
+      <unset token="noop3"></unset>
+    </progress>
+    <done>
+      <set token="noop3">noop</set>
+    </done>
+  </search>
+  <search base="test_split" id="test_model">
+    <query>
+$noop3$
+`comment("apply the TFIDF model")`
+| apply nlp_tfidf_model
+| fields $target$ $textfield$_tfidf*
+`comment("apply the MinMaxScaler model")`
+| apply nlp_mms
+| fields - MMS_$target$* $textfield$*
+`comment("apply the linearSVC model")`
+| apply nlp_svc AS prediction
+    </query>
+    <progress>
+      <unset token="noop4"></unset>
+    </progress>
+    <done>
+      <set token="noop4">noop</set>
+    </done>
+  </search>`confusionmatrix("target", "vote")`<fieldset submitButton="true" autoRun="false">
+    <input type="time" token="time">
+      <label>Time Range</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input id="text_long" type="text" token="master_search">
+      <label>Text Search (output must be tabular-i.e. ... | table text)</label>
+      <default></default>
+    </input>
+    <html>
+      <p/>
+    </html>
+    <input type="text" token="textfield">
+      <label>Text Field</label>
+    </input>
+    <input type="text" token="target">
+      <label>Classification Field</label>
+    </input>
+    <input id="horiz_two_radio_1" type="radio" token="html_dummy">
+      <label>Remove HTML</label>
+      <choice value="Yes">Yes</choice>
+      <choice value="No">No</choice>
+      <change>
+        <condition value="Yes">
+          <set token="html_begin"></set>
+          <set token="html_end"></set>
+        </condition>
+        <condition value="No">
+          <set token="html_begin">`comment("</set>
+          <set token="html_end">")`</set>
+        </condition>
+      </change>
+      <default>No</default>
+      <initialValue>No</initialValue>
+    </input>
+    <input id="text_medium" type="text" token="custom_stopwords">
+      <label>Custom Stopwords (comma separated)</label>
+      <prefix>custom_stopwords="</prefix>
+      <suffix>"</suffix>
+      <default></default>
+    </input>
+    <html>
+      <p/>
+      <p/>
+      <p>
+        <b>TFIDF Options</b>
+      </p>
+    </html>
+    <input type="text" token="max_features">
+      <label>Max Features</label>
+      <default>1000</default>
+      <initialValue>1000</initialValue>
+    </input>
+    <input type="dropdown" token="ngram">
+      <label>TFIDF n-gram range</label>
+      <choice value="1-1">1-1</choice>
+      <choice value="1-2">1-2</choice>
+      <choice value="1-3">1-3</choice>
+      <choice value="1-4">1-4</choice>
+      <default>1-1</default>
+    </input>
+    <html>
+      <p>
+        <b>Training Options</b>
+      </p>
+    </html>
+    <input type="dropdown" token="tt_split" searchWhenChanged="false">
+      <label>Test/Train Split</label>
+      <choice value="5">50/50</choice>
+      <choice value="6">60/40</choice>
+      <choice value="7">70/30</choice>
+      <choice value="8">80/20</choice>
+      <choice value="9">90/10</choice>
+      <default>7</default>
+      <initialValue>7</initialValue>
+    </input>
+    <input type="text" token="random_state">
+      <label>Random State #</label>
+      <default>1234</default>
+      <initialValue>1234</initialValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Clean and Train the Data (create a model)</title>
+      <html>
+      Example input could be <pre>| inputlookup 20newsgroups.csv where category=comp*</pre> using <i>data</i> for the text field and <i>category</i> for the classification field<br/>
+      Note that max_memory_usage_mb and max_distinct_cat_values may need to be increased in your mlspl.conf settings
+      <h3>SPL Used:</h3>
+      <pre>$master_search$
+`comment("clean and lemmatize the text")`
+| cleantext textfield=$textfield$ base_type=lemma_pos mv=f $custom_stopwords$
+| fields $target$ $textfield$
+`comment("split the data into the training set, must set seed for selection to be repeatable")`
+| sample partitions=10 seed=$random_state$
+| search partition_number &lt;= $tt_split$
+`comment("create a Term Frequency Inverse Document Frequency matrix")`
+| fit TFIDF $textfield$ max_features=$max_features$ ngram_range=$ngram$ into nlp_tfidf_model
+| fields $target$ $textfield$_tfidf*
+`comment("standard scale the data which is good for linearSVC")`
+| fit MinMaxScaler * into nlp_mms
+| fields - MMS_$target$* $textfield$*
+`comment("fit the linearSVC model on the features and save to a model")`
+| fit LinearSVC $target$ from MMS_* into nlp_svc</pre>
+    </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Training Data Spread by $target$</title>
+      <chart>
+        <search base="train_split">
+          <query>| stats count BY $target$
+| sort -count</query>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel rejects="$noop2$">
+      <html>Running TFIDF...</html>
+    </panel>
+    <panel depends="$noop2$">
+      <title>Training Data TFIDF Preview</title>
+      <table>
+        <search base="tfidf">
+          <query>$noop2$
+| head 20 
+| rename MMS_$textfield$_tfidf_* AS *
+| table $target$ 100_* 200_* 300_* 400_* 500_*
+| rename 100_* AS * 200_* AS * 300_* AS * 400_* AS * 500_* AS *</query>
+        </search>
+        <option name="count">5</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel rejects="$noop3$">
+      <html>Training Model...</html>
+    </panel>
+    <panel depends="$noop3$">
+      <title>Classification Report On Data Already Seen</title>
+      <table>
+        <title>See how well the model performs on the data it knows the answer to</title>
+        <search base="create_model">
+          <query>
+$noop3$
+|`classificationstatistics($target$,"predicted($target$)")`</query>
+        </search>
+        <option name="count">10</option>
+        <format type="color" field="accuracy">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Apply the Model</title>
+      <html>
+      <h3>SPL Used:</h3>
+      <pre>$master_search$
+`comment("clean and lemmatize the text")`
+| cleantext textfield=$textfield$ base_type=lemma_pos mv=f $custom_stopwords$
+| fields $target$ $textfield$
+`comment("split the data into the test set, must use seed from training selection")`
+| sample partitions=10 seed=$random_state$
+| search partition_number &gt; $tt_split$
+`comment("apply the TFIDF model")`
+| apply nlp_tfidf_model
+| fields $target$ $textfield$_tfidf*
+`comment("apply the MinMaxScaler model")`
+| apply nlp_mms
+| fields - MMS_$target$* $textfield$*
+`comment("apply the linearSVC model")`
+| apply nlp_svc AS prediction</pre>
+Note that if the model is a good, the methods here can be applied to other data unseen
+    </html>
+    </panel>
+  </row>
+  <row>
+    <panel rejects="$noop4$">
+      <html>Applying Model...</html>
+    </panel>
+    <panel depends="$noop4$">
+      <title>Classification Report On Data Not Seen</title>
+      <table>
+        <title>See how well the model performs on new data</title>
+        <search base="test_model">
+          <query>
+$noop4$
+|`classificationstatistics($target$,prediction)`
+          </query>
+        </search>
+        <option name="count">10</option>
+        <format type="color" field="accuracy">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel rejects="$noop4$">
+      <html>Applying Model...</html>
+    </panel>
+    <panel depends="$noop4$">
+      <title>Confusion Matrix</title>
+      <table>
+        <search base="test_model">
+          <query>
+$noop4$
+|`confusionmatrix($target$,prediction)`
+          </query>
+        </search>
+        <option name="count">25</option>
+      </table>
+    </panel>
+  </row>
+</form>

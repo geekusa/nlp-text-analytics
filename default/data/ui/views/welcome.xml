@@ -50,7 +50,19 @@
           <br/>
 <a href="https://splunkbase.splunk.com/app/3767/">Force Directed App For Splunk</a>
           <br/>
+<a href="https://splunkbase.splunk.com/app/3514/">Halo - Custom Visualization</a>
+          <br/>
+<a href="https://splunkbase.splunk.com/app/3112/">Sankey Diagram - Custom Visualization</a>
+          <br/>
         </div>
+        <h1>Example Texts</h1>
+        <div>The app comes with example Gutenberg texts formatted as CSV lookups along with the popular "20 newsgroups" dataset. Load them with the syntax <pre>| inputlookup &lt;filename.csv&gt;</pre>
+        </div>
+        <h3>Text Names</h3>
+        <pre>20newsgroups.csv
+moby_dick.csv
+peter_pan.csv
+pride_prejudice.csv</pre>
         <h1>Custom Commands</h1>
         <h2>bs4</h2>
         <div> A wrapper for BeautifulSoup4 to extract html/xml tags and text from them to use in Splunk. A wrapper script to bring some functionality from BeautifulSoup to Splunk. Default is to get the text and send it to a new field 'get\_text', otherwise the selection is returned in a field named 'soup'. Default is to use the 'lxml' parser, though you can specify others, 'html5lib' is not currently included. The find methods can be used in conjuction, their order of operation is find &gt; find\_all &gt; find\_child &gt; find children. Each option has a similar named option appended '\_attrs' that will accept inner and outer quoted key:value pairs for more precise selections.

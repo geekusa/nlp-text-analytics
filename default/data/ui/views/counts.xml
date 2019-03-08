@@ -4,16 +4,20 @@
   <search id="base_search">
     <query>
 $master_search$
-$html_begin$| bs4 textfield=$textfield$ $html_end$
-| cleantext textfield=$textfield$ base_type=lemma_pos $stopwords$ $custom_stopwords$ ngram_range=$ngram$ ngram_mix=t keep_orig=t
+$html_begin$| bs4 textfield="$textfield$" $html_end$
+| cleantext textfield="$textfield$" base_type=lemma_pos $stopwords$ $custom_stopwords$ ngram_range=$ngram$ ngram_mix=t keep_orig=t term_min_len=2
+| eval pos_zip = mvzip(pos_tag,'$textfield$',",")
+| eval no_ne = mvfilter(!match(pos_zip,"NNPS?,"))
+| rex field=no_ne mode=sed "s/[^,]+,([a-z]+)/\1/"
+$ne_begin$| eval "$textfield$" = no_ne $ne_end$
     </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
   </search>
   <search base="base_search" id="counts">
     <query>
-| stats count BY $textfield$
-| search $textfield$!=""
+| stats count BY "$textfield$"
+| search "$textfield$"!=""
 | sort -count
 </query>
   </search>
@@ -25,8 +29,8 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
   </search>
   <search base="base_search" id="group_count">
     <query>
-| stats count BY $textfield$ $group$
-| search $textfield$!=""
+| stats count BY "$textfield$" "$group$"
+| search "$textfield$"!=""
 | sort -count
 </query>
   </search>
@@ -62,8 +66,8 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
           <set token="html_end"></set>
         </condition>
         <condition value="No">
-          <set token="html_begin">`comment(&quot;</set>
-          <set token="html_end">&quot;)`</set>
+          <set token="html_begin">`comment("</set>
+          <set token="html_end">")`</set>
         </condition>
       </change>
       <default>No</default>
@@ -151,13 +155,36 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
       <label>Grouping Field</label>
       <default></default>
     </input>
+    <input id="horiz_two_radio_4" type="radio" token="named_entities">
+      <label>Separate Named Entities</label>
+      <choice value="Yes">Yes</choice>
+      <choice value="No">No</choice>
+      <default>No</default>
+      <initialValue>No</initialValue>
+      <change>
+        <condition value="Yes">
+          <set token="ne_hidden">true</set>
+          <set token="ne_begin"></set>
+          <set token="ne_end"></set>
+          <set token="ne_search">noop</set>
+        </condition>
+        <condition value="No">
+          <set token="ne_begin">`comment("</set>
+          <set token="ne_end">")`</set>
+          <unset token="ne_hidden"></unset>
+          <unset token="ne_search"></unset>
+        </condition>
+      </change>
+    </input>
   </fieldset>
   <row>
     <panel>
       <title>Total # Terms</title>
       <single>
         <search base="base_search">
-          <query>| stats count($textfield$)</query>
+          <query>
+| stats count("$textfield$")
+          </query>
         </search>
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
@@ -172,7 +199,9 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
       <title>Total # Unique Terms</title>
       <single>
         <search base="base_search">
-          <query>| stats dc($textfield$)</query>
+          <query>
+| stats dc("$textfield$")
+          </query>
         </search>
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
@@ -187,7 +216,9 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
       <title>Total # $textfield$</title>
       <single>
         <search base="base_search">
-          <query>| stats count</query>
+          <query>
+| stats count
+          </query>
         </search>
         <option name="colorMode">block</option>
         <option name="drilldown">none</option>
@@ -203,7 +234,7 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
       <single>
         <search base="base_search">
           <query>
-| stats count($textfield$) AS total count
+| stats count("$textfield$") AS total count
 | eval avgCount = total/count
 | fields avgCount
           </query>
@@ -283,6 +314,48 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
       </single>
     </panel>
   </row>
+  <row depends="$ne_hidden$">
+    <panel>
+      <title>Total Named Entities</title>
+      <viz type="status_indicator_app.status_indicator">
+        <search base="base_search">
+          <query>$ne_search$ | stats count(eval(mvfilter(match(pos_tuple,"[\'\"]NNPS?[\'\"]")))) AS total</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">70</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="status_indicator_app.status_indicator.colorBy">static_color</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">background</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">warning</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">3</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#555</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <title>Unique Named Entities</title>
+      <viz type="status_indicator_app.status_indicator">
+        <search base="base_search">
+          <query>| stats dc(eval(mvfilter(match(pos_tuple,"[\'\"]NNPS?[\'\"]")))) AS total</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">70</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="status_indicator_app.status_indicator.colorBy">static_color</option>
+        <option name="status_indicator_app.status_indicator.fillTarget">background</option>
+        <option name="status_indicator_app.status_indicator.fixIcon">warning</option>
+        <option name="status_indicator_app.status_indicator.icon">fix_icon</option>
+        <option name="status_indicator_app.status_indicator.precision">0</option>
+        <option name="status_indicator_app.status_indicator.showOption">3</option>
+        <option name="status_indicator_app.status_indicator.staticColor">#555</option>
+        <option name="status_indicator_app.status_indicator.useColors">true</option>
+        <option name="status_indicator_app.status_indicator.useThousandSeparator">true</option>
+      </viz>
+    </panel>
+  </row>
   <row>
     <panel>
       <title>Top Parts-of-Speech Tags (+)</title>
@@ -315,9 +388,8 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
 | eventstats sum(count) AS total
 | eval proportion = (count/total) * 100
 | fields - total
-| eval term = '$textfield$'</query>
+| rename "$textfield$" AS term</query>
         </search>
-        <fields>$textfield$,count</fields>
         <option name="count">10</option>
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">cell</option>
@@ -327,6 +399,7 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
           <colorPalette type="minMidMax" maxColor="#EC9960" minColor="#FFFFFF"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
+        <fields>term,count</fields>
         <drilldown>
           <set token="specific_word">$row.term$</set>
           <set token="word_hidden">TRUE</set>
@@ -334,7 +407,7 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
       </table>
     </panel>
     <panel depends="$ngram_hidden$">
-      <title>Top ngrams</title>
+      <title>Top ngrams (+)</title>
       <table>
         <search base="ngram_counts">
           <query>
@@ -357,6 +430,65 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
       </table>
     </panel>
   </row>
+  <row depends="$ne_hidden$">
+    <panel>
+      <title>Top Named Entities (+)</title>
+      <table>
+        <search base="base_search" id="ne_counts">
+          <query>
+$ne_search$
+| eval ne = mvfilter(match(pos_zip,"NNPS?,"))
+| rex field=ne mode=sed "s/[^,]+,([a-z]+)/\1/"
+| stats count by ne
+| sort -count
+</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <format type="color" field="count">
+          <colorPalette type="minMidMax" maxColor="#555" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <drilldown>
+          <set token="specific_word">$row.ne$</set>
+          <set token="word_hidden">TRUE</set>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Named Entities Cloud</title>
+      <input type="dropdown" token="ne_count" searchWhenChanged="true">
+        <label># Entities</label>
+        <choice value="25">25</choice>
+        <choice value="50">50</choice>
+        <choice value="100">100</choice>
+        <choice value="200">200</choice>
+        <default>25</default>
+        <initialValue>25</initialValue>
+      </input>
+      <viz type="wordcloud_app.wordcloud">
+        <search base="ne_counts">
+          <query> 
+| head $ne_count$
+</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="wordcloud_app.wordcloud.alignmentMode">horizontal</option>
+        <option name="wordcloud_app.wordcloud.backgroundColor">#fff</option>
+        <option name="wordcloud_app.wordcloud.colorBy">colorMode</option>
+        <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
+        <option name="wordcloud_app.wordcloud.maxColor">#9C1E5D</option>
+        <option name="wordcloud_app.wordcloud.minColor">#9C9C1E</option>
+        <option name="wordcloud_app.wordcloud.numOfBins">8</option>
+        <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
+        <option name="wordcloud_app.wordcloud.useColors">true</option>
+        <option name="height">350</option>
+      </viz>
+    </panel>
+  </row>
   <row>
     <panel depends="$pos_hidden$">
       <table>
@@ -377,12 +509,15 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
         </drilldown>
       </table>
       <table>
-        <title>Top $pos$ Terms</title>
+        <title>Top $pos$ Terms (+)</title>
         <search base="base_search">
-          <query>| stats count BY pos_tuple
+          <query>
+| stats count BY pos_zip
+| search pos_zip="$pos$,*"
+| rex field=pos_zip mode=sed "s/[^,]+,([a-z]+)/\1/"
+| rename pos_zip AS pos_term
 | sort -count
-| search pos_tuple=*$pos$*
-| rex field=pos_tuple mode=sed "s/\[\"([^\"]+)\",\"[^\"]+\"\]/\1/"</query>
+</query>
         </search>
         <option name="count">10</option>
         <option name="dataOverlayMode">none</option>
@@ -419,8 +554,8 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
       <title>Total # Terms Per $group$ (+)</title>
       <chart>
         <search base="base_search" id="group_counts">
-          <query>| stats count BY $textfield$ $group$
-| stats sum(count) AS count BY $group$
+          <query>| stats count BY "$textfield$" "$group$"
+| stats sum(count) AS count BY "$group$"
 | sort -count</query>
         </search>
         <option name="charting.axisTitleX.visibility">visible</option>
@@ -437,15 +572,15 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
       </chart>
     </panel>
     <panel depends="$subgroup$">
-      <title>Top Terms by $subgroup$</title>
+      <title>Top Terms by $subgroup$ (+)</title>
       <table id="tabledatabar2">
         <search base="group_count">
-          <query>| where $group$=="$subgroup$"
+          <query>| where '$group$'=="$subgroup$"
 | head 20
-| eval term = '$textfield$'        
+| rename "$textfield$" AS term        
          </query>
         </search>
-        <fields>$textfield$,count</fields>
+        <fields>term,count</fields>
         <option name="count">10</option>
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">cell</option>
@@ -480,7 +615,7 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
         <default>200</default>
         <initialValue>200</initialValue>
       </input>
-      <input id="horiz_two_radio_4" type="radio" token="ngram_cloud" depends="$ngram_hidden$">
+      <input id="horiz_two_radio_5" type="radio" token="ngram_cloud" depends="$ngram_hidden$">
         <label>Show ngram Cloud</label>
         <choice value="Yes">Yes</choice>
         <choice value="No">No</choice>
@@ -496,9 +631,9 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
       </input>
       <viz type="wordcloud_app.wordcloud">
         <search base="counts">
-          <query>| fields $textfield$ count 
+          <query>| fields "$textfield$" count 
 | head $term_count$
-| rename $textfield$ as "Top keywords"</query>
+| rename "$textfield$" as "Top keywords"</query>
         </search>
         <option name="drilldown">none</option>
         <option name="refresh.display">progressbar</option>
@@ -553,7 +688,7 @@ $html_begin$| bs4 textfield=$textfield$ $html_end$
         <search base="counts">
           <query>| fields "$textfield$" count 
 | streamstats count AS rank
-| stats first($textfield$) AS $textfield$ first(rank) AS rank BY count
+| stats first("$textfield$") AS "$textfield$" first(rank) AS rank BY count
 | sort -count
 | table "$textfield$" rank count</query>
         </search>

@@ -1,0 +1,121 @@
+<form hideEdit="true">
+  <label>Named Entities</label>
+  <search id="base_search">
+    <query>
+$master_search$
+| cleantext textfield=$textfield$ base_type=lemma_pos remove_stopwords=t term_min_len=2
+| eval ne = mvzip(pos_tag,'$textfield$',",")
+| eval ne = mvfilter(match(ne,"NNPS?,"))
+| rex field=ne mode=sed "s/[^,]+,([a-z]+)/\1/"
+| eval ribbon = if(mvcount(ne)&gt;1,"co-occurence","singular")
+| eval outer = ne
+| stats count by ne outer ribbon
+| where NOT (ne==outer AND ribbon=="co-occurence")
+| eventstats sum(count) AS total_ribbon by ne ribbon
+| eventstats sum(count) AS total by ne
+| sort -total
+| eval perc_of_total = count/total_ribbon
+| streamstats dc(total) AS order
+    </query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <search id="filter" base="base_search">
+    <query>
+| where order&lt;=$num_ne$ AND perc_of_total&gt;=$zone$
+    </query>
+  </search>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="time" token="time">
+      <label>Time Range</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input id="text_long" type="text" token="master_search">
+      <label>Text Search (output must be tabular-i.e. ... | table text)</label>
+      <default></default>
+    </input>
+    <html>
+      <p/>
+      <p/>
+      <p/>
+      <p/>
+      <p/>
+    </html>
+    <input type="text" token="textfield">
+      <label>Text Field</label>
+    </input>
+    <input type="dropdown" token="num_ne" searchWhenChanged="true">
+      <label>#Named Entities</label>
+      <choice value="5">5</choice>
+      <choice value="6">6</choice>
+      <choice value="7">7</choice>
+      <choice value="8">8</choice>
+      <choice value="9">9</choice>
+      <choice value="10">10</choice>
+      <choice value="11">11</choice>
+      <choice value="12">12</choice>
+      <choice value="13">13</choice>
+      <choice value="14">14</choice>
+      <choice value="15">15</choice>
+      <choice value="16">16</choice>
+      <choice value="17">17</choice>
+      <choice value="18">18</choice>
+      <choice value="19">19</choice>
+      <choice value="20">20</choice>
+      <default>10</default>
+    </input>
+    <input type="dropdown" token="zone" searchWhenChanged="true">
+      <label>Link Zone Size</label>
+      <choice value="0.1">Very Small</choice>
+      <choice value="0.04">Small</choice>
+      <choice value="0.02">Medium</choice>
+      <choice value="0.005">Large</choice>
+      <choice value="0.0001">Very Large</choice>
+      <default>0.02</default>
+      <initialValue>0.02</initialValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Importance</title>
+      <viz type="viz_halo.halo">
+        <search base="filter">
+          <query>| eval ribbon_color = if(ribbon=="co-occurence","#9C1E5D","#1E5D9C")
+| table count ne outer ribbon ribbon_color
+| rename ne AS inner</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">900</option>
+        <option name="refresh.display">progressbar</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Connections</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search base="filter">
+          <query>| sort -count
+| table ne outer count</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">600</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="sankey_diagram_app.sankey_diagram.colorMode">categorical</option>
+        <option name="sankey_diagram_app.sankey_diagram.maxColor">#3fc77a</option>
+        <option name="sankey_diagram_app.sankey_diagram.minColor">#d93f3c</option>
+        <option name="sankey_diagram_app.sankey_diagram.numOfBins">6</option>
+        <option name="sankey_diagram_app.sankey_diagram.showBackwards">false</option>
+        <option name="sankey_diagram_app.sankey_diagram.showLabels">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.showLegend">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.showSelf">false</option>
+        <option name="sankey_diagram_app.sankey_diagram.showTooltip">false</option>
+        <option name="sankey_diagram_app.sankey_diagram.styleBackwards">false</option>
+        <option name="sankey_diagram_app.sankey_diagram.useColors">true</option>
+      </viz>
+    </panel>
+  </row>
+</form>

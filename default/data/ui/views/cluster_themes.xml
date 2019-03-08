@@ -1,0 +1,340 @@
+<form script="themes_bar.js" stylesheet="tabledatabar.css" hideEdit="true">
+  <label>Clustering</label>
+  <search id="base_search">
+    <query>
+$master_search$
+$html_begin$| bs4 textfield=$textfield$ $html_end$
+| cleantext textfield=$textfield$ base_type=lemma_pos mv=f term_min_len=2 $custom_stopwords$
+| fit TFIDF $textfield$ max_features=$max_features$ ngram_range=$ngram$ $tfidf_model$
+$topic_begin$| fit $topic_algo$ k=$topic_k$ $textfield$_* $topic_end$
+| fit $cluster_algo$ $clusters$ $topic_begin$"$featurefield$_*"$topic_end$ $tfidf_begin$"$textfield$_*"$tfidf_end$ $cluster_model$
+| table cluster $textfield$
+    </query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <search base="base_search" id="counts">
+    <query>
+| eval "$textfield$" = split('$textfield$', " ")
+| stats count BY "$textfield$" cluster
+| sort cluster -count
+| streamstats count AS clusterCount BY cluster
+  </query>
+  </search>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="time" token="time">
+      <label>Time Range</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input id="text_long" type="text" token="master_search">
+      <label>Text Search (output must be tabular-i.e. ... | table text)</label>
+      <default></default>
+    </input>
+    <html>
+      <p/>
+    </html>
+    <input type="text" token="textfield">
+      <label>Text Field</label>
+    </input>
+    <input id="horiz_two_radio_1" type="radio" token="html_dummy">
+      <label>Remove HTML</label>
+      <choice value="Yes">Yes</choice>
+      <choice value="No">No</choice>
+      <change>
+        <condition value="Yes">
+          <set token="html_begin"></set>
+          <set token="html_end"></set>
+        </condition>
+        <condition value="No">
+          <set token="html_begin">`comment("</set>
+          <set token="html_end">")`</set>
+        </condition>
+      </change>
+      <default>No</default>
+      <initialValue>No</initialValue>
+    </input>
+    <input id="text_medium" type="text" token="custom_stopwords">
+      <label>Custom Stopwords (comma separated)</label>
+      <prefix>custom_stopwords="</prefix>
+      <suffix>"</suffix>
+      <default></default>
+    </input>
+    <html>
+      <p/>
+      <p/>
+      <p>
+        <b>TFIDF Options</b>
+      </p>
+    </html>
+    <input type="text" token="max_features">
+      <label>Max Features</label>
+      <default>1000</default>
+      <initialValue>1000</initialValue>
+    </input>
+    <input type="dropdown" token="ngram">
+      <label>TFIDF n-gram range</label>
+      <choice value="1-1">1-1</choice>
+      <choice value="1-2">1-2</choice>
+      <choice value="1-3">1-3</choice>
+      <choice value="1-4">1-4</choice>
+      <default>1-1</default>
+    </input>
+    <html>
+      <p>
+        <b>Topic Modeling Options</b>
+      </p>
+    </html>
+    <input id="horiz_two_radio_2" type="radio" token="topic_dummy">
+      <label>Use Topic Modeling?</label>
+      <choice value="Yes">Yes</choice>
+      <choice value="No">No</choice>
+      <change>
+        <condition value="Yes">
+          <set token="topic_begin"></set>
+          <set token="topic_end"></set>
+          <set token="tfidf_begin">`comment("</set>
+          <set token="tfidf_end">")`</set>
+          <unset token="topic_hidden"></unset>
+        </condition>
+        <condition value="No">
+          <set token="topic_begin">`comment("</set>
+          <set token="topic_end">")`</set>
+          <set token="tfidf_begin"></set>
+          <set token="tfidf_end"></set>
+          <set token="topic_hidden">True</set>
+        </condition>
+      </change>
+      <default>Yes</default>
+      <initialValue>Yes</initialValue>
+    </input>
+    <input type="dropdown" token="topic_algo" rejects="$topic_hidden$" searchWhenChanged="false">
+      <label>Topic Model Algorithm</label>
+      <choice value="TruncatedSVD">TruncatedSVD</choice>
+      <choice value="LatentDirichletAllocation">LatentDirichletAllocation</choice>
+      <choice value="NMF">NMF</choice>
+      <default>TruncatedSVD</default>
+      <initialValue>TruncatedSVD</initialValue>
+      <change>
+        <condition value="TruncatedSVD">
+          <set token="featurefield">SVD</set>
+        </condition>
+        <condition value="LatentDirichletAllocation">
+          <set token="featurefield">LDA</set>
+        </condition>
+        <condition value="NMF">
+          <set token="featurefield">NMF</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="topic_k" rejects="$topic_hidden$">
+      <label>#Topic Components</label>
+      <default>100</default>
+      <initialValue>100</initialValue>
+    </input>
+    <html>
+      <p>
+        <b>Clustering Options</b>
+      </p>
+    </html>
+    <input type="dropdown" token="cluster_algo">
+      <label>Cluster Algorithm</label>
+      <choice value="KMeans">KMeans</choice>
+      <choice value="Birch">Birch</choice>
+      <choice value="SpectralClustering">SpectralClustering</choice>
+      <choice value="DBSCAN">DBSCAN</choice>
+      <choice value="XMeans">XMeans</choice>
+      <default>KMeans</default>
+      <initialValue>KMeans</initialValue>
+      <change>
+        <condition value="KMeans">
+          <unset token="k_hidden"></unset>
+        </condition>
+        <condition value="Birch">
+          <unset token="k_hidden"></unset>
+        </condition>
+        <condition value="SpectralClustering">
+          <unset token="k_hidden"></unset>
+        </condition>
+        <condition value="DBSCAN">
+          <set token="k_hidden">true</set>
+          <set token="clusters"></set>
+        </condition>
+        <condition value="XMeans">
+          <set token="k_hidden">true</set>
+          <set token="clusters"></set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="clusters" rejects="$k_hidden$">
+      <label># of Clusters</label>
+      <default>7</default>
+      <prefix>k=</prefix>
+    </input>
+    <input id="horiz_two_radio_3" type="radio" token="save_dummy">
+      <label>Save Models?</label>
+      <choice value="Yes">Yes</choice>
+      <choice value="No">No</choice>
+      <change>
+        <condition value="No">
+          <unset token="save_hidden"></unset>
+        </condition>
+        <condition value="Yes">
+          <set token="save_hidden">True</set>
+        </condition>
+      </change>
+      <default>No</default>
+      <initialValue>No</initialValue>
+    </input>
+    <html depends="$save_hidden$">
+      <p>
+        <b>Save Mode Names</b>
+      </p>
+    </html>
+    <input type="text" token="tfidf_model" depends="$save_hidden$">
+      <label>TFIDF Model Name</label>
+      <default></default>
+      <prefix>into </prefix>
+    </input>
+    <input type="text" token="topic_model" depends="$save_hidden$">
+      <label>Topic Model Name</label>
+      <default></default>
+      <prefix>into </prefix>
+    </input>
+    <input type="text" token="cluster_model" depends="$save_hidden$">
+      <label>Cluster Model Name</label>
+      <default></default>
+      <prefix>into </prefix>
+    </input>
+  </fieldset>
+  <row depends="$k_hidden$">
+    <panel>
+      <title># of Clusters</title>
+      <single>
+        <search base="counts">
+          <query>| stats dc(cluster) as total_clusters</query>
+          <done>
+            <eval token="radius">case($result.total_clusters$&lt;=6,9,$result.total_clusters$&lt;=14,7,true(),5)</eval>
+          </done>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">79</option>
+        <option name="rangeColors">["0x000","0x000"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top Terms Per Cluster</title>
+      <input type="dropdown" token="topterms" searchWhenChanged="true">
+        <label>Term Count</label>
+        <choice value="2">2</choice>
+        <choice value="5">5</choice>
+        <choice value="10">10</choice>
+        <choice value="20">20</choice>
+        <choice value="30">30</choice>
+        <choice value="40">40</choice>
+        <default>10</default>
+        <initialValue>10</initialValue>
+      </input>
+      <table id="tabledatabar">
+        <search base="counts">
+          <query>| eventstats count($textfield$) AS documentCount BY cluster
+| where clusterCount &lt;= $topterms$
+| stats values($textfield$) AS terms values(documentCount) AS documentCount BY cluster
+| eventstats sum(documentCount) as total
+| eval documentProportion = documentCount/total * 100
+| table terms cluster documentProportion documentCount
+| eval terms = mvjoin(terms, " ")</query>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="documentCount">
+          <colorPalette type="minMidMax" maxColor="#EC9960" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <input type="dropdown" token="trellis_size" searchWhenChanged="true">
+        <label>Trellis Size</label>
+        <choice value="small">Small</choice>
+        <choice value="medium">Medium</choice>
+        <choice value="large">Large</choice>
+        <default>medium</default>
+        <initialValue>medium</initialValue>
+        <change>
+          <condition value="small">
+            <set token="trellis_height">250</set>
+          </condition>
+          <condition value="medium">
+            <set token="trellis_height">500</set>
+          </condition>
+          <condition value="large">
+            <set token="trellis_height">1000</set>
+          </condition>
+        </change>
+      </input>
+      <chart>
+        <search base="counts" id="final_cluster">
+          <query>
+| where clusterCount &lt;= $topterms$
+| fields - clusterCount
+          </query>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="height">$trellis_height$</option>
+        <option name="trellis.enabled">1</option>
+        <option name="trellis.size">$trellis_size$</option>
+        <option name="trellis.splitBy">cluster</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <viz type="force_directed_viz.force_directed">
+        <search base="final_cluster"></search>
+        <option name="drilldown">all</option>
+        <option name="force_directed_viz.force_directed.AttractDistanceMax">200</option>
+        <option name="force_directed_viz.force_directed.AttractDistanceMin">60</option>
+        <option name="force_directed_viz.force_directed.AttractForceStrength">-300</option>
+        <option name="force_directed_viz.force_directed.CollisionIterations">1</option>
+        <option name="force_directed_viz.force_directed.CollisionRadius">20</option>
+        <option name="force_directed_viz.force_directed.CollisionStrength">0.7</option>
+        <option name="force_directed_viz.force_directed.ColorRange1">100</option>
+        <option name="force_directed_viz.force_directed.ColorRange1Code">#65a637</option>
+        <option name="force_directed_viz.force_directed.ColorRange2">500</option>
+        <option name="force_directed_viz.force_directed.ColorRange2Code">#6db7c6</option>
+        <option name="force_directed_viz.force_directed.ColorRange3">1000</option>
+        <option name="force_directed_viz.force_directed.ColorRange3Code">#f7bc38</option>
+        <option name="force_directed_viz.force_directed.ColorRange4">10000</option>
+        <option name="force_directed_viz.force_directed.ColorRange4Code">#f58f39</option>
+        <option name="force_directed_viz.force_directed.ColorRange5">1000000</option>
+        <option name="force_directed_viz.force_directed.ColorRange5Code">#d93f3c</option>
+        <option name="force_directed_viz.force_directed.ForceCollision">20</option>
+        <option name="force_directed_viz.force_directed.LineColor">disabled</option>
+        <option name="force_directed_viz.force_directed.LinkDistance">100</option>
+        <option name="force_directed_viz.force_directed.LinkLength">1</option>
+        <option name="force_directed_viz.force_directed.RepelDistanceMax">50</option>
+        <option name="force_directed_viz.force_directed.RepelDistanceMin">10</option>
+        <option name="force_directed_viz.force_directed.RepelForceStrength">-140</option>
+        <option name="force_directed_viz.force_directed.StrokeWidth">1</option>
+        <option name="force_directed_viz.force_directed.arrows">enabled</option>
+        <option name="force_directed_viz.force_directed.circleSize">$radius$</option>
+        <option name="force_directed_viz.force_directed.panzoom">enabled</option>
+        <option name="force_directed_viz.force_directed.theme">dark</option>
+      </viz>
+    </panel>
+  </row>
+</form>

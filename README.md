@@ -8,7 +8,7 @@ Available at:
 Splunk App Available at:
 [https://splunkbase.splunk.com/app/4066/](https://splunkbase.splunk.com/app/4066/)
 
-Version: 0.9.4.2
+Version: 1.0.0
 
 ##### Author: Nathan Worsham 
 Created for MSDS692 Data Science Practicum I at Regis University, 2018 </br>
@@ -30,6 +30,8 @@ Splunk ML Toolkit 3.2 or greater [https://splunkbase.splunk.com/app/2890/](https
 Wordcloud Custom Visualization [https://splunkbase.splunk.com/app/3212/](https://splunkbase.splunk.com/app/3212/) </br>
 Parallel Coordinates Custom Visualization [https://splunkbase.splunk.com/app/3137/](https://splunkbase.splunk.com/app/3137/) </br>
 Force Directed App For Splunk [https://splunkbase.splunk.com/app/3767/](https://splunkbase.splunk.com/app/3767/)
+Halo - Custom Visualization [https://splunkbase.splunk.com/app/3514/](https://splunkbase.splunk.com/app/3514/)
+Sankey Diagram - Custom Visualization [https://splunkbase.splunk.com/app/3112/](https://splunkbase.splunk.com/app/3112/)
 
 ## How to use
 
@@ -39,7 +41,13 @@ Normal app installation can be followed from https://docs.splunk.com/Documentati
 
 ### Example Texts
 
-The app comes with an example Gutenberg texts formatted as CSV lookups.
+The app comes with example Gutenberg texts formatted as CSV lookups along with the popular "20 newsgroups" dataset. Load them with the syntax `| inputlookup <filename.csv>` 
+
+##### Text Names
+`20newsgroups.csv` <br/>
+`moby_dick.csv` <br/>
+`peter_pan.csv` <br/>
+`pride_prejudice.csv` <br/>
 
 ### Custom Commands
 
@@ -268,4 +276,4 @@ Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when usin
 Splunk SDK crashes when too much data is sent through it, gets a buffer error. See [https://github.com/splunk/splunk-sdk-python/issues/150](https://github.com/splunk/splunk-sdk-python/issues/150). Workaround would be to used the sample command to down sample the data until it works. 
 
 ### Release Notes
-Fix to Counts dashboard when searching for usage of term. Fix to cleantext command for consistent output on POS tagging when only one result in the text block.
+Fix to Counts dashboard when searching for usage of term. Fix to cleantext command for consistent output on POS tagging when only one result in the text block. Added named entities to Counts dashboard. Added Themes category, renamed Themes dashboard to Clustering. Added Named Entities dashboard under Themes. Updated visualization app requirements. Added 20newsgroups.csv dataset. Added Classification dashboard. Updated documentation. Updated text cleaning option to require minimum term length of 2.
