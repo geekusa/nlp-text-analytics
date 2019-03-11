@@ -1,7 +1,7 @@
 Terminology,Explanation,Link
 NLP,Natural language processing - discipline of AI concerning the analysis and comprehension of human language,Natural_language_processing
 ngram,"Word combination sequences - example of a 3-gram--""quick brown fox""",N-gram
-TFIDF,Term frequency-inverse document frequency - a numerical representation of a term importance per document in a corpus,Tf–idf
+TFIDF,Term frequency-inverse document frequency - a numerical representation of a term importance per document in a corpus,Tf-idf
 Document,"Single portion of a corpus, in Splunk one event or text field from the event would represent the document",Text_corpus
 Corpus,"Collection of documents, in Splunk this would be represented by the total events returned on a search",Text_corpus
 LSA,Latent semantic analysis - can be used to reduce dimensionality of a TFIDF by evaluating document and term relationships,Latent_semantic_analysis
