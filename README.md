@@ -8,7 +8,7 @@ Available at:
 Splunk App Available at:
 [https://splunkbase.splunk.com/app/4066/](https://splunkbase.splunk.com/app/4066/)
 
-Version: 1.0.0
+Version: 1.0.1
 
 ##### Author: Nathan Worsham 
 Created for MSDS692 Data Science Practicum I at Regis University, 2018 </br>
@@ -276,4 +276,4 @@ Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when usin
 Splunk SDK crashes when too much data is sent through it, gets a buffer error. See [https://github.com/splunk/splunk-sdk-python/issues/150](https://github.com/splunk/splunk-sdk-python/issues/150). Workaround would be to used the sample command to down sample the data until it works. 
 
 ### Release Notes
-Fix to Counts dashboard when searching for usage of term. Fix to cleantext command for consistent output on POS tagging when only one result in the text block. Added named entities to Counts dashboard. Added Themes category, renamed Themes dashboard to Clustering. Added Named Entities dashboard under Themes. Updated visualization app requirements. Added 20newsgroups.csv dataset. Added Classification dashboard. Updated documentation. Updated text cleaning option to require minimum term length of 2.
+Minor fix for file permissions found from appinspect. Update 20newsgroups dataset to not contain and index column. 
