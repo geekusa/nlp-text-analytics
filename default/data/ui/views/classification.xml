@@ -38,8 +38,9 @@ $noop1$
 `comment("create a Term Frequency Inverse Document Frequency matrix")`
 | fit TFIDF $textfield$ max_features=$max_features$ ngram_range=$ngram$ into nlp_tfidf_model
 | fields $target$ $textfield$_tfidf*
-`comment("standard scale the data which is good for linearSVC")`
+`comment("standard scale the data which is good for LinearSVC")`
 | fit MinMaxScaler * into nlp_mms
+`comment("Remove the target field MMS created so there is not data leakage")`
 | fields - MMS_$target$* $textfield$*
     </query>
     <progress>
@@ -52,7 +53,7 @@ $noop1$
   <search base="tfidf" id="create_model">
     <query>
 $noop2$
-`comment("fit the linearSVC model on the features and save to a model")`
+`comment("fit the LinearSVC model on the features and save to a model")`
 | fit LinearSVC $target$ from MMS_* into nlp_svc      
     </query>
     <progress>
@@ -71,7 +72,7 @@ $noop3$
 `comment("apply the MinMaxScaler model")`
 | apply nlp_mms
 | fields - MMS_$target$* $textfield$*
-`comment("apply the linearSVC model")`
+`comment("apply the LinearSVC model")`
 | apply nlp_svc AS prediction
     </query>
     <progress>
@@ -182,8 +183,9 @@ $noop3$
 `comment("create a Term Frequency Inverse Document Frequency matrix")`
 | fit TFIDF $textfield$ max_features=$max_features$ ngram_range=$ngram$ into nlp_tfidf_model
 | fields $target$ $textfield$_tfidf*
-`comment("standard scale the data which is good for linearSVC")`
+`comment("standard scale the data which is good for LinearSVC")`
 | fit MinMaxScaler * into nlp_mms
+`comment("Remove the target field MMS created so there is not data leakage")`
 | fields - MMS_$target$* $textfield$*
 `comment("fit the linearSVC model on the features and save to a model")`
 | fit LinearSVC $target$ from MMS_* into nlp_svc</pre>
