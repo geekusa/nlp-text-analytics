@@ -276,4 +276,4 @@ Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when usin
 Splunk SDK crashes when too much data is sent through it, gets a buffer error. See [https://github.com/splunk/splunk-sdk-python/issues/150](https://github.com/splunk/splunk-sdk-python/issues/150). Workaround would be to used the sample command to down sample the data until it works. 
 
 ### Release Notes
-Version bump for appinspect.
+Change to allow UI to present multiple choice values for some options on cleantext and bs4 commands.
