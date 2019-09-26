@@ -119,6 +119,13 @@ class Bs4(StreamingCommand):
         **Description:** If get_text is true, sets the label for the return field''',
         )
 
+    get_attr = Option(
+        default=None,
+        doc='''
+        **Syntax:** **get_attr=***<attribute_name_string>*
+        **Description:** If set, returns attribute value for given selection and places in field of the same name''',
+        )
+
     #http://dev.splunk.com/view/logging/SP-CAAAFCN
     def setup_logging(self):
         logger = logging.getLogger('splunk.foo')    
@@ -181,6 +188,14 @@ class Bs4(StreamingCommand):
                     )
                 else:
                     soup = soup.findChildren(self.find_children)
+            if self.get_attr and not (self.find_all or self.find_children):
+                record[self.get_attr] = \
+                    soup.get(self.get_attr)
+            elif self.get_attr and (self.find_all or self.find_children):
+                record[self.get_attr] = [
+                    i.get(self.get_attr)
+                    for i in soup
+                ]
             if self.get_text and not (self.find_all or self.find_children):
                 record[self.get_text_label] = \
                     soup.get_text().decode('unicode_escape').encode('ascii','ignore')

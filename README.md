@@ -74,6 +74,11 @@ _bs4_
 >     **Usage:** String value</br>
 >     **Default:** get_text
 > 
+> **get\_attr** </br>
+>     **Syntax:** get\_attr=\<attribute_name_string> </br>
+>     **Description:** If set, returns attribute value for given selection and places in field of the same name. </br>
+>     **Usage:** String value</br>
+> 
 > **parser** </br>
 >     **Syntax:** parser=\<string> </br>
 >     **Description:** Corresponds to parsers listed [here](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-a-parser) (currently html5lib not packaged with so not an option). </br>
@@ -276,4 +281,4 @@ Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when usin
 Splunk SDK crashes when too much data is sent through it, gets a buffer error. See [https://github.com/splunk/splunk-sdk-python/issues/150](https://github.com/splunk/splunk-sdk-python/issues/150). Workaround would be to used the sample command to down sample the data until it works. 
 
 ### Release Notes
-Change to allow UI to present multiple choice values for some options on cleantext and bs4 commands.
+Change to allow UI to present multiple choice values for some options on cleantext and bs4 commands. Add get_attr option to the bs4 command to retrieve attributes of elements.
