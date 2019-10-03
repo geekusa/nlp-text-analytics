@@ -96,8 +96,8 @@ _bs4_
 >     **Usage:** "'key1':'value1','key2':'value2'"
 > 
 >**find\_all** </br>
->     **Syntax:** find\_all=\<tag> </br>
->     **Description:** Corresponds to the name attribute of BeautifulSoup's find_all method. Order of operation is find > find_all > find_child > find_children so can be used in conjunction. </br>
+>     **Syntax:** find\_all=\<tag(s)> </br>
+>     **Description:** Corresponds to the name attribute of BeautifulSoup's find_all method. Order of operation is find > find_all > find_child > find_children so can be used in conjunction. Can find one or more tags by comma separating tags (also quote entire option) i.e. find_all="div, a".</br>
 >     **Usage:** HTML or XML element name
 > 
 >**find\_all\_attrs** </br>
@@ -281,4 +281,4 @@ Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when usin
 Splunk SDK crashes when too much data is sent through it, gets a buffer error. See [https://github.com/splunk/splunk-sdk-python/issues/150](https://github.com/splunk/splunk-sdk-python/issues/150). Workaround would be to used the sample command to down sample the data until it works. 
 
 ### Release Notes
-Change to allow UI to present multiple choice values for some options on cleantext and bs4 commands. Add get_attr option to the bs4 command to retrieve attributes of elements.
+Change to allow UI to present multiple choice values for some options on cleantext and bs4 commands. Add get_attr option to the bs4 command to retrieve attributes of elements. Change to allow bs4 find_all to search mulitple elements using a comma.

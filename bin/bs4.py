@@ -165,6 +165,8 @@ class Bs4(StreamingCommand):
                 else:
                     soup = soup.find(self.find)
             if self.find_all:
+                if "," in self.find_all:
+                    self.find_all = self.find_all.replace(' ','').split(',')
                 if self.find_all_attrs is not None:
                     soup = soup.find_all(
                         self.find_all, 
