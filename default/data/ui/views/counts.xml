@@ -1,4 +1,4 @@
-<form script="tabledatabar.js" stylesheet="tabledatabar.css" hideEdit="true">
+<form script="counts.js" hideEdit="true">
   <label>Counts</label>
   <description>Click in panels with (+) for further action</description>
   <search id="base_search">
@@ -384,7 +384,7 @@ $ne_begin$| eval "$textfield$" = no_ne $ne_end$
       <title>Top Terms (+)</title>
       <table id="tabledatabar">
         <search base="counts">
-          <query>| head 20
+          <query>
 | eventstats sum(count) AS total
 | eval proportion = (count/total) * 100
 | fields - total
@@ -533,7 +533,7 @@ $ne_search$
       </table>
     </panel>
     <panel depends="$word_hidden$">
-      <table>
+      <table id="highlight">
         <title>$specific_word$ Occurences</title>
         <search base="base_search">
           <query>
