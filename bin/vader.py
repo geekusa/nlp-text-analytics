@@ -13,11 +13,15 @@ import logging, logging.handlers
 
 #from string import punctuation, digits, maketrans
 
-from splunk.appserver.mrsparkle.lib.util import make_splunkhome_path
 from splunk import setupSplunkLogger
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.data import path as nltk_data_path
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
+
+try:
+    from splunk.clilib.bundle_paths import make_splunkhome_path
+except ImportError:
+    from splunkappserver.mrsparkle.lib.util import make_splunkhome_path
 
 BASE_DIR = make_splunkhome_path(["etc","apps","nlp-text-analytics"])
 CORPORA_DIR = os.path.join(BASE_DIR,'bin','nltk_data')

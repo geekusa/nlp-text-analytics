@@ -5,10 +5,14 @@ import os
 import logging, logging.handlers
 from ast import literal_eval
 
-from splunk.appserver.mrsparkle.lib.util import make_splunkhome_path
 from splunk import setupSplunkLogger
 from bs4 import BeautifulSoup
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
+
+try:
+    from splunk.clilib.bundle_paths import make_splunkhome_path
+except ImportError:
+    from splunkappserver.mrsparkle.lib.util import make_splunkhome_path
 
 @Configuration(local=True)
 class Bs4(StreamingCommand):
