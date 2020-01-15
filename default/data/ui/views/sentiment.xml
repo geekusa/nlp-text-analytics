@@ -168,7 +168,7 @@ $master_search$
         <option name="refresh.display">progressbar</option>
       </chart>
       <viz type="parallel_coordinates_app.parallel_coordinates">
-        <title>Parellel Coordinates</title>
+        <title>Parallel Coordinates</title>
         <search base="base_search">
           <query>|eval sentiment_negative = sentiment_negative * -1
 |streamstats count AS $textfield$
