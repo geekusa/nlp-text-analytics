@@ -126,12 +126,14 @@ $master_search$
       </input>
       <chart>
         <search base="base_search">
-          <query>|eval sentiment_negative = sentiment_negative * -1
-|streamstats count AS $textfield$
-|table $textfield$ sentiment*
-|fields - sentiment_neutral
-|sample ratio=$sample$
-|streamstats avg(sentiment) AS avg_sentiment</query>
+          <query>
+| eval sentiment_negative = sentiment_negative * -1
+| streamstats count AS $textfield$
+| fields - sentiment_neutral
+| sample ratio=$sample$
+| table $textfield$ sentiment*
+| streamstats avg(sentiment) AS avg_sentiment
+        </query>
         </search>
         <option name="charting.axisTitleX.visibility">visible</option>
         <option name="charting.axisTitleY.visibility">visible</option>
@@ -147,12 +149,14 @@ $master_search$
       <chart>
         <title>Neutral Scores</title>
         <search base="base_search">
-          <query>|eval sentiment_negative = sentiment_negative * -1
-|streamstats count AS $textfield$
-|table $textfield$ sentiment*
-|fields $textfield$ sentiment_neutral
-|sample ratio=$sample$
-|streamstats avg(sentiment_neutral) AS avg_sentiment_neutral</query>
+          <query>
+| eval sentiment_negative = sentiment_negative * -1
+| streamstats count AS $textfield$
+| fields $textfield$ sentiment_neutral
+| sample ratio=$sample$
+| table $textfield$ sentiment*
+| streamstats avg(sentiment_neutral) AS avg_sentiment_neutral
+         </query>
         </search>
         <option name="charting.axisTitleX.visibility">visible</option>
         <option name="charting.axisTitleY.visibility">visible</option>

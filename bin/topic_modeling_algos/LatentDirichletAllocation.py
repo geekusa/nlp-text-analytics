@@ -27,7 +27,7 @@ class LatentDirichletAllocation(TransformerMixin, BaseAlgo):
     def rename_output(self, default_names, new_names):
         if new_names is None:
             new_names = 'LDA'
-        output_names = ['{}_{}'.format(new_names, i+1) for i in xrange(len(default_names))]
+        output_names = ['{}_{}'.format(new_names, i+1) for i in range(len(default_names))]
         return output_names
 
     @staticmethod
