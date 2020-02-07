@@ -58,19 +58,22 @@ attributes, and methods that are specific to each kind of entity. For example::
     my_app.package()  # Creates a compressed package of this application
 """
 
+import contextlib
 import datetime
 import json
-from splunklib.six.moves import urllib
 import logging
-from time import sleep
-from datetime import datetime, timedelta
 import socket
-import contextlib
+from datetime import datetime, timedelta
+from time import sleep
 
 from splunklib import six
-from .binding import Context, HTTPError, AuthenticationError, namespace, UrlEncoded, _encode, _make_cookie_header, _NoAuthenticationToken
-from .data import record
+from splunklib.six.moves import urllib
+
 from . import data
+from .binding import (AuthenticationError, Context, HTTPError, UrlEncoded,
+                      _encode, _make_cookie_header, _NoAuthenticationToken,
+                      namespace)
+from .data import record
 
 __all__ = [
     "connect",
@@ -193,8 +196,11 @@ def _path(base, name):
 
 
 # Load an atom record from the body of the given response
+# this will ultimately be sent to an xml ElementTree so we
+# should use the xmlcharrefreplace option
 def _load_atom(response, match=None):
-    return data.load(response.body.read().decode('utf-8'), match)
+    return data.load(response.body.read()
+                     .decode('utf-8', 'xmlcharrefreplace'), match)
 
 
 # Load an array of atom entries from the body of the given response
@@ -289,6 +295,9 @@ def connect(**kwargs):
     :type port: ``integer``
     :param scheme: The scheme for accessing the service (the default is "https").
     :type scheme: "https" or "http"
+    :param verify: Enable (True) or disable (False) SSL verrification for
+                   https connections. (optional, the default is True)
+    :type verify: ``Boolean``
     :param `owner`: The owner context of the namespace (optional).
     :type owner: ``string``
     :param `app`: The app context of the namespace (optional).
@@ -356,6 +365,9 @@ class Service(_BaseService):
     :type port: ``integer``
     :param scheme: The scheme for accessing the service (the default is "https").
     :type scheme: "https" or "http"
+    :param verify: Enable (True) or disable (False) SSL verrification for
+                   https connections. (optional, the default is True)
+    :type verify: ``Boolean``
     :param `owner`: The owner context of the namespace (optional; use "-" for wildcard).
     :type owner: ``string``
     :param `app`: The app context of the namespace (optional; use "-" for wildcard).
@@ -450,6 +462,13 @@ class Service(_BaseService):
         """
         response = self.get("/services/server/info")
         return _filter_content(_load_atom(response, MATCH_ENTRY_CONTENT))
+
+    def input(self, path, kind=None):
+        """Retrieves an input by path, and optionally kind.
+
+        :return: A :class:`Input` object.
+        """
+        return Input(self, path, kind=kind).refresh()
 
     @property
     def inputs(self):
@@ -551,7 +570,7 @@ class Service(_BaseService):
         # This message will be deleted once the server actually restarts.
         self.messages.create(name="restart_required", **msg)
         result = self.post("/services/server/control/restart")
-        if timeout is None: 
+        if timeout is None:
             return result
         start = datetime.now()
         diff = timedelta(seconds=timeout)
@@ -1188,7 +1207,7 @@ class ReadOnlyCollection(Endpoint):
         :raises ValueError: Raised if no namespace is specified and *key*
                             does not refer to a unique name.
 
-        *Example*::
+        **Example**::
 
             s = client.connect(...)
             saved_searches = s.saved_searches
@@ -1624,9 +1643,9 @@ class Collection(ReadOnlyCollection):
         :rtype: ``dict`` with keys ``body``, ``headers``, ``reason``,
                 and ``status``
 
-        Example:
-        
-        import splunklib.client
+        **Example**::
+
+            import splunklib.client
             s = client.service(...)
             saved_searches = s.saved_searches
             saved_searches.get("my/saved/search") == \\
@@ -1679,7 +1698,7 @@ class Configurations(Collection):
         # The superclass implementation is designed for collections that contain
         # entities. This collection (Configurations) contains collections
         # (ConfigurationFile).
-        # 
+        #
         # The configurations endpoint returns multiple entities when we ask for a single file.
         # This screws up the default implementation of __getitem__ from Collection, which thinks
         # that multiple entities means a name collision, so we have to override it here.
@@ -1743,9 +1762,9 @@ class Stanza(Entity):
     """This class contains a single configuration stanza."""
 
     def submit(self, stanza):
-        """Adds keys to the current configuration stanza as a 
+        """Adds keys to the current configuration stanza as a
         dictionary of key-value pairs.
-        
+
         :param stanza: A dictionary of key-value pairs for the stanza.
         :type stanza: ``dict``
         :return: The :class:`Stanza` object.
@@ -1956,7 +1975,7 @@ class Index(Entity):
                    cookie_or_auth_header.encode('utf-8'),
                    b"X-Splunk-Input-Mode: Streaming\r\n",
                    b"\r\n"]
-        
+
         for h in headers:
             sock.write(h)
         return sock
@@ -3557,7 +3576,7 @@ class KVStoreCollection(Entity):
     def data(self):
         """Returns data object for this Collection.
 
-        :rtype: :class:`KVStoreData`
+        :rtype: :class:`KVStoreCollectionData`
         """
         return KVStoreCollectionData(self)
 
@@ -3689,13 +3708,13 @@ class KVStoreCollectionData(object):
 
         :param dbqueries: Array of individual queries as dictionaries
         :type dbqueries: ``array`` of ``dict``
-        
+
         :return: Results of each query
         :rtype: ``array`` of ``array``
         """
-        if len(dbqueries) < 1: 
+        if len(dbqueries) < 1:
             raise Exception('Must have at least one query.')
-        
+
         data = json.dumps(dbqueries)
 
         return json.loads(self._post('batch_find', headers=KVStoreCollectionData.JSON_HEADER, body=data).body.read().decode('utf-8'))
@@ -3706,13 +3725,13 @@ class KVStoreCollectionData(object):
 
         :param documents: Array of documents to save as dictionaries
         :type documents: ``array`` of ``dict``
-        
+
         :return: Results of update operation as overall stats
         :rtype: ``dict``
         """
-        if len(documents) < 1: 
+        if len(documents) < 1:
             raise Exception('Must have at least one document.')
-        
+
         data = json.dumps(documents)
 
         return json.loads(self._post('batch_save', headers=KVStoreCollectionData.JSON_HEADER, body=data).body.read().decode('utf-8'))
