@@ -1,4 +1,4 @@
-.. Copyright (C) 2001-2018 NLTK Project
+.. Copyright (C) 2001-2019 NLTK Project
 .. For license information, see LICENSE.TXT
 
 =============
@@ -181,5 +181,3 @@ Regression tests for TypedMaxentFeatureEncoding
 
     >>> classifier.classify_many(test)
     ['y', 'x']
-
-

@@ -3,7 +3,7 @@
 # Authors: Liling Tan <alvations@gmail.com>,
 #          Dmitrijs Milajevs <dimazest@gmail.com>
 #
-# Copyright (C) 2001-2018 NLTK Project
+# Copyright (C) 2001-2019 NLTK Project
 # URL: <http://nltk.org/>
 # For license information, see LICENSE.TXT
 
@@ -49,5 +49,3 @@ def lesk(context_sentence, ambiguous_word, pos=None, synsets=None):
     )
 
     return sense
-
-
