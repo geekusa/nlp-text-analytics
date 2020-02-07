@@ -1,18 +1,17 @@
-#!/opt/splunk/bin/python
+#!/usr/bin/env python
 
 import sys
 import os
-import logging, logging.handlers
 from ast import literal_eval
 
-from splunk import setupSplunkLogger
+splunkhome = os.environ['SPLUNK_HOME']
+base_dir = os.path.join(splunkhome, 'etc', 'apps', 'nlp-text-analytics')
+if sys.version_info >= (3, 0):
+    sys.path.insert(0, os.path.join(base_dir,'bin','lib3'))
+else:
+    sys.path.insert(0, os.path.join(base_dir,'bin','lib2'))
 from bs4 import BeautifulSoup
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
-
-try:
-    from splunk.clilib.bundle_paths import make_splunkhome_path
-except ImportError:
-    from splunkappserver.mrsparkle.lib.util import make_splunkhome_path
 
 @Configuration(local=True)
 class Bs4(StreamingCommand):
@@ -130,33 +129,6 @@ class Bs4(StreamingCommand):
         **Description:** If set, returns attribute value for given selection and places in field of the same name''',
         )
 
-    #http://dev.splunk.com/view/logging/SP-CAAAFCN
-    def setup_logging(self):
-        logger = logging.getLogger('splunk.foo')    
-        SPLUNK_HOME = os.environ['SPLUNK_HOME']
-        
-        LOGGING_DEFAULT_CONFIG_FILE = os.path.join(SPLUNK_HOME, 'etc', 'log.cfg')
-        LOGGING_LOCAL_CONFIG_FILE = os.path.join(SPLUNK_HOME, 'etc', 'log-local.cfg')
-        LOGGING_STANZA_NAME = 'python'
-        LOGGING_FILE_NAME = "nlp-text-analytics.log"
-        BASE_LOG_PATH = os.path.join('var', 'log', 'splunk')
-        LOGGING_FORMAT = "%(asctime)s %(levelname)-s\t%(module)s:%(lineno)d - %(message)s"
-        splunk_log_handler = logging.handlers.RotatingFileHandler(
-            os.path.join(
-                SPLUNK_HOME,
-                BASE_LOG_PATH,
-                LOGGING_FILE_NAME
-            ), mode='a') 
-        splunk_log_handler.setFormatter(logging.Formatter(LOGGING_FORMAT))
-        logger.addHandler(splunk_log_handler)
-        setupSplunkLogger(
-            logger,
-            LOGGING_DEFAULT_CONFIG_FILE,
-            LOGGING_LOCAL_CONFIG_FILE,
-            LOGGING_STANZA_NAME
-        )
-        return logger
-
     def stream(self, records):
         for record in records:
             soup = BeautifulSoup(record[self.textfield], self.parser)
@@ -203,15 +175,34 @@ class Bs4(StreamingCommand):
                     for i in soup
                 ]
             if self.get_text and not (self.find_all or self.find_children):
-                record[self.get_text_label] = \
-                    soup.get_text().decode('unicode_escape').encode('ascii','ignore')
+                if sys.version_info >= (3, 0):
+                    record[self.get_text_label] = soup.get_text()
+                else:
+                    record[self.get_text_label] = \
+                        soup.get_text().decode('unicode_escape').encode('ascii','ignore')
             elif self.get_text and (self.find_all or self.find_children):
                 record[self.get_text_label] = [
-                    i.get_text().decode('unicode_escape').encode('ascii','ignore')
+                    i.get_text()
                     for i in soup
                 ]
+                if sys.version_info >= (3, 0):
+                    record[self.get_text_label] = [
+                        i.get_text()
+                        for i in soup
+                    ]
+                else:
+                    record[self.get_text_label] = [
+                        i.get_text().decode('unicode_escape').encode('ascii','ignore')
+                        for i in soup
+                    ]
             else:
-                record['soup'] = soup
+                if (self.find_all or self.find_children):
+                    record['soup'] = [
+                        str(i)
+                        for i in soup
+                    ]
+                elif not (self.find_all or self.find_children):
+                    record['soup'] = soup
 
             yield record
 
