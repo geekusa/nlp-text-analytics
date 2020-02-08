@@ -1,13 +1,12 @@
 #!/opt/splunk/bin/python
 
+from __future__ import unicode_literals
 import sys
 import re
 import os
-import logging, logging.handlers
 
-from string import punctuation, digits, maketrans
+from string import punctuation, digits
 
-from splunk import setupSplunkLogger
 from nltk import word_tokenize, pos_tag
 from nltk.data import path as nltk_data_path
 from nltk.corpus import wordnet, stopwords as stop_words
@@ -15,12 +14,10 @@ from nltk.stem import WordNetLemmatizer, PorterStemmer
 from nltk.util import ngrams
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
 
-try:
-    from splunk.clilib.bundle_paths import make_splunkhome_path
-except ImportError:
-    from splunkappserver.mrsparkle.lib.util import make_splunkhome_path
+from six.moves import range
 
-BASE_DIR = make_splunkhome_path(["etc","apps","nlp-text-analytics"])
+splunkhome = os.environ['SPLUNK_HOME']
+BASE_DIR = os.path.join(splunkhome, 'etc', 'apps', 'nlp-text-analytics')
 CORPORA_DIR = os.path.join(BASE_DIR,'bin','nltk_data')
 nltk_data_path.append(CORPORA_DIR)
 
@@ -92,7 +89,7 @@ class CleanText(StreamingCommand):
     base_type = Option(
         default='lemma',
         doc='''**Syntax:** **base_type=***<string>*
-        **Description:** Options are lemma, lemma_pos, or stem, defaults to lemma and subject to value of base_word setting being true''',
+        **Description:** Options are lemma, lemma_pos, or stem, defaults to lemma and subject to value of base_word setting being true. When set to lemma_pos this automatically sets force_nltk_tokenize to true''',
         ) 	
     mv = Option(
         default=True,
@@ -133,33 +130,6 @@ class CleanText(StreamingCommand):
         validate=validators.Boolean()
         ) 	
 
-    #http://dev.splunk.com/view/logging/SP-CAAAFCN
-    def setup_logging(self):
-        logger = logging.getLogger('splunk.foo')    
-        SPLUNK_HOME = os.environ['SPLUNK_HOME']
-        
-        LOGGING_DEFAULT_CONFIG_FILE = os.path.join(SPLUNK_HOME, 'etc', 'log.cfg')
-        LOGGING_LOCAL_CONFIG_FILE = os.path.join(SPLUNK_HOME, 'etc', 'log-local.cfg')
-        LOGGING_STANZA_NAME = 'python'
-        LOGGING_FILE_NAME = "nlp-text-analytics.log"
-        BASE_LOG_PATH = os.path.join('var', 'log', 'splunk')
-        LOGGING_FORMAT = "%(asctime)s %(levelname)-s\t%(module)s:%(lineno)d - %(message)s"
-        splunk_log_handler = logging.handlers.RotatingFileHandler(
-            os.path.join(
-                SPLUNK_HOME,
-                BASE_LOG_PATH,
-                LOGGING_FILE_NAME
-            ), mode='a') 
-        splunk_log_handler.setFormatter(logging.Formatter(LOGGING_FORMAT))
-        logger.addHandler(splunk_log_handler)
-        setupSplunkLogger(
-            logger,
-            LOGGING_DEFAULT_CONFIG_FILE,
-            LOGGING_LOCAL_CONFIG_FILE,
-            LOGGING_STANZA_NAME
-        )
-        return logger
-
     #https://stackoverflow.com/a/15590384
     def get_wordnet_pos(self, treebank_tag):
         if treebank_tag.startswith('J'):
@@ -182,7 +152,7 @@ class CleanText(StreamingCommand):
 
     def ngram(self, text, min_n, max_n):
         ngram_list = []
-        for n in range(min_n,max_n):
+        for n in list(range(min_n,max_n)):
             for ngram in ngrams(text, n):
                 if len(ngram) > 1:
                     ngram_list.append((len(ngram),' '.join(ngram)))
@@ -190,8 +160,6 @@ class CleanText(StreamingCommand):
 
 
     def stream(self, records):
-        logger = self.setup_logging()
-        logger.info('textfield set to: ' + self.textfield)
         if self.custom_stopwords:
             custom_stopwords = self.custom_stopwords.replace(' ','').split(',')
         for record in records:
@@ -208,7 +176,7 @@ class CleanText(StreamingCommand):
                 if (self.base_word and self.base_type == 'lemma_pos'):
                     record['pos_tuple'] = pos_tag(
                         word_tokenize(
-                            record[self.textfield].decode('utf-8').encode('ascii', 'ignore')
+                            record[self.textfield]
                         ),
                         tagset=self.pos_tagset
                     )
@@ -264,7 +232,7 @@ class CleanText(StreamingCommand):
                         keep_text = lm.lemmatize(
                                 text[0],
                                 self.get_wordnet_pos(text[1])
-                            ).encode('ascii', 'ignore')
+                            )
                         if keep_text:
                             record[self.textfield].append(keep_text)
                             tuple_list.append([keep_text,text[1]])
@@ -309,7 +277,7 @@ class CleanText(StreamingCommand):
                         for text in
                         record[self.textfield]
                     ]
-            #Stopword Removal
+            #Stopword Removal without Lemmatization or Stemming
             if self.remove_stopwords and not self.base_word:
                 if self.custom_stopwords:
                     stopwords = set(stop_words.words('english') + custom_stopwords)
@@ -330,10 +298,11 @@ class CleanText(StreamingCommand):
                      ]
             #ngram column creation
             (min_n,max_n) = self.ngram_range.split('-')
-            if max_n > 1 and max_n >= min_n:
+            #if max_n > 1 and max_n >= min_n:
+            if int(max_n) > 1 and int(max_n) >= int(min_n):
                 max_n = int(max_n) + 1
                 ngram_extract = self.ngram(
-                    filter(None, record[self.textfield]),
+                    [_f for _f in record[self.textfield] if _f],
                     int(min_n),
                     max_n
                 )
@@ -349,7 +318,7 @@ class CleanText(StreamingCommand):
                             record['ngrams'].append(i[1])
                 else:
                     if not self.ngram_mix:
-                        for n in range(int(min_n),int(max_n)):
+                        for n in list(range(int(min_n),int(max_n))):
                             if n!=1:
                                 record['ngrams_' + str(n)] = []
                     else:
