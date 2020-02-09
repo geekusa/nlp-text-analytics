@@ -8,6 +8,7 @@ from sklearn.decomposition import TruncatedSVD as _TruncatedSVD
 from base import BaseAlgo, TransformerMixin
 from codec import codecs_manager
 from util.param_util import convert_params
+from six.moves import range
 
 class TruncatedSVD(TransformerMixin, BaseAlgo):
 

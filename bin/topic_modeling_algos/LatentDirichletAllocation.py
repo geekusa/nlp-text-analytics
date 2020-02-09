@@ -11,6 +11,7 @@ from sklearn.decomposition import LatentDirichletAllocation as _LatentDirichletA
 from base import BaseAlgo, TransformerMixin
 from codec import codecs_manager
 from util.param_util import convert_params
+from six.moves import range
 
 class LatentDirichletAllocation(TransformerMixin, BaseAlgo):
 
@@ -19,7 +20,7 @@ class LatentDirichletAllocation(TransformerMixin, BaseAlgo):
         out_params = convert_params(
             options.get('params', {}),
             ints=['k'],
-            aliases={'k': 'n_topics'}
+            aliases={'k': 'n_components'}
         )
 
         self.estimator = _LatentDirichletAllocation(**out_params)
