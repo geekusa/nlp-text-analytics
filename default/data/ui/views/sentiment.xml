@@ -1,12 +1,19 @@
 <form script="tabledatabar.js" stylesheet="tabledatabar.css" hideEdit="true">
   <label>Sentiment</label>
+  <description>Click in panels with (+) for further action</description>
   <search id="base_search">
     <query>
 $master_search$
-| vader textfield=$textfield$ full_output=t
+| vader textfield="$textfield$" full_output=t
     </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
+  </search>
+  <search base="base_search" id="textfield_count">
+    <query>
+| eval sentiment_negative = sentiment_negative * -1
+| streamstats count AS "$textfield$_count"
+        </query>
   </search>
   <fieldset submitButton="true" autoRun="false">
     <input type="time" token="time">
@@ -110,7 +117,7 @@ $master_search$
   </row>
   <row>
     <panel>
-      <title>Sentiment Scores Per $textfield$</title>
+      <title>Sentiment Scores Per $textfield$ (+)</title>
       <input type="dropdown" token="sample" searchWhenChanged="true">
         <label>Sample Ratio</label>
         <choice value="0.01">0.01</choice>
@@ -125,27 +132,52 @@ $master_search$
         <initialValue>0.1</initialValue>
       </input>
       <chart>
-        <search base="base_search">
-          <query>
-| eval sentiment_negative = sentiment_negative * -1
-| streamstats count AS $textfield$
-| fields - sentiment_neutral
+        <search base="textfield_count">
+          <query>| fields - sentiment_neutral
 | sample ratio=$sample$
-| table $textfield$ sentiment*
-| streamstats avg(sentiment) AS avg_sentiment
-        </query>
+| table "$textfield$_count" sentiment*
+| rename "$textfield$_count" AS "$textfield$"
+| streamstats avg(sentiment) AS avg_sentiment</query>
         </search>
         <option name="charting.axisTitleX.visibility">visible</option>
         <option name="charting.axisTitleY.visibility">visible</option>
         <option name="charting.axisTitleY2.visibility">visible</option>
         <option name="charting.chart">column</option>
         <option name="charting.chart.overlayFields">sentiment,avg_sentiment</option>
-        <option name="charting.drilldown">none</option>
-        <option name="charting.legend.placement">right</option>
+        <option name="charting.drilldown">all</option>
         <option name="charting.fieldColors">{"sentiment_positive":0x5D9C1E,"sentiment_negative":0x9C1E1E,"sentiment":0xec9960}</option>
+        <option name="charting.legend.placement">right</option>
         <option name="height">400</option>
         <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="specific_textfield">$click.value$</set>
+          <set token="word_hidden">TRUE</set>
+        </drilldown>
       </chart>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$word_hidden$">
+      <table>
+        <title>$textfield$ Specific Sentiment</title>
+        <search base="textfield_count">
+          <query>| search "$textfield$_count" = $specific_textfield$
+| table "$textfield$" sentiment</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <format type="color" field="sentiment">
+          <colorPalette type="list">[#9C1E1E,#1E5D9C,#5D9C1E]</colorPalette>
+          <scale type="threshold">-0.05,0.05,1</scale>
+        </format>
+        <drilldown>
+          <unset token="word_hidden"></unset>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
       <chart>
         <title>Neutral Scores</title>
         <search base="base_search">
@@ -168,7 +200,7 @@ $master_search$
         <option name="refresh.display">progressbar</option>
       </chart>
       <viz type="parallel_coordinates_app.parallel_coordinates">
-        <title>Parallel Coordinates</title>
+        <title>Parellel Coordinates</title>
         <search base="base_search">
           <query>|eval sentiment_negative = sentiment_negative * -1
 |streamstats count AS $textfield$
