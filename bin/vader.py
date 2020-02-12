@@ -14,9 +14,8 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.data import path as nltk_data_path
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
 
-splunkhome = os.environ['SPLUNK_HOME']
-BASE_DIR = os.path.join(splunkhome, 'etc', 'apps', 'nlp-text-analytics')
-CORPORA_DIR = os.path.join(BASE_DIR,'bin','nltk_data')
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+CORPORA_DIR = os.path.join(BASE_DIR,'nltk_data')
 nltk_data_path.append(CORPORA_DIR)
 
 

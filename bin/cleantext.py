@@ -16,9 +16,8 @@ from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, 
 
 from six.moves import range
 
-splunkhome = os.environ['SPLUNK_HOME']
-BASE_DIR = os.path.join(splunkhome, 'etc', 'apps', 'nlp-text-analytics')
-CORPORA_DIR = os.path.join(BASE_DIR,'bin','nltk_data')
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+CORPORA_DIR = os.path.join(BASE_DIR,'nltk_data')
 nltk_data_path.append(CORPORA_DIR)
 
 
