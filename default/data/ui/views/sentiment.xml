@@ -102,16 +102,22 @@ $master_search$
       </viz>
     </panel>
     <panel>
+      <title>(+)</title>
       <chart>
         <search base="base_search">
           <query>| eval sentiment = case(sentiment&gt;$neutral$,"Positive",sentiment&lt;-$neutral$,"Negative",true(),"Neutral")
 | stats count BY sentiment</query>
         </search>
         <option name="charting.chart">pie</option>
-        <option name="charting.drilldown">none</option>
+        <option name="charting.drilldown">all</option>
         <option name="charting.fieldColors">{"Positive":0x5D9C1E,"Negative":0x9C1E1E,"Neutral":0x1E5D9C}</option>
         <option name="height">270</option>
         <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="sentiment_label">$click.value$</set>
+          <set token="specific_textfield">*</set>
+          <set token="word_hidden">TRUE</set>
+        </drilldown>
       </chart>
     </panel>
   </row>
@@ -151,6 +157,7 @@ $master_search$
         <option name="refresh.display">progressbar</option>
         <drilldown>
           <set token="specific_textfield">$click.value$</set>
+          <set token="sentiment_label">*</set>
           <set token="word_hidden">TRUE</set>
         </drilldown>
       </chart>
@@ -161,11 +168,14 @@ $master_search$
       <table>
         <title>$textfield$ Specific Sentiment</title>
         <search base="textfield_count">
-          <query>| search "$textfield$_count" = $specific_textfield$
+          <query>| sort -sentiment
+| eval sentiment_label = case(sentiment&gt;$neutral$,"Positive",sentiment&lt;-$neutral$,"Negative",true(),"Neutral")
+| search "$textfield$_count" = $specific_textfield$ sentiment_label=$sentiment_label$
 | table "$textfield$" sentiment</query>
         </search>
         <option name="count">10</option>
         <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
         <format type="color" field="sentiment">
           <colorPalette type="list">[#9C1E1E,#1E5D9C,#5D9C1E]</colorPalette>
           <scale type="threshold">-0.05,0.05,1</scale>
