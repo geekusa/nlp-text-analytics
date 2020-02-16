@@ -4,6 +4,7 @@
   <search id="base_search">
     <query>
 $master_search$
+$sent_begin$| vader textfield="$textfield$" full_output=f | eval sentiment = case(sentiment&gt;$neutral$,"Positive",sentiment&lt;-$neutral$,"Negative",true(),"Neutral")$sent_end$
 $html_begin$| bs4 textfield="$textfield$" $html_end$
 | cleantext textfield="$textfield$" base_type=lemma_pos $stopwords$ $custom_stopwords$ ngram_range=$ngram$ ngram_mix=t keep_orig=t term_min_len=2
 | eval pos_zip = mvzip(pos_tag,'$textfield$',",")
@@ -137,23 +138,48 @@ $ne_begin$| eval "$textfield$" = no_ne $ne_end$
       </change>
     </input>
     <input id="horiz_two_radio_3" type="radio" token="use_group">
-      <label>Using Grouping Field</label>
-      <choice value="Yes">Yes</choice>
-      <choice value="No">No</choice>
+      <label>Group By?</label>
+      <choice value="None">None</choice>
+      <choice value="Field">Field</choice>
+      <choice value="Sentiment">Sentiment</choice>
       <change>
-        <condition value="No">
+        <condition value="None">
           <unset token="group_hidden"></unset>
+          <unset token="group_hidden_opt"></unset>
+          <unset token="sentiment_hidden"></unset>
+          <set token="sent_begin">`comment("</set>
+          <set token="sent_end">")`</set>
         </condition>
-        <condition value="Yes">
+        <condition value="Field">
           <set token="group_hidden">True</set>
+          <set token="group_hidden_opt">True</set>
+          <unset token="sentiment_hidden"></unset>
+          <set token="sent_begin">`comment("</set>
+          <set token="sent_end">")`</set>
+        </condition>
+        <condition value="Sentiment">
+          <set token="group_hidden">True</set>
+          <unset token="group_hidden_opt"></unset>
+          <set token="sentiment_hidden">True</set>
+          <set token="sent_begin"></set>
+          <set token="sent_end"></set>
+          <set token="group">sentiment</set>
         </condition>
       </change>
-      <default>No</default>
-      <initialValue>No</initialValue>
+      <default>None</default>
+      <initialValue>None</initialValue>
     </input>
-    <input type="text" token="group" depends="$group_hidden$">
+    <input type="text" token="group" depends="$group_hidden_opt$">
       <label>Grouping Field</label>
       <default></default>
+    </input>
+    <input type="dropdown" token="neutral" depends="$sentiment_hidden$">
+      <label>Neutral Zone Size</label>
+      <choice value="0.01">Small</choice>
+      <choice value="0.05">Medium</choice>
+      <choice value="0.1">Large</choice>
+      <default>0.05</default>
+      <initialValue>0.05</initialValue>
     </input>
     <input id="horiz_two_radio_4" type="radio" token="named_entities">
       <label>Separate Named Entities</label>
