@@ -197,14 +197,10 @@ class Similarity(StreamingCommand):
                 else:
                     compare_dict[c] = result
         if 'edit' in algo:
-            #top_matches = {k: compare_dict[k] for k,v in sorted(compare_dict.items(), key=lambda x: x[1][1], reverse=reverse)[:limit]}
-            #top_matches = OrderedDict(k: compare_dict[k] for k,v in sorted(compare_dict.items(), key=lambda x: x[1][1], reverse=reverse)[:limit])
             top_matches = OrderedDict()
             for k,v in sorted(compare_dict.items(), key=lambda x: x[1][1], reverse=reverse)[:limit]:
                 top_matches[k] = compare_dict[k]
         else: 
-            #top_matches = {k: compare_dict[k] for k in sorted(compare_dict, key=compare_dict.get, reverse=reverse)[:limit]}
-            #top_matches = OrderedDict(k: compare_dict[k] for k in sorted(compare_dict, key=compare_dict.get, reverse=reverse)[:limit])
             top_matches = OrderedDict()
             for k in sorted(compare_dict, key=compare_dict.get, reverse=reverse)[:limit]:
                 top_matches[k] = compare_dict[k]
@@ -226,14 +222,10 @@ class Similarity(StreamingCommand):
                     else:
                         compare_dict[t+'>'+c] = result
         if 'edit' in algo:
-            #top_matches = {k: compare_dict[k] for k,v in sorted(compare_dict.items(), key=lambda x: x[1][1], reverse=reverse)[:limit]}
-            #top_matches = OrderedDict(k: compare_dict[k] for k,v in sorted(compare_dict.items(), key=lambda x: x[1][1], reverse=reverse)[:limit])
             top_matches = OrderedDict()
             for k,v in sorted(compare_dict.items(), key=lambda x: x[1][1], reverse=reverse)[:limit]:
                 top_matches[k] = compare_dict[k]
         else:
-            #top_matches = {k: compare_dict[k] for k in sorted(compare_dict, key=compare_dict.get, reverse=reverse)[:limit]}
-            #top_matches = OrderedDict(k: compare_dict[k] for k in sorted(compare_dict, key=compare_dict.get, reverse=reverse)[:limit])
             top_matches = OrderedDict()
             for k in sorted(compare_dict, key=compare_dict.get, reverse=reverse)[:limit]:
                 top_matches[k] = compare_dict[k]
