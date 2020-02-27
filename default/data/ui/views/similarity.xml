@@ -165,7 +165,7 @@ All algorithms return a distance and similarity score between 0 and 1, while som
         </a>
         </td><td>
         <h4>multi-valued to multi-valued</h4>
-        <a href="http://localhost:8000/en-US/app/nlp-text-analytics/similarity?form.algo=$algo$&amp;form.limit=10&amp;form.mvzip=false&amp;form.compare=brian%2Csun%2Cboston&amp;form.text=brain%2Csunny%2Cbastion">
+        <a href="/app/nlp-text-analytics/similarity?form.algo=$algo$&amp;form.limit=10&amp;form.mvzip=false&amp;form.compare=brian%2Csun%2Cboston&amp;form.text=brain%2Csunny%2Cbastion">
         <table border="1" cellpadding="2" cellspacing="2">
           <tr>
             <td><b>Text Field</b></td>
