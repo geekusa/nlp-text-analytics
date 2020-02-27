@@ -8,5 +8,6 @@
   </collection>
   <view name="sentiment"/>
   <view name="classification"/>
+  <view name="similarity"/>
   <view name="search"/>
 </nav>

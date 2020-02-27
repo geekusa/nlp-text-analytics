@@ -38,13 +38,13 @@
     <panel>
       <html>
         <div>
-          The intent of this app is to provide a simple interface for analyzing text in Splunk using python natural language processing libraries (currently just NLTK 3.3). The app provides custom commands (currently 3), additional ML algorithms (currently 7) to use with Splunk's ML Toolkit, and dashboards to show how to use. The app is also packaged with Gutenberg texts (currenlty 3) formatted as CSV lookups. 
+          The intent of this app is to provide a simple interface for analyzing text in Splunk using python natural language processing libraries (currently just NLTK 3.4.5). The app provides custom commands (currently 4), additional ML algorithms (currently 7) to use with Splunk's ML Toolkit, and dashboards to show how to use. The app is also packaged with Gutenberg texts (currenlty 3) and the "20 newsgroups" dataset formatted as CSV lookups. 
         </div>
         <h1>Requirements</h1>
         <div>
 <a href="https://splunkbase.splunk.com/app/2890/">Splunk ML Toolkit 3.2 or greater</a>
           <br/>
-<a href="https://splunkbase.splunk.com/app/3212/">Wordcloud Custom Visualization</a>
+<a href="https://splunkbase.splunk.com/app/3212/">Wordcloud Custom Visualization</a> (preferred) OR <a href="https://splunkbase.splunk.com/app/1603/">Splunk Dashboard Examples</a>
           <br/>
 <a href="https://splunkbase.splunk.com/app/3137/">Parallel Coordinates Custom Visualization</a>
           <br/>
@@ -74,7 +74,12 @@ pride_prejudice.csv</pre>
         </div>
         <h3>Syntax</h3>
         <pre>* | cleantext textfield=&lt;field&gt; [keep_orig=&lt;bool&gt;] [default_clean=&lt;bool&gt;] [remove_urls=&lt;bool&gt;] [remove_stopwords=&lt;bool&gt;] [base_word=&lt;bool&gt;] [base_type=&lt;string&gt;] [mv=&lt;bool&gt;] [force_nltk_tokenize=&lt;bool&gt;] [pos_tagset=&lt;string&gt;] [custom_stopwords=&lt;comma_separated_string_list&gt;] [term_min_len=&lt;int&gt;] [ngram_range=&lt;int&gt;-&lt;int&gt;] [ngram_mix=&lt;bool&gt;]
-	</pre>
+	</pre> 
+        <h2>similarity</h2>
+        <div>A wrapper for NTLK distance metrics for comparing text to use in Splunk. Similarity (and distance) metrics can be used to tell how far apart to pieces of text are and in some algorithms return also the number of steps to make the text the same. These do not extract meaning, but are often used in text analytics to discover plagurism, conduct fuzzy searching, spell checking, and more. Defaults to using the Levenshtein distance algorithm but includes several other algorithms, include some set based algorithms. Can handle multi-valued comparisons with an option to limit to a given number of top matches. Multi-valued output can be zipped together or returned seperately.
+        </div>
+        <h3>Syntax</h3>
+        <pre>* | similarity textfield=&lt;field&gt; comparefield=&lt;field&gt; [algo=&lt;string&gt;] [limit=&lt;int&gt;] [mvzip=&lt;bool&gt;]</pre>
         <h2>vader</h2>
         <div>Sentiment analysis using Valence Aware Dictionary and sEntiment Reasoner. Using option full_output will return scores for neutral, positive, and negative which are the scores that make up the compound score (that is just returned as the field "sentiment". Best to feed in uncleaned data as it takes into account capitalization and punctuation.
         </div>

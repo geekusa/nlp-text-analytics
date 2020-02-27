@@ -1,0 +1,249 @@
+<form hideEdit="true">
+  <label>Similarity</label>
+  <search id="base_search">
+    <query>
+
+    </query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+  </search>
+  <fieldset submitButton="true">
+    <input type="dropdown" token="algo">
+      <label>Algorithm</label>
+      <choice value="levenshtein">Levenshtein</choice>
+      <choice value="damerau">Damerau–Levenshtein</choice>
+      <choice value="jaro">Jaro</choice>
+      <choice value="jaro_winkler">Jaro-Winkler</choice>
+      <choice value="jaccard">Jaccard</choice>
+      <choice value="masi">MASI</choice>
+      <default>levenshtein</default>
+      <initialValue>levenshtein</initialValue>
+      <change>
+        <condition value="levenshtein">
+          <set token="show_levenshtein">true</set>
+          <unset token="show_damerau"></unset>
+          <unset token="show_jaro"></unset>
+          <unset token="show_jaro_winkler"></unset>
+          <unset token="show_jaccard"></unset>
+          <unset token="show_masi"></unset>
+          <unset token="show_examples"></unset>
+        </condition>
+        <condition value="damerau">
+          <unset token="show_levenshtein"></unset>
+          <set token="show_damerau">true</set>
+          <unset token="show_jaro"></unset>
+          <unset token="show_jaro_winkler"></unset>
+          <unset token="show_jaccard"></unset>
+          <unset token="show_masi"></unset>
+          <unset token="show_examples"></unset>
+        </condition>
+        <condition value="jaro">
+          <unset token="show_levenshtein"></unset>
+          <unset token="show_damerau"></unset>
+          <set token="show_jaro">true</set>
+          <unset token="show_jaro_winkler"></unset>
+          <unset token="show_jaccard"></unset>
+          <unset token="show_masi"></unset>
+          <unset token="show_examples"></unset>
+        </condition>
+        <condition value="jaro_winkler">
+          <unset token="show_levenshtein"></unset>
+          <unset token="show_damerau"></unset>
+          <unset token="show_jaro"></unset>
+          <set token="show_jaro_winkler">true</set>
+          <unset token="show_jaccard"></unset>
+          <unset token="show_masi"></unset>
+          <unset token="show_examples"></unset>
+        </condition>
+        <condition value="jaccard">
+          <unset token="show_levenshtein"></unset>
+          <unset token="show_damerau"></unset>
+          <unset token="show_jaro"></unset>
+          <unset token="show_jaro_winkler"></unset>
+          <set token="show_jaccard">true</set>
+          <unset token="show_masi"></unset>
+          <set token="show_examples">true</set>
+        </condition>
+        <condition value="masi">
+          <unset token="show_levenshtein"></unset>
+          <unset token="show_damerau"></unset>
+          <unset token="show_jaro"></unset>
+          <unset token="show_jaro_winkler"></unset>
+          <unset token="show_jaccard"></unset>
+          <set token="show_masi">true</set>
+          <set token="show_examples">true</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="limit">
+      <label>Multi-value comparison limit</label>
+      <default>10</default>
+      <initialValue>10</initialValue>
+    </input>
+    <input type="radio" token="mvzip">
+      <label>Multi-value Output Zip</label>
+      <choice value="false">No</choice>
+      <choice value="true">Yes</choice>
+      <default>false</default>
+      <initialValue>false</initialValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <p>
+This dashboard is meant as a playground to show the similarity algorithms or distance metrics and not meant for live Splunk data like the other included dashboards. After finding settings you want to try use the <b>Open in Search</b> to see the exact options for the command. These metrics have some NLP applications like fuzzy matching and plagurism detection, but have a very mathematical nature that does not align well when trying to determine if two words mean the same thing. There do already exist some Splunk implementations of these metrics (i.e. Levenshtein) but one thing different about this implementation is that multi-valued and single valued fields can be compared with an ordered match returned.<br/>
+          <br/>
+All algorithms return a distance and similarity score between 0 and 1, while some algorithms also return distance_steps. A distance score of 0 and a similarity score of 1 means an exact match. The algorithms are case-sensitive so likely it best to clean the text first unless case is intended for comparison.<br/>
+          <br/>
+<i>Note in this example if text is comma-separated, it is transformed into a multi-valued field by Splunk for the purpose of replicating multi-valued comparisons.</i>
+        </p>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <input type="text" token="text">
+        <label>Text Field</label>
+      </input>
+      <input type="text" token="compare">
+        <label>Comparison Text Field</label>
+        <default></default>
+      </input>
+      <html depends="$show_levenshtein$">
+        <h1>Levenshtein Distance</h1>
+        <p>Also known as edit distance, this algorithm is a measurement of how many steps (or operations) it takes to make one string into another. The steps include insertions, deletions and substitutions.</p>
+      </html>
+      <html depends="$show_damerau$">
+        <h1>Damerau-Levenshtein Distance</h1>
+        <p>Also known as edit distance with transposition in that it is different from the traditional Levenshtein distance by also allowing transpositions (of two neighboring characters) as one of the edits. This can result in less steps for some comparisons, for example 'brain' and 'brian' would be 2 steps in the traditional Levenshtein algorithm but 1 step in the Damerau-Levenshtein.</p>
+      </html>
+      <html depends="$show_jaro$">
+        <h1>Jaro Similarity</h1>
+        <p>Similarity algorithm that takes into account the length of the text comparisons, the number of characters that match (within a certain amount of positions based on length), as well as the number of transpositions. </p>
+      </html>
+      <html depends="$show_jaro_winkler$">
+        <h1>Jaro-Winkler Similarity</h1>
+        <p>Like the Jaro similarity algorithm, this algorithm also takes into account the length of the text comparisons, the number of characters that match (within a certain amount of positions based on length), as well as the number of transpositions. However the Jaro-Winkler algorithm also gives higher precedence for matching a quantity of the beginning characters. </p>
+      </html>
+      <html depends="$show_jaccard$">
+        <h1>Jaccard Distance</h1>
+        <p>A set based distance algorithm, measures shared members of each set. Because this is set based and example such as 'brain' and 'brian' would match completely because the set of each do not differentiate order. However set based algorithms can do well with sentences as any space separated words will be compared at the word level rather than the character level (a good place to use the cleartext command first with lemmatization).</p>
+      </html>
+      <html depends="$show_masi$">
+        <h1>MASI Distance</h1>
+        <p>A set based distance algorithm whose name means Measuring Agreement on Set-Valued Items (MASI) for Semantic and Pragmatic Annotation. This algorithm is an implementation of the Jaccard Distance but gives weight to "monotonicity" (essentially repeating members). Because this is set based and example such as 'brain' and 'brian' would match completely because the set of each do not differentiate order. However set based algorithms can do well with sentences as any space separated words will be compared at the word level rather than the character level (a good place to use the cleartext command first with lemmatization).</p>
+      </html>
+      <html>
+        <h3>Examples to try (click to load)</h3>
+        <table cellspacing="5" cellpadding="5"><tr><td>
+        <h4>single-valued</h4>
+        <a href="/app/nlp-text-analytics/similarity?form.algo=$algo$&amp;form.limit=10&amp;form.mvzip=false&amp;form.compare=brian&amp;form.text=brain">
+          <table border="1" cellpadding="2" cellspacing="2">
+          <tr>
+            <td><b>Text Field</b></td>
+            <td><b>Comparison Text Field</b></td>
+          </tr>
+          <tr>
+            <td>brain</td>
+            <td>brian</td>
+          </tr>
+        </table></a>
+        </td><td>
+        <h4>single-valued to multi-valued</h4>
+        <a href="/app/nlp-text-analytics/similarity?form.algo=$algo$&amp;form.limit=10&amp;form.mvzip=false&amp;form.compare=brian%2Csun%2Cboston&amp;form.text=brain">
+        <table border="1" cellpadding="2" cellspacing="2">
+          <tr>
+            <td><b>Text Field</b></td>
+            <td><b>Comparison Text Field</b></td>
+          </tr>
+          <tr>
+            <td>brain</td>
+            <td>brian,sun,boston</td>
+          </tr>
+        </table>
+        </a>
+        </td><td>
+        <h4>multi-valued to multi-valued</h4>
+        <a href="http://localhost:8000/en-US/app/nlp-text-analytics/similarity?form.algo=$algo$&amp;form.limit=10&amp;form.mvzip=false&amp;form.compare=brian%2Csun%2Cboston&amp;form.text=brain%2Csunny%2Cbastion">
+        <table border="1" cellpadding="2" cellspacing="2">
+          <tr>
+            <td><b>Text Field</b></td>
+            <td><b>Comparison Text Field</b></td>
+          </tr>
+          <tr>
+            <td>brain,sunny,bastion</td>
+            <td>brian,sun,boston</td>
+          </tr>
+        </table>
+        </a>
+        </td>
+        </tr>
+        </table>
+      </html>
+      <html depends="$show_examples$">
+        <table cellspacing="5" cellpadding="5"><tr><td>
+        <h4>set based (sentence) single-valued</h4>
+        <a href="/app/nlp-text-analytics/similarity?form.algo=$algo$&amp;form.limit=10&amp;form.mvzip=false&amp;form.compare=his%20name%20is%20brian&amp;form.text=his%20brain%20is%20big">
+          <table border="1" cellpadding="2" cellspacing="2">
+          <tr>
+            <td><b>Text Field</b></td>
+            <td><b>Comparison Text Field</b></td>
+          </tr>
+          <tr>
+            <td>his brain is big</td>
+            <td>his name is brian</td>
+          </tr>
+        </table></a>
+        </td><td>
+        <h4>set based (sentence) single-valued to multi-valued </h4>
+        <a href="/app/nlp-text-analytics/similarity?form.algo=$algo$&amp;form.limit=10&amp;form.mvzip=false&amp;form.compare=his%20name%20is%20brian%2Cthe%20sun%20is%20hot%2Cboston%20is%20big&amp;form.text=his%20brain%20is%20big">
+        <table border="1" cellpadding="2" cellspacing="2">
+          <tr>
+            <td><b>Text Field</b></td>
+            <td><b>Comparison Text Field</b></td>
+          </tr>
+          <tr>
+            <td>his brain is big</td>
+            <td>his name is brian,the sun is hot,boston is big</td>
+          </tr>
+        </table>
+        </a>
+        </td><td>
+        <h4>set based (sentence) multi-valued to multi-valued</h4>
+        <a href="/app/nlp-text-analytics/similarity?form.algo=$algo$&amp;form.limit=10&amp;form.mvzip=false&amp;form.compare=his%20name%20is%20brian%2Cthe%20sun%20is%20hot%2Cboston%20is%20big&amp;form.text=his%20brain%20is%20big%2C%20tomorrow%20is%20sunny%2Cthe%20last%20bastion%20of%20defense">
+        <table border="1" cellpadding="2" cellspacing="2">
+          <tr>
+            <td><b>Text Field</b></td>
+            <td><b>Comparison Text Field</b></td>
+          </tr>
+          <tr>
+            <td>his brain is big,tomorrow is sunny,the last bastion of defense</td>
+            <td>his name is brian,the sun is hot,boston is big</td>
+          </tr>
+        </table>
+        </a>
+        </td>
+        </tr>
+        </table>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <query>| makeresults
+| eval text=if(match("$text$",","),split("$text$",","),"$text$"), compare=if(match("$compare$",","),split("$compare$",","),"$compare$")
+| similarity textfield=text comparefield=compare algo=$algo$ limit=$limit$ mvzip=$mvzip$
+| fields - _time
+| table text compare *</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>

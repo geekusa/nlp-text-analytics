@@ -1,6 +1,6 @@
 # NLP Text Analytics Splunk App
 
-The intent of this app is to provide a simple interface for analyzing text in Splunk using python natural language processing libraries (currently just NLTK 3.3). The app provides custom commands and dashboards to show how to use. 
+The intent of this app is to provide a simple interface for analyzing text in Splunk using python natural language processing libraries (currently just NLTK 3.4.5). The app provides custom commands and dashboards to show how to use. 
 
 Available at:
 [Github](https://github.com/geekusa/nlp-text-analytics)
@@ -8,7 +8,7 @@ Available at:
 Splunk App Available at:
 [https://splunkbase.splunk.com/app/4066/](https://splunkbase.splunk.com/app/4066/)
 
-Version: 1.0.4
+Version: 1.1.0
 
 ##### Author: Nathan Worsham 
 Created for MSDS692 Data Science Practicum I at Regis University, 2018 </br>
@@ -27,7 +27,7 @@ Have you ever wanted to perform advanced text analytics inside Splunk? Splunk ha
 
 ## Requirements
 Splunk ML Toolkit 3.2 or greater [https://splunkbase.splunk.com/app/2890/](https://splunkbase.splunk.com/app/2890/) </br>
-Wordcloud Custom Visualization [https://splunkbase.splunk.com/app/3212/](https://splunkbase.splunk.com/app/3212/) </br>
+Wordcloud Custom Visualization [https://splunkbase.splunk.com/app/3212/](https://splunkbase.splunk.com/app/3212/) (preferred) OR Splunk Dashboard Examples [https://splunkbase.splunk.com/app/1603/](https://splunkbase.splunk.com/app/1603/) </br>
 Parallel Coordinates Custom Visualization [https://splunkbase.splunk.com/app/3137/](https://splunkbase.splunk.com/app/3137/) </br>
 Force Directed App For Splunk [https://splunkbase.splunk.com/app/3767/](https://splunkbase.splunk.com/app/3767/)
 Halo - Custom Visualization [https://splunkbase.splunk.com/app/3514/](https://splunkbase.splunk.com/app/3514/)
@@ -55,7 +55,7 @@ _bs4_
 > #### Description
 > A wrapper for BeautifulSoup4 to extract html/xml tags and text from them to use in Splunk. A wrapper script to bring some functionality from BeautifulSoup to Splunk. Default is to get the text and send it to a new field 'get\_text', otherwise the selection is returned in a field named 'soup'. Default is to use the 'lxml' parser, though you can specify others, 'html5lib' is not currently included. The find methods can be used in conjuction, their order of operation is find > find\_all > find\_child > find children. Each option has a similar named option appended '\_attrs' that will accept inner and outer quoted key:value pairs for more precise selections.
 > #### Syntax
-> \*| bs4 textfield=<field> [get\_text=<bool>] [get\_text\_label=<string>] [get\_attr=<attribute\_name\_string>] [parser=<string>] [find=<tag>] [find\_attrs=<quoted\_key:value\_pairs>] [find\_all=<tag>] [find\_all\_attrs=<quoted\_key:value\_pairs>] [find\_child=<tag>] [find\_child\_attrs=<quoted\_key:value\_pairs>] [find\_children=<tag>] [find\_children\_attrs=<quoted\_key:value\_pairs>]
+> \*| bs4 textfield=<field> [get\_text=<bool>] [get\_text\_label=<string>] [parser=<string>] [find=<tag>] [find\_attrs=<quoted\_key:value\_pairs>] [find\_all=<tag>] [find\_all\_attrs=<quoted\_key:value\_pairs>] [find\_child=<tag>] [find\_child\_attrs=<quoted\_key:value\_pairs>] [find\_children=<tag>] [find\_children\_attrs=<quoted\_key:value\_pairs>]
 > ##### Required Arguments
 > **textfield** </br>
 >     **Syntax:** textfield=\<field> </br>
@@ -168,7 +168,7 @@ _cleantext_
 > 
 >**base\_type** </br>
 >     **Syntax:** base\_type=\<string> </br>
->     **Description:** Sets the value for the type of word base to use, dependant on base\_word being set to True. Lemmatization without POS tagging (option lemma) assumes every word is a noun but results in a comprable but faster output. Lemmatization with POS tagging (lemma\_pos) is slower but more precice, also adds a new field of `pos_tag`. Porter Stemmer is used when the option is set to stem.</br>
+>     **Description:** Sets the value for the type of word base to use, dependant on base\_word being set to True. Lemmatization without POS tagging (option lemma) assumes every word is a noun but results in a comprable but faster output. Lemmatization with POS tagging (lemma\_pos) is slower but more precice, also adds a new field of `pos_tag`. When set to lemma\_pos this automatically sets force_nltk\_tokenize argument to true. Porter Stemmer is used when the option is set to stem.</br>
 >     **Usage:** Possible values are lemma, lemma\_pos, stem</br>
 >     **Default:** True
 > 
@@ -199,6 +199,47 @@ _cleantext_
 >**ngram\_mix** </br>
 >     **Syntax:** mv=\<bool> </br>
 >     **Description:** Determines if ngram output is combined or separate columns. Defaults to false which results in separate columns</br>
+>     **Usage:** Boolean value. True or False; true or false, t or f, 0 or 1</br>
+>     **Default:** False
+
+_similarity_
+> #### Description
+> A wrapper for NTLK distance metrics for comparing text to use in Splunk. Similarity (and distance) metrics can be used to tell how far apart to pieces of text are and in some algorithms return also the number of steps to make the text the same. These do not extract meaning, but are often used in text analytics to discover plagurism, conduct fuzzy searching, spell checking, and more. Defaults to using the Levenshtein distance algorithm but includes several other algorithms, include some set based algorithms. Can handle multi-valued comparisons with an option to limit to a given number of top matches. Multi-valued output can be zipped together or returned seperately.
+> #### Syntax
+> \*| similarity textfield=<field> comparefield=<field> [algo=<string>] [limit=<int>] [mvzip=<bool>]
+> ##### Required Arguments
+> **textfield** </br>
+>     **Syntax:** textfield=\<field> </br>
+>     **Description:** Name of the field that will contain the source text to compare against. Field can be multi-valued.</br>
+>     **Usage:** Option only takes a single field </br>
+>
+> **comparefield** </br>
+>     **Syntax:** comparefield=\<field> </br>
+>     **Description:** Name of the field that will contain the target text to compare against. Field can be multi-valued.</br>
+>     **Usage:** Option only takes a single field </br>
+> ##### Optional Arguments
+> **algo** </br>
+>     **Syntax:** algo=\<string> </br>
+>     **Description:** Algorithm used for determining text similarity. Options are levenshtein, damerau, jaro, jaro_winkler, jaccard, and masi. Defaults to levenshtein. See included dashboard for explanation of each algorithm</br>
+>     **Usage:** Algorithm name, options are levenshtein, damerau, jaro, jaro_winkler, jaccard, and masi.</br>
+>     **Default:** levenshtein<br/>
+>     **Algorithm Explanations:** 
+>     levenshtein = Levenshtein Distance - Also known as edit distance, this algorithm is a measurement of how many steps (or operations) it takes to make one string into another. The steps include insertions, deletions and substitutions.
+>     damerau = Damerau-Levenshtein Distance - Also known as edit distance with transposition in that it is different from the traditional Levenshtein distance by also allowing transpositions (of two neighboring characters) as one of the edits. This can result in less steps for some comparisons, for example 'brain' and 'brian' would be 2 steps in the traditional Levenshtein algorithm but 1 step in the Damerau-Levenshtein. 
+>     jaro = Jaro Similarity - Similarity algorithm that takes into account the length of the text comparisons, the number of characters that match (within a certain amount of positions based on length), as well as the number of transpositions. 
+>     jaro_winkler = Like the Jaro similarity algorithm, this algorithm also takes into account the length of the text comparisons, the number of characters that match (within a certain amount of positions based on length), as well as the number of transpositions. However the Jaro-Winkler algorithm also gives higher precedence for matching a quantity of the beginning characters.
+>     jaccard = Jaccard Distance - A set based distance algorithm, measures shared members of each set. Because this is set based and example such as 'brain' and 'brian' would match completely because the set of each do not differentiate order. However set based algorithms can do well with sentences as any space separated words will be compared at the word level rather than the character level (a good place to use the cleartext command first with lemmatization). 
+>     masi = MASI Distance - A set based distance algorithm whose name means Measuring Agreement on Set-Valued Items (MASI) for Semantic and Pragmatic Annotation. This algorithm is an implementation of the Jaccard Distance but gives weight to "monotonicity" (essentially repeating members). Because this is set based and example such as 'brain' and 'brian' would match completely because the set of each do not differentiate order. However set based algorithms can do well with sentences as any space separated words will be compared at the word level rather than the character level (a good place to use the cleartext command first with lemmatization).
+> 
+>**limit** </br>
+>     **Syntax:** limit=\<int> </br>
+>     **Description:** When using multi-valued comparisons, this value limits the number of top matches returned.
+>     **Usage:** Interger value of minimum top matches to return</br>
+>     **Default:** 10
+> 
+> **mvzip** </br>
+>     **Syntax:** mvzip=\<bool> </br>
+>     **Description:** When using multi-valued comparisons, when this option is true the output is similar to using Splunk's mvzip option. Output is value:top_match_target for single-valued to multi-valued comparision and value:top_match_source>top_match_target for multi-valued to multi-valued comparision.</br>
 >     **Usage:** Boolean value. True or False; true or false, t or f, 0 or 1</br>
 >     **Default:** False
 
@@ -281,4 +322,4 @@ Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when usin
 Splunk SDK crashes when too much data is sent through it, gets a buffer error. See [https://github.com/splunk/splunk-sdk-python/issues/150](https://github.com/splunk/splunk-sdk-python/issues/150). Workaround would be to used the sample command to down sample the data until it works. 
 
 ### Release Notes
-Typo fixed on sentiment dashboard. 
+Upgraded to support Python 3 and Python 2 concurrently. Upgraded the following packages to their latest versions -- NLTK (3.4.5), splunklib (1.6.12), bs4 (4.8.2). Added required singleddispatch package for updated NLTK. Updated Counts dashboard to be able to group by sentiment and support for tag cloud when wordcloud app is not available. Updated Sentiment dashboard to support drilldown from line chart and pie chart to specific text. Added new similarity command and dashboard.
