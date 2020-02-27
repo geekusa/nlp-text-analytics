@@ -1,4 +1,4 @@
-<form script="counts.js" hideEdit="true">
+<form script="counts.js" hideEdit="false">
   <label>Counts</label>
   <description>Click in panels with (+) for further action</description>
   <search id="base_search">
@@ -34,6 +34,19 @@ $ne_begin$| eval "$textfield$" = no_ne $ne_end$
 | search "$textfield$"!=""
 | sort -count
 </query>
+  </search>
+  <search>
+    <query>
+| rest /services/apps/local 
+| search disabled=0 title=wordcloud_app
+    </query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+    <done>
+      <condition match="$job.resultCount$ &gt; 0">
+        <set token="wordcloud_app">true</set>
+      </condition>
+    </done>
   </search>
   <fieldset submitButton="true" autoRun="false">
     <input type="time" token="time">
@@ -483,7 +496,7 @@ $ne_search$
         </drilldown>
       </table>
     </panel>
-    <panel>
+    <panel depends="$wordcloud_app$">
       <title>Named Entities Cloud</title>
       <input type="dropdown" token="ne_count" searchWhenChanged="true">
         <label># Entities</label>
@@ -498,7 +511,7 @@ $ne_search$
         <search base="ne_counts">
           <query> 
 | head $ne_count$
-</query>
+          </query>
         </search>
         <option name="drilldown">none</option>
         <option name="refresh.display">progressbar</option>
@@ -512,6 +525,32 @@ $ne_search$
         <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
         <option name="wordcloud_app.wordcloud.useColors">true</option>
         <option name="height">350</option>
+      </viz>
+    </panel>
+    <panel rejects="$wordcloud_app$">
+      <title>Named Entities Cloud</title>
+      <input type="dropdown" token="ne_count" searchWhenChanged="true">
+        <label># Entities</label>
+        <choice value="25">25</choice>
+        <choice value="50">50</choice>
+        <choice value="100">100</choice>
+        <choice value="200">200</choice>
+        <default>25</default>
+        <initialValue>25</initialValue>
+      </input>
+      <viz type="simple_xml_examples.tagcloud">
+        <search base="ne_counts">
+          <query> 
+| head $ne_count$
+          </query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">350</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="simple_xml_examples.tagcloud.labelField">ne</option>
+        <option name="simple_xml_examples.tagcloud.maxFontSize">72</option>
+        <option name="simple_xml_examples.tagcloud.minFontSize">6</option>
+        <option name="simple_xml_examples.tagcloud.valueField">count</option>
       </viz>
     </panel>
   </row>
@@ -624,7 +663,7 @@ $ne_search$
     </panel>
   </row>
   <row>
-    <panel>
+    <panel depends="$wordcloud_app$">
       <title>WordCloud</title>
       <!--<input type="text" token="term_count" id="range" searchWhenChanged="true">
         <label>Terms (25-400)</label>
@@ -674,7 +713,52 @@ $ne_search$
         <option name="wordcloud_app.wordcloud.useColors">true</option>
       </viz>
     </panel>
-    <panel depends="$ngram_cloud$">
+    <panel rejects="$wordcloud_app$">
+      <title>WordCloud</title>
+      <!--<input type="text" token="term_count" id="range" searchWhenChanged="true">
+        <label>Terms (25-400)</label>
+        <default>50</default>
+      </input>-->
+      <input type="dropdown" token="term_count" searchWhenChanged="true">
+        <label>Terms</label>
+        <choice value="25">25</choice>
+        <choice value="50">50</choice>
+        <choice value="100">100</choice>
+        <choice value="200">200</choice>
+        <choice value="300">300</choice>
+        <choice value="400">400</choice>
+        <default>200</default>
+        <initialValue>200</initialValue>
+      </input>
+      <input id="horiz_two_radio_6" type="radio" token="ngram_cloud" depends="$ngram_hidden$">
+        <label>Show ngram Cloud</label>
+        <choice value="Yes">Yes</choice>
+        <choice value="No">No</choice>
+        <default>No</default>
+        <change>
+          <condition value="No">
+            <unset token="ngram_cloud"></unset>
+          </condition>
+          <condition value="Yes">
+            <set token="ngram_cloud">True</set>
+          </condition>
+        </change>
+      </input>
+      <viz type="simple_xml_examples.tagcloud">
+        <search base="counts">
+          <query>| fields "$textfield$" count 
+| head $term_count$
+| rename "$textfield$" as top_keywords</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="simple_xml_examples.tagcloud.labelField">top_keywords</option>
+        <option name="simple_xml_examples.tagcloud.maxFontSize">32</option>
+        <option name="simple_xml_examples.tagcloud.minFontSize">6</option>
+        <option name="simple_xml_examples.tagcloud.valueField">count</option>
+      </viz>
+    </panel>
+    <panel depends="$ngram_cloud$,$wordcloud_app$">
       <title>ngram Cloud</title>
       <!--<input type="text" token="term_count" id="range" searchWhenChanged="true">
         <label>Terms (25-400)</label>
@@ -706,6 +790,35 @@ $ne_search$
         <option name="wordcloud_app.wordcloud.numOfBins">8</option>
         <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
         <option name="wordcloud_app.wordcloud.useColors">true</option>
+      </viz>
+    </panel>
+    <panel depends="$ngram_cloud$" rejects="$wordcloud_app$">
+      <title>ngram Cloud</title>
+      <!--<input type="text" token="term_count" id="range" searchWhenChanged="true">
+        <label>Terms (25-400)</label>
+        <default>50</default>
+      </input>-->
+      <input type="dropdown" token="ngram_count" searchWhenChanged="true">
+        <label>ngram Combos</label>
+        <choice value="25">25</choice>
+        <choice value="50">50</choice>
+        <choice value="100">100</choice>
+        <choice value="200">200</choice>
+        <default>50</default>
+        <initialValue>50</initialValue>
+      </input>
+      <viz type="simple_xml_examples.tagcloud">
+        <search base="ngram_counts">
+          <query> 
+| head $ngram_count$
+| rename ngrams as top_ngrams</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="simple_xml_examples.tagcloud.labelField">top_ngrams</option>
+        <option name="simple_xml_examples.tagcloud.maxFontSize">30</option>
+        <option name="simple_xml_examples.tagcloud.minFontSize">5</option>
+        <option name="simple_xml_examples.tagcloud.valueField">count</option>
       </viz>
     </panel>
     <panel>
