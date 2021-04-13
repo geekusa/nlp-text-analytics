@@ -1,17 +1,16 @@
 <form script="themes_bar.js" stylesheet="tabledatabar.css" hideEdit="true">
   <label>Clustering</label>
+  <description>Click in panels with (+) for further action</description>
   <search id="base_search">
     <query>
 $master_search$
 $html_begin$| bs4 textfield=$textfield$ $html_end$
-| cleantext textfield=$textfield$ base_type=lemma_pos mv=f term_min_len=2 $custom_stopwords$
+| cleantext textfield=$textfield$ base_type=lemma_pos mv=f term_min_len=2 $custom_stopwords$ keep_orig=t
 | fit TFIDF $textfield$ max_features=$max_features$ ngram_range=$ngram$ $tfidf_model$
 $topic_begin$| fit $topic_algo$ k=$topic_k$ $textfield$_* $topic_end$
 | fit $cluster_algo$ $clusters$ $topic_begin$"$featurefield$_*"$topic_end$ $tfidf_begin$"$textfield$_*"$tfidf_end$ $cluster_model$
-| table cluster $textfield$
+| table cluster $textfield$ orig_text
     </query>
-    <earliest>$time.earliest$</earliest>
-    <latest>$time.latest$</latest>
   </search>
   <search base="base_search" id="counts">
     <query>
@@ -230,7 +229,7 @@ $topic_begin$| fit $topic_algo$ k=$topic_k$ $textfield$_* $topic_end$
   </row>
   <row>
     <panel>
-      <title>Top Terms Per Cluster</title>
+      <title>Top Terms Per Cluster (+)</title>
       <input type="dropdown" token="topterms" searchWhenChanged="true">
         <label>Term Count</label>
         <choice value="2">2</choice>
@@ -252,11 +251,32 @@ $topic_begin$| fit $topic_algo$ k=$topic_k$ $textfield$_* $topic_end$
 | table terms cluster documentProportion documentCount
 | eval terms = mvjoin(terms, " ")</query>
         </search>
-        <option name="drilldown">none</option>
+        <option name="drilldown">row</option>
         <format type="color" field="documentCount">
           <colorPalette type="minMidMax" maxColor="#EC9960" minColor="#FFFFFF"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
+        <drilldown>
+          <set token="specific_cluster">$row.cluster$</set>
+          <set token="word_hidden">TRUE</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$word_hidden$">
+      <table id="highlight">
+        <title>Cluster $specific_cluster$ Text</title>
+        <search base="base_search">
+          <query>| search cluster=$specific_cluster$
+| table orig_text</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <unset token="word_hidden"></unset>
+        </drilldown>
       </table>
     </panel>
   </row>
@@ -288,16 +308,20 @@ $topic_begin$| fit $topic_algo$ k=$topic_k$ $textfield$_* $topic_end$
 | fields - clusterCount
           </query>
         </search>
-        <option name="charting.axisTitleX.visibility">visible</option>
-        <option name="charting.axisTitleY.visibility">visible</option>
-        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.axisTitleY2.visibility">collapsed</option>
         <option name="charting.chart">bar</option>
-        <option name="charting.drilldown">none</option>
+        <option name="charting.drilldown">all</option>
         <option name="charting.legend.placement">none</option>
         <option name="height">$trellis_height$</option>
         <option name="trellis.enabled">1</option>
         <option name="trellis.size">$trellis_size$</option>
         <option name="trellis.splitBy">cluster</option>
+        <drilldown>
+          <set token="specific_cluster">$trellis.split.cluster$</set>
+          <set token="word_hidden">TRUE</set>
+        </drilldown>
       </chart>
     </panel>
   </row>
