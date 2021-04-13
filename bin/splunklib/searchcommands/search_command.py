@@ -398,7 +398,7 @@ class SearchCommand(object):
         :return: :const:`None`
 
         """
-        self._record_writer.flush(partial=True)
+        self._record_writer.flush(finished=False)
 
     def prepare(self):
         """ Prepare for execution.
@@ -656,7 +656,7 @@ class SearchCommand(object):
         # noinspection PyBroadException
         try:
             debug('Reading metadata')
-            metadata, body = self._read_chunk(ifile)
+            metadata, body = self._read_chunk(self._as_binary_stream(ifile))
 
             action = getattr(metadata, 'action', None)
 
@@ -776,7 +776,6 @@ class SearchCommand(object):
         # noinspection PyBroadException
         try:
             debug('Executing under protocol_version=2')
-            self._records = self._records_protocol_v2
             self._metadata.action = 'execute'
             self._execute(ifile, None)
         except SystemExit:
@@ -833,6 +832,8 @@ class SearchCommand(object):
 
     _encoded_value = re.compile(r'\$(?P<item>(?:\$\$|[^$])*)\$(?:;|$)')  # matches a single value in an encoded list
 
+    # Note: Subclasses must override this method so that it can be called
+    # called as self._execute(ifile, None)
     def _execute(self, ifile, process):
         """ Default processing loop
 
@@ -846,21 +847,38 @@ class SearchCommand(object):
         :rtype: NoneType
 
         """
-        self._record_writer.write_records(process(self._records(ifile)))
-        self.finish()
+        if self.protocol_version == 1:
+            self._record_writer.write_records(process(self._records(ifile)))
+            self.finish()
+        else:
+            assert self._protocol_version == 2
+            self._execute_v2(ifile, process)
 
     @staticmethod
-    def _read_chunk(ifile):
-        # noinspection PyBroadException
+    def _as_binary_stream(ifile):
+        naught = ifile.read(0)
+        if isinstance(naught, bytes):
+            return ifile
+
         try:
-            header = ifile.readline()
+            return ifile.buffer
+        except AttributeError as error:
+            raise RuntimeError('Failed to get underlying buffer: {}'.format(error))
+
+    @staticmethod
+    def _read_chunk(istream):
+        # noinspection PyBroadException
+        assert isinstance(istream.read(0), six.binary_type), 'Stream must be binary'
+
+        try:
+            header = istream.readline()
         except Exception as error:
             raise RuntimeError('Failed to read transport header: {}'.format(error))
 
         if not header:
             return None
 
-        match = SearchCommand._header.match(header)
+        match = SearchCommand._header.match(six.ensure_str(header))
 
         if match is None:
             raise RuntimeError('Failed to parse transport header: {}'.format(header))
@@ -870,14 +888,14 @@ class SearchCommand(object):
         body_length = int(body_length)
 
         try:
-            metadata = ifile.read(metadata_length)
+            metadata = istream.read(metadata_length)
         except Exception as error:
             raise RuntimeError('Failed to read metadata of length {}: {}'.format(metadata_length, error))
 
         decoder = MetadataDecoder()
 
         try:
-            metadata = decoder.decode(metadata)
+            metadata = decoder.decode(six.ensure_str(metadata))
         except Exception as error:
             raise RuntimeError('Failed to parse metadata of length {}: {}'.format(metadata_length, error))
 
@@ -887,16 +905,18 @@ class SearchCommand(object):
         body = ""
         try:
             if body_length > 0:
-                body = ifile.read(body_length)
+                body = istream.read(body_length)
         except Exception as error:
             raise RuntimeError('Failed to read body of length {}: {}'.format(body_length, error))
 
-        return metadata, body
+        return metadata, six.ensure_str(body)
 
     _header = re.compile(r'chunked\s+1.0\s*,\s*(\d+)\s*,\s*(\d+)\s*\n')
 
     def _records_protocol_v1(self, ifile):
+        return self._read_csv_records(ifile)
 
+    def _read_csv_records(self, ifile):
         reader = csv.reader(ifile, dialect=CsvDialect)
 
         try:
@@ -921,51 +941,36 @@ class SearchCommand(object):
                     record[fieldname] = value
             yield record
 
-    def _records_protocol_v2(self, ifile):
+    def _execute_v2(self, ifile, process):
+        istream = self._as_binary_stream(ifile)
 
         while True:
-            result = self._read_chunk(ifile)
+            result = self._read_chunk(istream)
 
             if not result:
                 return
 
             metadata, body = result
             action = getattr(metadata, 'action', None)
-
             if action != 'execute':
                 raise RuntimeError('Expected execute action, not {}'.format(action))
 
-            finished = getattr(metadata, 'finished', False)
+            self._finished = getattr(metadata, 'finished', False)
             self._record_writer.is_flushed = False
 
-            if len(body) > 0:
-                reader = csv.reader(StringIO(body), dialect=CsvDialect)
+            self._execute_chunk_v2(process, result)
 
-                try:
-                    fieldnames = next(reader)
-                except StopIteration:
-                    return
+            self._record_writer.write_chunk(finished=self._finished)
 
-                mv_fieldnames = dict([(name, name[len('__mv_'):]) for name in fieldnames if name.startswith('__mv_')])
+    def _execute_chunk_v2(self, process, chunk):
+            metadata, body = chunk
 
-                if len(mv_fieldnames) == 0:
-                    for values in reader:
-                        yield OrderedDict(izip(fieldnames, values))
-                else:
-                    for values in reader:
-                        record = OrderedDict()
-                        for fieldname, value in izip(fieldnames, values):
-                            if fieldname.startswith('__mv_'):
-                                if len(value) > 0:
-                                    record[mv_fieldnames[fieldname]] = self._decode_list(value)
-                            elif fieldname not in record:
-                                record[fieldname] = value
-                        yield record
-
-            if finished:
+            if len(body) <= 0:
                 return
 
-            self.flush()
+            records = self._read_csv_records(StringIO(body))
+            self._record_writer.write_records(process(records))
+
 
     def _report_unexpected_error(self):
 
@@ -1036,6 +1041,8 @@ class SearchCommand(object):
             """
             return
 
+        # TODO: Stop looking like a dictionary because we don't obey the semantics
+        # N.B.: Does not use Python 2 dict copy semantics
         def iteritems(self):
             definitions = type(self).configuration_setting_definitions
             version = self.command.protocol_version
@@ -1044,7 +1051,9 @@ class SearchCommand(object):
                     lambda setting: (setting.name, setting.__get__(self)), ifilter(
                         lambda setting: setting.is_supported_by_protocol(version), definitions)))
 
-        items = iteritems
+        # N.B.: Does not use Python 3 dict view semantics
+        if not six.PY2:
+            items = iteritems
 
         pass  # endregion
 
