@@ -8,7 +8,7 @@ Available at:
 Splunk App Available at:
 [https://splunkbase.splunk.com/app/4066/](https://splunkbase.splunk.com/app/4066/)
 
-Version: 1.1.1
+Version: 1.1.2
 
 ##### Author: Nathan Worsham 
 Created for MSDS692 Data Science Practicum I at Regis University, 2018 </br>
@@ -322,4 +322,4 @@ Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when usin
 Splunk SDK crashes when too much data is sent through it, gets a buffer error. See [https://github.com/splunk/splunk-sdk-python/issues/150](https://github.com/splunk/splunk-sdk-python/issues/150). Workaround would be to used the sample command to down sample the data until it works. 
 
 ### Release Notes
-Upgraded splunklib to 1.6.15 to fix several known issues including Python 3 compatibility with multibyte characters [https://github.com/splunk/splunk-sdk-python/issues/288#issuecomment-638359587](https://github.com/splunk/splunk-sdk-python/issues/290#issuecomment-638359587) and [SPL-194426](https://docs.splunk.com/Documentation/Splunk/8.1.3/ReleaseNotes/Knownissues#Search_issues). Updated clustering dashboard to allow showing original text from the cluster.
+Upgraded splunklib to 1.6.16. Updated to local jquery 3.6.0 for Splunk 8.2 compatibility.
