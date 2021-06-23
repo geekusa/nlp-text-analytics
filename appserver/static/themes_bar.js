@@ -1,10 +1,17 @@
+require.config({
+   paths: {
+       'localJquery': '../app/nlp-text-analytics/lib/localJquery'
+   }
+});
+
 require([
-    'jquery',
+    'localJquery',
     'underscore',
     'splunkjs/mvc',
     'views/shared/results_table/renderers/BaseCellRenderer',
     'splunkjs/mvc/simplexml/ready!'
-], function($, _, mvc, BaseCellRenderer) {
+], function(localJquery, _, mvc, BaseCellRenderer) {
+    $ = localJquery
     //change text input into range slider (not completely working correctly yet)
     $("[id^=range]").find("input")
                 .attr('type','range')

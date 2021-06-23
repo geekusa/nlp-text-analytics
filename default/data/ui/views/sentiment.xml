@@ -1,4 +1,4 @@
-<form script="tabledatabar.js" stylesheet="tabledatabar.css" hideEdit="true">
+<form hideEdit="true">
   <label>Sentiment</label>
   <description>Click in panels with (+) for further action</description>
   <search id="base_search">

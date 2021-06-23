@@ -1,10 +1,17 @@
+require.config({
+   paths: {
+       'localJquery': '../app/nlp-text-analytics/lib/localJquery'
+   }
+});
+
 require([
-    'jquery',
+    'localJquery',
     'underscore',
     'splunkjs/mvc',
     'splunkjs/mvc/tableview',
     'splunkjs/mvc/simplexml/ready!',
-], function($, _, mvc, TableView) {
+], function(localJquery, _, mvc, TableView) {
+    $ = localJquery
     var DataBarCellRenderer = TableView.BaseCellRenderer.extend({
         canRender: function(cell) {
             return (cell.field === 'proportion');
