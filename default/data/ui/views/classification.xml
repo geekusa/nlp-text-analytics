@@ -1,4 +1,4 @@
-<form hideEdit="true">
+<form version="1.1." hideEdit="true">
   <label>Classification</label>
   <description>This dashboard shows how to use the LinearSVC classifier for document classification</description>
   <search id="base_search">
