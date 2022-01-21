@@ -57,4 +57,4 @@ class MinMaxScaler(TransformerMixin, BaseAlgo):
     def register_codecs():
         from codec.codecs import SimpleObjectCodec
         codecs_manager.add_codec('combined_feats_algos.MinMaxScaler', 'MinMaxScaler', SimpleObjectCodec)
-        codecs_manager.add_codec('sklearn.preprocessing.data', 'MinMaxScaler', SimpleObjectCodec)
+        codecs_manager.add_codec('sklearn.preprocessing._data', 'MinMaxScaler', SimpleObjectCodec)

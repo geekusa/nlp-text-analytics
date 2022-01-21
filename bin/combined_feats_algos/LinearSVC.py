@@ -26,4 +26,4 @@ class LinearSVC(ClassifierMixin, BaseAlgo):
     def register_codecs():
         from codec.codecs import SimpleObjectCodec
         codecs_manager.add_codec('combined_feats_algos.LinearSVC', 'LinearSVC', SimpleObjectCodec)
-        codecs_manager.add_codec('sklearn.svm.classes', 'LinearSVC', SimpleObjectCodec)
+        codecs_manager.add_codec('sklearn.svm._classes', 'LinearSVC', SimpleObjectCodec)
