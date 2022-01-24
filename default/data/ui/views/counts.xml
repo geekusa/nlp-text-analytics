@@ -1,4 +1,4 @@
-<form version="1.1." script="counts.js" hideEdit="true">
+<form version="1.1" script="counts.js" hideEdit="true">
   <label>Counts</label>
   <description>Click in panels with (+) for further action</description>
   <search id="base_search">
