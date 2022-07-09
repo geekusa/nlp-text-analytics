@@ -5,7 +5,7 @@
     <query>
 $master_search$
 $html_begin$| bs4 textfield=$textfield$ $html_end$
-| cleantext textfield=$textfield$ base_type=lemma_pos mv=f term_min_len=2 $custom_stopwords$ keep_orig=t
+| cleantext textfield=$textfield$ base_type=lemma_pos mv=f language=$lang$ term_min_len=2 $custom_stopwords$ keep_orig=t
 | fit TFIDF $textfield$ max_features=$max_features$ ngram_range=$ngram$ $tfidf_model$
 $topic_begin$| fit $topic_algo$ k=$topic_k$ $textfield$_* $topic_end$
 | fit $cluster_algo$ $clusters$ $topic_begin$"$featurefield$_*"$topic_end$ $tfidf_begin$"$textfield$_*"$tfidf_end$ $cluster_model$
@@ -60,6 +60,10 @@ $topic_begin$| fit $topic_algo$ k=$topic_k$ $textfield$_* $topic_end$
       <prefix>custom_stopwords="</prefix>
       <suffix>"</suffix>
       <default></default>
+    </input>
+    <input id="language_selector" type="text" token="lang">
+        <label>Language</label>
+        <default>english</default>
     </input>
     <html>
       <p/>

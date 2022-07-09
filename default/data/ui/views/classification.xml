@@ -6,7 +6,7 @@
 $master_search$
 $html_begin$| bs4 textfield=$textfield$ $html_end$
 `comment("clean and lemmatize the text")`
-| cleantext textfield=$textfield$ base_type=lemma_pos mv=f term_min_len=2 $custom_stopwords$
+| cleantext textfield=$textfield$ base_type=lemma_pos mv=f term_min_len=2 language=$lang$ $custom_stopwords$
 | fields $target$ $textfield$
     </query>
     <earliest>$time.earliest$</earliest>
@@ -125,6 +125,10 @@ $noop3$
       <suffix>"</suffix>
       <default></default>
     </input>
+    <input id="language_selector" type="text" token="lang">
+        <label>Language</label>
+        <default>english</default>
+    </input>
     <html>
       <p/>
       <p/>
@@ -175,7 +179,7 @@ $noop3$
       <h3>SPL Used:</h3>
       <pre>$master_search$
 `comment("clean and lemmatize the text")`
-| cleantext textfield=$textfield$ base_type=lemma_pos mv=f $custom_stopwords$
+| cleantext textfield=$textfield$ base_type=lemma_pos mv=f language=$lang$ $custom_stopwords$
 | fields $target$ $textfield$
 `comment("split the data into the training set, must set seed for selection to be repeatable")`
 | sample partitions=10 seed=$random_state$
@@ -252,7 +256,7 @@ $noop3$
       <h3>SPL Used:</h3>
       <pre>$master_search$
 `comment("clean and lemmatize the text")`
-| cleantext textfield=$textfield$ base_type=lemma_pos mv=f $custom_stopwords$
+| cleantext textfield=$textfield$ base_type=lemma_pos mv=f language=$lang$ $custom_stopwords$
 | fields $target$ $textfield$
 `comment("split the data into the test set, must use seed from training selection")`
 | sample partitions=10 seed=$random_state$

@@ -3,7 +3,7 @@
   <search id="base_search">
     <query>
 $master_search$
-| cleantext textfield=$textfield$ base_type=lemma_pos remove_stopwords=t term_min_len=2
+| cleantext textfield=$textfield$ base_type=lemma_pos remove_stopwords=t language=$lang$ term_min_len=2
 | eval ne = mvzip(pos_tag,'$textfield$',",")
 | eval ne = mvfilter(match(ne,"NNPS?,"))
 | rex field=ne mode=sed "s/[^,]+,([a-z]+)/\1/"
@@ -76,6 +76,10 @@ $master_search$
       <choice value="0.0001">Very Large</choice>
       <default>0.02</default>
       <initialValue>0.02</initialValue>
+    </input>
+    <input id="language_selector" type="text" token="lang">
+          <label>Language</label>
+          <default>english</default>
     </input>
   </fieldset>
   <row>
