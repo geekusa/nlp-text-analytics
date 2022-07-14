@@ -77,10 +77,17 @@ $master_search$
       <default>0.02</default>
       <initialValue>0.02</initialValue>
     </input>
-    <input id="language_selector" type="text" token="lang">
-          <label>Language</label>
-          <default>english</default>
-    </input>
+    <input type="dropdown" token="lang" searchWhenChanged="true" id="language_selector">
+        <label>Language selection</label>
+        <choice value="english">english</choice>
+        <choice value="russian">russian</choice>
+        <choice value="spanish">spanish</choice>
+        <choice value="german">german</choice>
+        <choice value="french">french</choice>
+        <choice value="italian">italian</choice>
+        <choice value="portuguese">portuguese</choice>
+        <default>english</default>
+     </input>
   </fieldset>
   <row>
     <panel>
