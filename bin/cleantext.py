@@ -11,6 +11,7 @@ from nltk import word_tokenize, pos_tag
 from nltk.data import path as nltk_data_path
 from nltk.corpus import wordnet, stopwords as stop_words
 from nltk.stem import WordNetLemmatizer, PorterStemmer
+from nltk.stem.snowball import SnowballStemmer
 from nltk.util import ngrams
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
 
@@ -127,7 +128,12 @@ class CleanText(StreamingCommand):
         doc='''**Syntax:** **ngram_mix=***<boolean>*
         **Description:** Determines if ngram output is combined or separate columns. Defaults to false which results in separate columns''',
         validate=validators.Boolean()
-        ) 	
+        )
+    language = Option(
+        default="english",
+        doc='''**Syntax:** **language=***<string>*
+        **Description:** Can change the language used for stopwords, tokenizing, and stemming. Defaults to english''',
+        )
 
     #https://stackoverflow.com/a/15590384
     def get_wordnet_pos(self, treebank_tag):
@@ -175,15 +181,16 @@ class CleanText(StreamingCommand):
                 if (self.base_word and self.base_type == 'lemma_pos'):
                     record['pos_tuple'] = pos_tag(
                         word_tokenize(
-                            record[self.textfield]
+                            record[self.textfield],
+                            language=self.language
                         ),
                         tagset=self.pos_tagset
                     )
                     if self.default_clean and self.remove_stopwords:
                         if self.custom_stopwords:
-                            stopwords = set(stop_words.words('english') + custom_stopwords)
+                            stopwords = set(stop_words.words(self.language) + custom_stopwords)
                         else:
-                            stopwords = set(stop_words.words('english'))
+                            stopwords = set(stop_words.words(self.language))
                         record['pos_tuple'] = [
                             [
                             re.sub(r'[\W\d]','',text[0]).lower(),
@@ -206,7 +213,8 @@ class CleanText(StreamingCommand):
                         ]
                 elif self.force_nltk_tokenize:
                     record[self.textfield] = word_tokenize(
-                        record[self.textfield]
+                        record[self.textfield],
+                        language=self.language
                     )
             elif self.default_clean or (self.base_word and self.base_type == 'lemma'):
                 #https://stackoverflow.com/a/1059601
@@ -241,9 +249,9 @@ class CleanText(StreamingCommand):
             #Lemmatization or Stemming with stopword removal
             if self.remove_stopwords and self.base_word and self.base_type != 'lemma_pos':
                 if self.custom_stopwords:
-                    stopwords = set(stop_words.words('english') + custom_stopwords)
+                    stopwords = set(stop_words.words(self.language) + custom_stopwords)
                 else:
-                    stopwords = set(stop_words.words('english'))
+                    stopwords = set(stop_words.words(self.language))
                 if self.base_type == 'lemma':
                     lm = WordNetLemmatizer()
                     record[self.textfield] = [
@@ -253,7 +261,7 @@ class CleanText(StreamingCommand):
                         if text not in stopwords
                     ]
                 if self.base_type == 'stem':
-                    ps = PorterStemmer()
+                    ps = PorterStemmer() if self.language=="english" else SnowballStemmer(self.language)
                     record[self.textfield] = [
                         ps.stem(text)
                         for text in
@@ -270,7 +278,7 @@ class CleanText(StreamingCommand):
                         record[self.textfield]
                     ]
                 if self.base_type == 'stem':
-                    ps = PorterStemmer()
+                    ps = PorterStemmer() if self.language=="english" else SnowballStemmer(self.language)
                     record[self.textfield] = [
                         ps.stem(text)
                         for text in
@@ -279,9 +287,9 @@ class CleanText(StreamingCommand):
             #Stopword Removal without Lemmatization or Stemming
             if self.remove_stopwords and not self.base_word:
                 if self.custom_stopwords:
-                    stopwords = set(stop_words.words('english') + custom_stopwords)
+                    stopwords = set(stop_words.words(self.language) + custom_stopwords)
                 else:
-                    stopwords = set(stop_words.words('english'))
+                    stopwords = set(stop_words.words(self.language))
                 record[self.textfield] = [
                     text 
                     for text in

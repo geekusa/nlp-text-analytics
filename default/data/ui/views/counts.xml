@@ -6,7 +6,7 @@
 $master_search$
 $sent_begin$| vader textfield="$textfield$" full_output=f | eval sentiment = case(sentiment&gt;$neutral$,"Positive",sentiment&lt;-$neutral$,"Negative",true(),"Neutral")$sent_end$
 $html_begin$| bs4 textfield="$textfield$" $html_end$
-| cleantext textfield="$textfield$" base_type=lemma_pos $stopwords$ $custom_stopwords$ ngram_range=$ngram$ ngram_mix=t keep_orig=t term_min_len=2
+| cleantext textfield="$textfield$" base_type=lemma_pos language=$lang$ $stopwords$ $custom_stopwords$ ngram_range=$ngram$ ngram_mix=t keep_orig=t term_min_len=2
 | eval pos_zip = mvzip(pos_tag,'$textfield$',",")
 | eval no_ne = mvfilter(!match(pos_zip,"NNPS?,"))
 | rex field=no_ne mode=sed "s/[^,]+,([a-z]+)/\1/"
@@ -37,7 +37,7 @@ $ne_begin$| eval "$textfield$" = no_ne $ne_end$
   </search>
   <search>
     <query>
-| rest /services/apps/local 
+| rest /services/apps/local
 | search disabled=0 title=wordcloud_app
     </query>
     <earliest>$time.earliest$</earliest>
@@ -215,6 +215,20 @@ $ne_begin$| eval "$textfield$" = no_ne $ne_end$
         </condition>
       </change>
     </input>
+    <html>
+       <p/>
+    </html>
+    <input type="dropdown" token="lang" searchWhenChanged="true" id="language_selector">
+        <label>Language selection</label>
+        <choice value="english">english</choice>
+        <choice value="russian">russian</choice>
+        <choice value="spanish">spanish</choice>
+        <choice value="german">german</choice>
+        <choice value="french">french</choice>
+        <choice value="italian">italian</choice>
+        <choice value="portuguese">portuguese</choice>
+        <default>english</default>
+     </input>
   </fieldset>
   <row>
     <panel>
@@ -400,9 +414,9 @@ $ne_begin$| eval "$textfield$" = no_ne $ne_end$
       <title>Top Parts-of-Speech Tags (+)</title>
       <chart>
         <search base="base_search">
-          <query>| stats count by pos_tag 
+          <query>| stats count by pos_tag
 | sort -count
-| eventstats avg(count) AS avgCount 
+| eventstats avg(count) AS avgCount
 | where count &gt; (avgCount /3)
 | fields pos_tag count</query>
         </search>
@@ -509,7 +523,7 @@ $ne_search$
       </input>
       <viz type="wordcloud_app.wordcloud">
         <search base="ne_counts">
-          <query> 
+          <query>
 | head $ne_count$
           </query>
         </search>
@@ -540,7 +554,7 @@ $ne_search$
       </input>
       <viz type="simple_xml_examples.tagcloud">
         <search base="ne_counts">
-          <query> 
+          <query>
 | head $ne_count$
           </query>
         </search>
@@ -642,7 +656,7 @@ $ne_search$
         <search base="group_count">
           <query>| where '$group$'=="$subgroup$"
 | head 20
-| rename "$textfield$" AS term        
+| rename "$textfield$" AS term
          </query>
         </search>
         <fields>term,count</fields>
@@ -696,7 +710,7 @@ $ne_search$
       </input>
       <viz type="wordcloud_app.wordcloud">
         <search base="counts">
-          <query>| fields "$textfield$" count 
+          <query>| fields "$textfield$" count
 | head $term_count$
 | rename "$textfield$" as "Top keywords"</query>
         </search>
@@ -746,7 +760,7 @@ $ne_search$
       </input>
       <viz type="simple_xml_examples.tagcloud">
         <search base="counts">
-          <query>| fields "$textfield$" count 
+          <query>| fields "$textfield$" count
 | head $term_count$
 | rename "$textfield$" as top_keywords</query>
         </search>
@@ -775,7 +789,7 @@ $ne_search$
       </input>
       <viz type="wordcloud_app.wordcloud">
         <search base="ngram_counts">
-          <query> 
+          <query>
 | head $ngram_count$
 | rename ngrams as "Top ngrams"</query>
         </search>
@@ -809,7 +823,7 @@ $ne_search$
       </input>
       <viz type="simple_xml_examples.tagcloud">
         <search base="ngram_counts">
-          <query> 
+          <query>
 | head $ngram_count$
 | rename ngrams as top_ngrams</query>
         </search>
@@ -825,7 +839,7 @@ $ne_search$
       <title>Zipf Plot</title>
       <chart depends="$sw_hidden$">
         <search base="counts">
-          <query>| fields "$textfield$" count 
+          <query>| fields "$textfield$" count
 | streamstats count AS rank
 | stats first("$textfield$") AS "$textfield$" first(rank) AS rank BY count
 | sort -count

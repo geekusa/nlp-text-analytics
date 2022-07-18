@@ -321,5 +321,9 @@ This README file constitutes the documenation for the app and will be kept upto 
 Version 7.0.0 introduced an issue that causes errors in the ML Toolkit when using free or developer's license see [https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html](https://answers.splunk.com/answers/654411/splunk-710-upgrade-of-free-version-finalizes-searc.html). Fixed as of 7.1.2.
 Splunk SDK crashes when too much data is sent through it, gets a buffer error. See [https://github.com/splunk/splunk-sdk-python/issues/150](https://github.com/splunk/splunk-sdk-python/issues/150). Workaround would be to used the sample command to down sample the data until it works. 
 
+### How to add more languages
+You can find other models directly from NLTK data website [https://www.nltk.org/nltk_data/](https://www.nltk.org/nltk_data/) (look for id: punkt) or any compatible models with NLTK and add
+it to the directory _bin/nltk_data/tokenizers/punkt_ and _bin/nltk_data/tokenizers/punkt/PY3_ 
+
 ### Release Notes
 Fixes for Splunk Cloud. Fix LinearSVC and MinMaxScalar algorithms to work with 5.3.x MLTK. Change heights for various panels that need adjustment for 8.2
