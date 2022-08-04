@@ -8,7 +8,7 @@ Available at:
 Splunk App Available at:
 [https://splunkbase.splunk.com/app/4066/](https://splunkbase.splunk.com/app/4066/)
 
-Version: 1.1.3
+Version: 1.1.4
 
 ##### Author: Nathan Worsham 
 Created for MSDS692 Data Science Practicum I at Regis University, 2018 </br>
@@ -20,6 +20,10 @@ See [associated blog](https://github.com/geekusa/combined-feature-classifier) fo
 This app was part of the basis for a breakout session at Splunk Conf18 I was lucky enough to present at--[Extending Splunk MLTK using GitHub Community](https://conf.splunk.com/conf-online.html?search=fn1409#/).
 [Session Slides](https://static.rainfocus.com/splunk/splunkconf18/sess/1523381218451001Aj1y/finalPDF/FN1409_GitHubCollaboration_Final_1538799477337001rcTB.pdf)
 [Session Recording](https://conf.splunk.com/files/2018/recordings/extending-splunk-mltk-using-fn1409.mp4)
+
+Contributors:
+Since release to open source, the project now has contributors! See [CONTRIBUTORS](https://github.com/geekusa/nlp-text-analytics/blob/master/CONTRIBUTORS)
+
 
 ## Description and Use-cases
 
@@ -326,4 +330,4 @@ You can find other models directly from NLTK data website [https://www.nltk.org/
 it to the directory _bin/nltk_data/tokenizers/punkt_ and _bin/nltk_data/tokenizers/punkt/PY3_ 
 
 ### Release Notes
-Fixes for Splunk Cloud. Fix LinearSVC and MinMaxScalar algorithms to work with 5.3.x MLTK. Change heights for various panels that need adjustment for 8.2
+Added language support for cleantext command (more than just English now, but note that the sentiment command still only supports English). Minor UI updates for 9.0 compatibility.

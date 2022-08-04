@@ -39,31 +39,36 @@
     flex-direction: row !important;
 }
 #horiz_two_radio_1 [data-test="option"] {
-    margin-right: 6px;
+    margin-right: 16px;
+    margin-left: 10px;
 }
 #horiz_two_radio_2 [data-test="radio-list"] {
     flex-direction: row !important;
 }
 #horiz_two_radio_2 [data-test="option"] {
-    margin-right: 6px;
+    margin-right: 16px;
+    margin-left: 10px;
 }
 #horiz_two_radio_3 [data-test="radio-list"] {
     flex-direction: row !important;
 }
 #horiz_two_radio_3 [data-test="option"] {
-    margin-right: 6px;
+    margin-right: 16px;
+    margin-left: 10px;
 }
 #horiz_two_radio_4 [data-test="radio-list"] {
     flex-direction: row !important;
 }
 #horiz_two_radio_4 [data-test="option"] {
-    margin-right: 6px;
+    margin-right: 16px;
+    margin-left: 10px;
 }
 #horiz_two_radio_5 [data-test="radio-list"] {
     flex-direction: row !important;
 }
 #horiz_two_radio_5 [data-test="option"] {
-    margin-right: 6px;
+    margin-right: 16px;
+    margin-left: 10px;
 }
 /*make a longer link input*/
 div#long_link_input {

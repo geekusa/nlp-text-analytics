@@ -80,7 +80,7 @@
       <default>10</default>
       <initialValue>10</initialValue>
     </input>
-    <input type="radio" token="mvzip">
+    <input id="horiz_two_radio_1" type="radio" token="mvzip">
       <label>Multi-value Output Zip</label>
       <choice value="false">No</choice>
       <choice value="true">Yes</choice>
