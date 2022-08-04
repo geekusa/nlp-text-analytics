@@ -330,4 +330,4 @@ You can find other models directly from NLTK data website [https://www.nltk.org/
 it to the directory _bin/nltk_data/tokenizers/punkt_ and _bin/nltk_data/tokenizers/punkt/PY3_ 
 
 ### Release Notes
-Added language support for cleantext command (more than just English now, but note that the sentiment command still only supports English). Minor UI updates for 9.0 compatibility.
+Added language support for cleantext command (more than just English now (thank you Paul-Alexandre Fourrière!), but note that the sentiment command still only supports English). Minor UI updates for 9.0 compatibility.
