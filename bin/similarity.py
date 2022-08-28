@@ -62,19 +62,25 @@ class Similarity(StreamingCommand):
         default='levenshtein',
         doc='''**Syntax:** **base_type=***<string>*
         **Description:** Algorithm used for determining text similarity. Options are levenshtein, damerau, jaro, jaro_winkler, jaccard, and masi. Defaults to levenshtein. See included dashboard for explanation of each algorithm''',
-        ) 	
+        )
     limit = Option(
         default=10,
         doc='''**Syntax:** **limit=***<int>*
         **Description:** When using multi-valued comparisons, this value limits the number of top matches returned. Defaults to 10.''',
         validate=validators.Integer()
-        ) 	
+        )
     mvzip = Option(
         default=False,
         doc='''**Syntax:** **mvzip=***<boolean>*
         **Description:** When using multi-valued comparisons, when this option is true the output is similar to using Splunk's mvzip option. Output is value:top_match_target for single-valued to multi-valued comparision and value:top_match_source>top_match_target for multi-valued to multi-valued comparision''',
         validate=validators.Boolean()
-        ) 	
+        )
+    remove_duplicates = Option(
+        default=False,
+        doc='''**Syntax:** **remove_duplicates=***<boolean>*
+        **Description:** When using multi-valued comparisons, when this option is true the output does not contains elements that are equals to each others (distance=0 and similarity=1)''',
+        validate=validators.Boolean()
+    )
 
     def distance_to_ratio(self, distance_steps, len1, len2):
         '''convert distance steps to distance ratio'''
@@ -147,8 +153,8 @@ class Similarity(StreamingCommand):
                     record['distance'] = [ v[1] for k, v in top_matches.items() ]
                 else:
                     record['distance'] = [ v for k, v in top_matches.items() ]
-                record['similarity'] = [ 
-                    self.conversion(distance=i) 
+                record['similarity'] = [
+                    self.conversion(distance=i)
                     for i in record['distance']
                 ]
             elif 'similarity' in algo:
@@ -158,6 +164,7 @@ class Similarity(StreamingCommand):
                     for i in record['similarity']
                 ]
             if single:
+                record['top_match_source'] = record[text]
                 record['top_match_target'] = [ k for k, v in top_matches.items() ]
             else:
                 record['top_match_source'] = [ k.split('>')[0] for k, v in top_matches.items() ]
@@ -182,8 +189,10 @@ class Similarity(StreamingCommand):
             elif 'similarity' in algo:
                 record['similarity'] = results
                 record['distance'] = self.conversion(similarity=record['similarity'])
+        record['top_match_target'] = record[compare]
+        record['top_match_source'] = record[text]
         return record
-        
+
     def single_to_multi(self, record, text, compare, reverse, transposition, limit, mvzip, set_algo, algo):
         compare_dict = {}
         for c in record[compare]:
@@ -200,7 +209,7 @@ class Similarity(StreamingCommand):
             top_matches = OrderedDict()
             for k,v in sorted(compare_dict.items(), key=lambda x: x[1][1], reverse=reverse)[:limit]:
                 top_matches[k] = compare_dict[k]
-        else: 
+        else:
             top_matches = OrderedDict()
             for k in sorted(compare_dict, key=compare_dict.get, reverse=reverse)[:limit]:
                 top_matches[k] = compare_dict[k]
@@ -212,7 +221,7 @@ class Similarity(StreamingCommand):
         compare_dict = {}
         for t in record[text]:
             for c in record[compare]:
-                if t != c:
+                if not (self.remove_duplicates and t == c):
                     result = self.algo_select(t, c, transposition, set_algo, algo)
                     if 'edit' in algo:
                         compare_dict[t+'>'+c] = (
