@@ -87,6 +87,13 @@
       <default>false</default>
       <initialValue>false</initialValue>
     </input>
+    <input id="horiz_two_radio_2" type="radio" token="remove_duplicates">
+      <label>Remove duplicates value in multivalued to multivalued fields comparison</label>
+      <choice value="false">No</choice>
+      <choice value="true">Yes</choice>
+      <default>false</default>
+      <initialValue>false</initialValue>
+    </input>
   </fieldset>
   <row>
     <panel>
@@ -235,7 +242,7 @@ All algorithms return a distance and similarity score between 0 and 1, while som
         <search>
           <query>| makeresults
 | eval text=if(match("$text$",","),split("$text$",","),"$text$"), compare=if(match("$compare$",","),split("$compare$",","),"$compare$")
-| similarity textfield=text comparefield=compare algo=$algo$ limit=$limit$ mvzip=$mvzip$
+| similarity textfield=text comparefield=compare algo=$algo$ limit=$limit$ mvzip=$mvzip$ remove_duplicates=$remove_duplicates$
 | fields - _time
 | table text compare *</query>
           <earliest>-24h@h</earliest>
