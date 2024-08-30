@@ -156,6 +156,7 @@ $topic_begin$| fit $topic_algo$ k=$topic_k$ $textfield$_* $topic_end$
       <choice value="SpectralClustering">SpectralClustering</choice>
       <choice value="DBSCAN">DBSCAN</choice>
       <choice value="XMeans">XMeans</choice>
+      <choice value="GMeans">GMeans</choice>
       <default>KMeans</default>
       <initialValue>KMeans</initialValue>
       <change>
@@ -173,6 +174,10 @@ $topic_begin$| fit $topic_algo$ k=$topic_k$ $textfield$_* $topic_end$
           <set token="clusters"></set>
         </condition>
         <condition value="XMeans">
+          <set token="k_hidden">true</set>
+          <set token="clusters"></set>
+        </condition>
+        <condition value="GMeans">
           <set token="k_hidden">true</set>
           <set token="clusters"></set>
         </condition>
