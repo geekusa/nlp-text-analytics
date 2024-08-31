@@ -10,6 +10,10 @@ Splunk App Available at:
 
 Version: 1.1.4
 
+# Note About Visualization Deprecation
+
+Many of the visualizations that the dashboards use in this app are either deprecated or will reach end of support on Dec 21, 2024 see [https://lantern.splunk.com/@go/page/7824](https://lantern.splunk.com/@go/page/7824). This app's original intention was about providing custom commands and extending the algorithms from sklearn that MLTK does not implement, and the dashboards were only meant as showing examples of how to use them. Some of these visualizations can see extended life like seen in [https://community.splunk.com/t5/All-Apps-and-Add-ons/Failed-to-load-source-for-Wordcloud-visualization/m-p/665787#M79891](https://community.splunk.com/t5/All-Apps-and-Add-ons/Failed-to-load-source-for-Wordcloud-visualization/m-p/665787#M79891), but it certainly is only delaying the inevitable. 
+
 ##### Author: Nathan Worsham 
 Created for MSDS692 Data Science Practicum I at Regis University, 2018 </br>
 See [associated blog](https://github.com/geekusa/nlp-text-analytics/blob/master/PROJECT_FILES/blog.md) for detailed information on the project creation.
