@@ -1,10 +1,9 @@
 # Natural Language Toolkit: Spearman Rank Correlation
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Joel Nothman <jnothman@student.usyd.edu.au>
-# URL: <http://nltk.org>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
-from __future__ import division
 
 """
 Tools for comparing ranked lists.

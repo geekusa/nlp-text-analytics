@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2012 NLTK Project
 # Author: Alessandro Presta <alessandro.presta@gmail.com>
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
 """
@@ -77,9 +77,8 @@ What about this one?
 
 from collections import defaultdict
 
-from nltk.probability import FreqDist, DictionaryProbDist, ELEProbDist
-
 from nltk.classify.naivebayes import NaiveBayesClassifier
+from nltk.probability import DictionaryProbDist, ELEProbDist, FreqDist
 
 ##//////////////////////////////////////////////////////
 ##  Positive Naive Bayes Classifier

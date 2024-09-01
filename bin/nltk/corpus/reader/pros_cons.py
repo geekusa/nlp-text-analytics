@@ -1,8 +1,8 @@
 # Natural Language Toolkit: Pros and Cons Corpus Reader
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Pierpaolo Pantone <24alsecondo@gmail.com>
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
 """
@@ -11,7 +11,7 @@ CorpusReader for the Pros and Cons dataset.
 - Pros and Cons dataset information -
 
 Contact: Bing Liu, liub@cs.uic.edu
-        http://www.cs.uic.edu/~liub
+        https://www.cs.uic.edu/~liub
 
 Distributed with permission.
 
@@ -27,8 +27,6 @@ Related papers:
 """
 import re
 
-from six import string_types
-
 from nltk.corpus.reader.api import *
 from nltk.tokenize import *
 
@@ -38,7 +36,7 @@ class ProsConsCorpusReader(CategorizedCorpusReader, CorpusReader):
     Reader for the Pros and Cons sentence dataset.
 
         >>> from nltk.corpus import pros_cons
-        >>> pros_cons.sents(categories='Cons')
+        >>> pros_cons.sents(categories='Cons') # doctest: +NORMALIZE_WHITESPACE
         [['East', 'batteries', '!', 'On', '-', 'off', 'switch', 'too', 'easy',
         'to', 'maneuver', '.'], ['Eats', '...', 'no', ',', 'GULPS', 'batteries'],
         ...]
@@ -53,7 +51,7 @@ class ProsConsCorpusReader(CategorizedCorpusReader, CorpusReader):
         root,
         fileids,
         word_tokenizer=WordPunctTokenizer(),
-        encoding='utf8',
+        encoding="utf8",
         **kwargs
     ):
         """
@@ -84,7 +82,7 @@ class ProsConsCorpusReader(CategorizedCorpusReader, CorpusReader):
         fileids = self._resolve(fileids, categories)
         if fileids is None:
             fileids = self._fileids
-        elif isinstance(fileids, string_types):
+        elif isinstance(fileids, str):
             fileids = [fileids]
         return concat(
             [
@@ -108,7 +106,7 @@ class ProsConsCorpusReader(CategorizedCorpusReader, CorpusReader):
         fileids = self._resolve(fileids, categories)
         if fileids is None:
             fileids = self._fileids
-        elif isinstance(fileids, string_types):
+        elif isinstance(fileids, str):
             fileids = [fileids]
         return concat(
             [
@@ -133,11 +131,3 @@ class ProsConsCorpusReader(CategorizedCorpusReader, CorpusReader):
         for sent in self._read_sent_block(stream):
             words.extend(sent)
         return words
-
-    def _resolve(self, fileids, categories):
-        if fileids is not None and categories is not None:
-            raise ValueError('Specify fileids or categories, not both')
-        if categories is not None:
-            return self.fileids(categories)
-        else:
-            return fileids

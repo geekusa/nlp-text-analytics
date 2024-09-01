@@ -1,9 +1,9 @@
 # Natural Language Toolkit: Parser API
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Steven Bird <stevenbird1@gmail.com>
 #         Edward Loper <edloper@gmail.com>
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 #
 
@@ -12,7 +12,7 @@ import itertools
 from nltk.internals import overridden
 
 
-class ParserI(object):
+class ParserI:
     """
     A processing class for deriving trees that represent possible
     structures for a sequence of tokens.  These tree structures are
@@ -37,7 +37,7 @@ class ParserI(object):
     def parse(self, sent, *args, **kwargs):
         """
         :return: An iterator that generates parse trees for the sentence.
-        When possible this list is sorted from most likely to least likely.
+            When possible this list is sorted from most likely to least likely.
 
         :param sent: The sentence to be parsed
         :type sent: list(str)

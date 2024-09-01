@@ -2,32 +2,28 @@
 #
 # Author: Long Duong <longdt219@gmail.com>
 #
-# Copyright (C) 2001-2019 NLTK Project
-# URL: <http://nltk.org/>
+# Copyright (C) 2001-2024 NLTK Project
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-import tempfile
 import pickle
-
-from os import remove
+import tempfile
 from copy import deepcopy
 from operator import itemgetter
+from os import remove
 
 try:
     from numpy import array
     from scipy import sparse
-    from sklearn.datasets import load_svmlight_file
     from sklearn import svm
+    from sklearn.datasets import load_svmlight_file
 except ImportError:
     pass
 
-from nltk.parse import ParserI, DependencyGraph, DependencyEvaluator
+from nltk.parse import DependencyEvaluator, DependencyGraph, ParserI
 
 
-class Configuration(object):
+class Configuration:
     """
     Class for holding configuration which is the partial analysis of the input sentence.
     The transition based parser aims at finding set of operators that transfer the initial
@@ -55,11 +51,11 @@ class Configuration(object):
 
     def __str__(self):
         return (
-            'Stack : '
+            "Stack : "
             + str(self.stack)
-            + '  Buffer : '
+            + "  Buffer : "
             + str(self.buffer)
-            + '   Arcs : '
+            + "   Arcs : "
             + str(self.arcs)
         )
 
@@ -70,10 +66,10 @@ class Configuration(object):
         """
         if feat is None:
             return False
-        if feat == '':
+        if feat == "":
             return False
         if flag is False:
-            if feat == '_':
+            if feat == "_":
                 return False
         return True
 
@@ -91,29 +87,29 @@ class Configuration(object):
             # Stack 0
             stack_idx0 = self.stack[len(self.stack) - 1]
             token = self._tokens[stack_idx0]
-            if self._check_informative(token['word'], True):
-                result.append('STK_0_FORM_' + token['word'])
-            if 'lemma' in token and self._check_informative(token['lemma']):
-                result.append('STK_0_LEMMA_' + token['lemma'])
-            if self._check_informative(token['tag']):
-                result.append('STK_0_POS_' + token['tag'])
-            if 'feats' in token and self._check_informative(token['feats']):
-                feats = token['feats'].split("|")
+            if self._check_informative(token["word"], True):
+                result.append("STK_0_FORM_" + token["word"])
+            if "lemma" in token and self._check_informative(token["lemma"]):
+                result.append("STK_0_LEMMA_" + token["lemma"])
+            if self._check_informative(token["tag"]):
+                result.append("STK_0_POS_" + token["tag"])
+            if "feats" in token and self._check_informative(token["feats"]):
+                feats = token["feats"].split("|")
                 for feat in feats:
-                    result.append('STK_0_FEATS_' + feat)
+                    result.append("STK_0_FEATS_" + feat)
             # Stack 1
             if len(self.stack) > 1:
                 stack_idx1 = self.stack[len(self.stack) - 2]
                 token = self._tokens[stack_idx1]
-                if self._check_informative(token['tag']):
-                    result.append('STK_1_POS_' + token['tag'])
+                if self._check_informative(token["tag"]):
+                    result.append("STK_1_POS_" + token["tag"])
 
             # Left most, right most dependency of stack[0]
             left_most = 1000000
             right_most = -1
-            dep_left_most = ''
-            dep_right_most = ''
-            for (wi, r, wj) in self.arcs:
+            dep_left_most = ""
+            dep_right_most = ""
+            for wi, r, wj in self.arcs:
                 if wi == stack_idx0:
                     if (wj > wi) and (wj > right_most):
                         right_most = wj
@@ -122,49 +118,49 @@ class Configuration(object):
                         left_most = wj
                         dep_left_most = r
             if self._check_informative(dep_left_most):
-                result.append('STK_0_LDEP_' + dep_left_most)
+                result.append("STK_0_LDEP_" + dep_left_most)
             if self._check_informative(dep_right_most):
-                result.append('STK_0_RDEP_' + dep_right_most)
+                result.append("STK_0_RDEP_" + dep_right_most)
 
         # Check Buffered 0
         if len(self.buffer) > 0:
             # Buffer 0
             buffer_idx0 = self.buffer[0]
             token = self._tokens[buffer_idx0]
-            if self._check_informative(token['word'], True):
-                result.append('BUF_0_FORM_' + token['word'])
-            if 'lemma' in token and self._check_informative(token['lemma']):
-                result.append('BUF_0_LEMMA_' + token['lemma'])
-            if self._check_informative(token['tag']):
-                result.append('BUF_0_POS_' + token['tag'])
-            if 'feats' in token and self._check_informative(token['feats']):
-                feats = token['feats'].split("|")
+            if self._check_informative(token["word"], True):
+                result.append("BUF_0_FORM_" + token["word"])
+            if "lemma" in token and self._check_informative(token["lemma"]):
+                result.append("BUF_0_LEMMA_" + token["lemma"])
+            if self._check_informative(token["tag"]):
+                result.append("BUF_0_POS_" + token["tag"])
+            if "feats" in token and self._check_informative(token["feats"]):
+                feats = token["feats"].split("|")
                 for feat in feats:
-                    result.append('BUF_0_FEATS_' + feat)
+                    result.append("BUF_0_FEATS_" + feat)
             # Buffer 1
             if len(self.buffer) > 1:
                 buffer_idx1 = self.buffer[1]
                 token = self._tokens[buffer_idx1]
-                if self._check_informative(token['word'], True):
-                    result.append('BUF_1_FORM_' + token['word'])
-                if self._check_informative(token['tag']):
-                    result.append('BUF_1_POS_' + token['tag'])
+                if self._check_informative(token["word"], True):
+                    result.append("BUF_1_FORM_" + token["word"])
+                if self._check_informative(token["tag"]):
+                    result.append("BUF_1_POS_" + token["tag"])
             if len(self.buffer) > 2:
                 buffer_idx2 = self.buffer[2]
                 token = self._tokens[buffer_idx2]
-                if self._check_informative(token['tag']):
-                    result.append('BUF_2_POS_' + token['tag'])
+                if self._check_informative(token["tag"]):
+                    result.append("BUF_2_POS_" + token["tag"])
             if len(self.buffer) > 3:
                 buffer_idx3 = self.buffer[3]
                 token = self._tokens[buffer_idx3]
-                if self._check_informative(token['tag']):
-                    result.append('BUF_3_POS_' + token['tag'])
+                if self._check_informative(token["tag"]):
+                    result.append("BUF_3_POS_" + token["tag"])
                     # Left most, right most dependency of stack[0]
             left_most = 1000000
             right_most = -1
-            dep_left_most = ''
-            dep_right_most = ''
-            for (wi, r, wj) in self.arcs:
+            dep_left_most = ""
+            dep_right_most = ""
+            for wi, r, wj in self.arcs:
                 if wi == buffer_idx0:
                     if (wj > wi) and (wj > right_most):
                         right_most = wj
@@ -173,24 +169,24 @@ class Configuration(object):
                         left_most = wj
                         dep_left_most = r
             if self._check_informative(dep_left_most):
-                result.append('BUF_0_LDEP_' + dep_left_most)
+                result.append("BUF_0_LDEP_" + dep_left_most)
             if self._check_informative(dep_right_most):
-                result.append('BUF_0_RDEP_' + dep_right_most)
+                result.append("BUF_0_RDEP_" + dep_right_most)
 
         return result
 
 
-class Transition(object):
+class Transition:
     """
     This class defines a set of transition which is applied to a configuration to get another configuration
     Note that for different parsing algorithm, the transition is different.
     """
 
     # Define set of transitions
-    LEFT_ARC = 'LEFTARC'
-    RIGHT_ARC = 'RIGHTARC'
-    SHIFT = 'SHIFT'
-    REDUCE = 'REDUCE'
+    LEFT_ARC = "LEFTARC"
+    RIGHT_ARC = "RIGHTARC"
+    SHIFT = "SHIFT"
+    REDUCE = "REDUCE"
 
     def __init__(self, alg_option):
         """
@@ -210,8 +206,9 @@ class Transition(object):
     def left_arc(self, conf, relation):
         """
         Note that the algorithm for left-arc is quite similar except for precondition for both arc-standard and arc-eager
-            :param configuration: is the current configuration
-            :return : A new configuration or -1 if the pre-condition is not satisfied
+
+        :param configuration: is the current configuration
+        :return: A new configuration or -1 if the pre-condition is not satisfied
         """
         if (len(conf.buffer) <= 0) or (len(conf.stack) <= 0):
             return -1
@@ -223,7 +220,7 @@ class Transition(object):
 
         flag = True
         if self._algo == TransitionParser.ARC_EAGER:
-            for (idx_parent, r, idx_child) in conf.arcs:
+            for idx_parent, r, idx_child in conf.arcs:
                 if idx_child == idx_wi:
                     flag = False
 
@@ -237,8 +234,9 @@ class Transition(object):
     def right_arc(self, conf, relation):
         """
         Note that the algorithm for right-arc is DIFFERENT for arc-standard and arc-eager
-            :param configuration: is the current configuration
-            :return : A new configuration or -1 if the pre-condition is not satisfied
+
+        :param configuration: is the current configuration
+        :return: A new configuration or -1 if the pre-condition is not satisfied
         """
         if (len(conf.buffer) <= 0) or (len(conf.stack) <= 0):
             return -1
@@ -256,8 +254,9 @@ class Transition(object):
     def reduce(self, conf):
         """
         Note that the algorithm for reduce is only available for arc-eager
-            :param configuration: is the current configuration
-            :return : A new configuration or -1 if the pre-condition is not satisfied
+
+        :param configuration: is the current configuration
+        :return: A new configuration or -1 if the pre-condition is not satisfied
         """
 
         if self._algo != TransitionParser.ARC_EAGER:
@@ -267,7 +266,7 @@ class Transition(object):
 
         idx_wi = conf.stack[len(conf.stack) - 1]
         flag = False
-        for (idx_parent, r, idx_child) in conf.arcs:
+        for idx_parent, r, idx_child in conf.arcs:
             if idx_child == idx_wi:
                 flag = True
         if flag:
@@ -278,8 +277,9 @@ class Transition(object):
     def shift(self, conf):
         """
         Note that the algorithm for shift is the SAME for arc-standard and arc-eager
-            :param configuration: is the current configuration
-            :return : A new configuration or -1 if the pre-condition is not satisfied
+
+        :param configuration: is the current configuration
+        :return: A new configuration or -1 if the pre-condition is not satisfied
         """
         if len(conf.buffer) <= 0:
             return -1
@@ -288,13 +288,12 @@ class Transition(object):
 
 
 class TransitionParser(ParserI):
-
     """
     Class for transition based parser. Implement 2 algorithms which are "arc-standard" and "arc-eager"
     """
 
-    ARC_STANDARD = 'arc-standard'
-    ARC_EAGER = 'arc-eager'
+    ARC_STANDARD = "arc-standard"
+    ARC_EAGER = "arc-eager"
 
     def __init__(self, algorithm):
         """
@@ -316,11 +315,11 @@ class TransitionParser(ParserI):
         p_node = depgraph.nodes[idx_parent]
         c_node = depgraph.nodes[idx_child]
 
-        if c_node['word'] is None:
+        if c_node["word"] is None:
             return None  # Root word
 
-        if c_node['head'] == p_node['address']:
-            return c_node['rel']
+        if c_node["head"] == p_node["address"]:
+            return c_node["rel"]
         else:
             return None
 
@@ -336,8 +335,8 @@ class TransitionParser(ParserI):
             unsorted_result.append(self._dictionary[feature])
 
         # Default value of each feature is 1.0
-        return ' '.join(
-            str(featureID) + ':1.0' for featureID in sorted(unsorted_result)
+        return " ".join(
+            str(featureID) + ":1.0" for featureID in sorted(unsorted_result)
         )
 
     def _is_projective(self, depgraph):
@@ -345,13 +344,13 @@ class TransitionParser(ParserI):
         for key in depgraph.nodes:
             node = depgraph.nodes[key]
 
-            if 'head' in node:
-                childIdx = node['address']
-                parentIdx = node['head']
+            if "head" in node:
+                childIdx = node["address"]
+                parentIdx = node["head"]
                 if parentIdx is not None:
                     arc_list.append((parentIdx, childIdx))
 
-        for (parentIdx, childIdx) in arc_list:
+        for parentIdx, childIdx in arc_list:
             # Ensure that childIdx < parentIdx
             if childIdx > parentIdx:
                 temp = childIdx
@@ -373,8 +372,8 @@ class TransitionParser(ParserI):
         self._transition.setdefault(key, len(self._transition) + 1)
         self._match_transition[self._transition[key]] = key
 
-        input_str = str(self._transition[key]) + ' ' + binary_features + '\n'
-        input_file.write(input_str.encode('utf-8'))
+        input_str = str(self._transition[key]) + " " + binary_features + "\n"
+        input_file.write(input_str.encode("utf-8"))
 
     def _create_training_examples_arc_std(self, depgraphs, input_file):
         """
@@ -401,7 +400,7 @@ class TransitionParser(ParserI):
                     # Left-arc operation
                     rel = self._get_dep_relation(b0, s0, depgraph)
                     if rel is not None:
-                        key = Transition.LEFT_ARC + ':' + rel
+                        key = Transition.LEFT_ARC + ":" + rel
                         self._write_to_file(key, binary_features, input_file)
                         operation.left_arc(conf, rel)
                         training_seq.append(key)
@@ -422,7 +421,7 @@ class TransitionParser(ParserI):
                                         precondition = False
 
                         if precondition:
-                            key = Transition.RIGHT_ARC + ':' + rel
+                            key = Transition.RIGHT_ARC + ":" + rel
                             self._write_to_file(key, binary_features, input_file)
                             operation.right_arc(conf, rel)
                             training_seq.append(key)
@@ -463,7 +462,7 @@ class TransitionParser(ParserI):
                     # Left-arc operation
                     rel = self._get_dep_relation(b0, s0, depgraph)
                     if rel is not None:
-                        key = Transition.LEFT_ARC + ':' + rel
+                        key = Transition.LEFT_ARC + ":" + rel
                         self._write_to_file(key, binary_features, input_file)
                         operation.left_arc(conf, rel)
                         training_seq.append(key)
@@ -472,7 +471,7 @@ class TransitionParser(ParserI):
                     # Right-arc operation
                     rel = self._get_dep_relation(s0, b0, depgraph)
                     if rel is not None:
-                        key = Transition.RIGHT_ARC + ':' + rel
+                        key = Transition.RIGHT_ARC + ":" + rel
                         self._write_to_file(key, binary_features, input_file)
                         operation.right_arc(conf, rel)
                         training_seq.append(key)
@@ -512,7 +511,7 @@ class TransitionParser(ParserI):
 
         try:
             input_file = tempfile.NamedTemporaryFile(
-                prefix='transition_parse.train', dir=tempfile.gettempdir(), delete=False
+                prefix="transition_parse.train", dir=tempfile.gettempdir(), delete=False
             )
 
             if self._algorithm == self.ARC_STANDARD:
@@ -528,7 +527,7 @@ class TransitionParser(ParserI):
             # Todo : because of probability = True => very slow due to
             # cross-validation. Need to improve the speed here
             model = svm.SVC(
-                kernel='poly',
+                kernel="poly",
                 degree=2,
                 coef0=0,
                 gamma=0.2,
@@ -539,7 +538,7 @@ class TransitionParser(ParserI):
 
             model.fit(x_train, y_train)
             # Save the model to file name (as pickle)
-            pickle.dump(model, open(modelfile, 'wb'))
+            pickle.dump(model, open(modelfile, "wb"))
         finally:
             remove(input_file.name)
 
@@ -553,7 +552,7 @@ class TransitionParser(ParserI):
         """
         result = []
         # First load the model
-        model = pickle.load(open(modelFile, 'rb'))
+        model = pickle.load(open(modelFile, "rb"))
         operation = Transition(self._algorithm)
 
         for depgraph in depgraphs:
@@ -577,7 +576,7 @@ class TransitionParser(ParserI):
                 )
 
                 # It's best to use decision function as follow BUT it's not supported yet for sparse SVM
-                # Using decision funcion to build the votes array
+                # Using decision function to build the votes array
                 # dec_func = model.decision_function(x_test)[0]
                 # votes = {}
                 # k = 0
@@ -601,7 +600,7 @@ class TransitionParser(ParserI):
                 sorted_Prob = sorted(prob_dict.items(), key=itemgetter(1), reverse=True)
 
                 # Note that SHIFT is always a valid operation
-                for (y_pred_idx, confidence) in sorted_Prob:
+                for y_pred_idx, confidence in sorted_Prob:
                     # y_pred = model.predict(x_test)[0]
                     # From the prediction match to the operation
                     y_pred = model.classes_[y_pred_idx]
@@ -638,13 +637,13 @@ class TransitionParser(ParserI):
             new_depgraph = deepcopy(depgraph)
             for key in new_depgraph.nodes:
                 node = new_depgraph.nodes[key]
-                node['rel'] = ''
+                node["rel"] = ""
                 # With the default, all the token depend on the Root
-                node['head'] = 0
-            for (head, rel, child) in conf.arcs:
+                node["head"] = 0
+            for head, rel, child in conf.arcs:
                 c_node = new_depgraph.nodes[child]
-                c_node['head'] = head
-                c_node['rel'] = rel
+                c_node["head"] = head
+                c_node["rel"] = rel
             result.append(new_depgraph)
 
         return result
@@ -752,6 +751,7 @@ def demo():
     >>> parser_std.train([gold_sent],'temp.arcstd.model', verbose=False)
      Number of training examples : 1
      Number of valid (projective) examples : 1
+    >>> input_file.close()
     >>> remove(input_file.name)
 
     B. Check the ARC-EAGER training
@@ -767,6 +767,7 @@ def demo():
      Number of training examples : 1
      Number of valid (projective) examples : 1
 
+    >>> input_file.close()
     >>> remove(input_file.name)
 
     ###################### Check The Parsing Function ########################

@@ -1,9 +1,9 @@
 # Natural Language Toolkit: Corpus Readers
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Steven Bird <stevenbird1@gmail.com>
 #         Edward Loper <edloper@gmail.com>
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
 """
@@ -48,9 +48,10 @@ For example, to read a list of the words in the Brown Corpus, use
 ``nltk.corpus.brown.words()``:
 
     >>> from nltk.corpus import brown
-    >>> print(", ".join(brown.words()))
-    The, Fulton, County, Grand, Jury, said, ...
+    >>> print(", ".join(brown.words()[:6])) # only first 6 words
+    The, Fulton, County, Grand, Jury, said
 
+isort:skip_file
 """
 
 from nltk.corpus.reader.plaintext import *
@@ -104,80 +105,82 @@ from nltk.corpus.reader.categorized_sents import *
 from nltk.corpus.reader.comparative_sents import *
 from nltk.corpus.reader.panlex_lite import *
 from nltk.corpus.reader.panlex_swadesh import *
+from nltk.corpus.reader.bcp47 import *
 
 # Make sure that nltk.corpus.reader.bracket_parse gives the module, not
 # the function bracket_parse() defined in nltk.tree:
 from nltk.corpus.reader import bracket_parse
 
 __all__ = [
-    'CorpusReader',
-    'CategorizedCorpusReader',
-    'PlaintextCorpusReader',
-    'find_corpus_fileids',
-    'TaggedCorpusReader',
-    'CMUDictCorpusReader',
-    'ConllChunkCorpusReader',
-    'WordListCorpusReader',
-    'PPAttachmentCorpusReader',
-    'SensevalCorpusReader',
-    'IEERCorpusReader',
-    'ChunkedCorpusReader',
-    'SinicaTreebankCorpusReader',
-    'BracketParseCorpusReader',
-    'IndianCorpusReader',
-    'ToolboxCorpusReader',
-    'TimitCorpusReader',
-    'YCOECorpusReader',
-    'MacMorphoCorpusReader',
-    'SyntaxCorpusReader',
-    'AlpinoCorpusReader',
-    'RTECorpusReader',
-    'StringCategoryCorpusReader',
-    'EuroparlCorpusReader',
-    'CategorizedBracketParseCorpusReader',
-    'CategorizedTaggedCorpusReader',
-    'CategorizedPlaintextCorpusReader',
-    'PortugueseCategorizedPlaintextCorpusReader',
-    'tagged_treebank_para_block_reader',
-    'PropbankCorpusReader',
-    'VerbnetCorpusReader',
-    'BNCCorpusReader',
-    'ConllCorpusReader',
-    'XMLCorpusReader',
-    'NPSChatCorpusReader',
-    'SwadeshCorpusReader',
-    'WordNetCorpusReader',
-    'WordNetICCorpusReader',
-    'SwitchboardCorpusReader',
-    'DependencyCorpusReader',
-    'NombankCorpusReader',
-    'IPIPANCorpusReader',
-    'Pl196xCorpusReader',
-    'TEICorpusView',
-    'KNBCorpusReader',
-    'ChasenCorpusReader',
-    'CHILDESCorpusReader',
-    'AlignedCorpusReader',
-    'TimitTaggedCorpusReader',
-    'LinThesaurusCorpusReader',
-    'SemcorCorpusReader',
-    'FramenetCorpusReader',
-    'UdhrCorpusReader',
-    'BNCCorpusReader',
-    'SentiWordNetCorpusReader',
-    'SentiSynset',
-    'TwitterCorpusReader',
-    'NKJPCorpusReader',
-    'CrubadanCorpusReader',
-    'MTECorpusReader',
-    'ReviewsCorpusReader',
-    'OpinionLexiconCorpusReader',
-    'ProsConsCorpusReader',
-    'CategorizedSentencesCorpusReader',
-    'ComparativeSentencesCorpusReader',
-    'PanLexLiteCorpusReader',
-    'NonbreakingPrefixesCorpusReader',
-    'UnicharsCorpusReader',
-    'MWAPPDBCorpusReader',
-    'PanlexSwadeshCorpusReader',
+    "CorpusReader",
+    "CategorizedCorpusReader",
+    "PlaintextCorpusReader",
+    "find_corpus_fileids",
+    "TaggedCorpusReader",
+    "CMUDictCorpusReader",
+    "ConllChunkCorpusReader",
+    "WordListCorpusReader",
+    "PPAttachmentCorpusReader",
+    "SensevalCorpusReader",
+    "IEERCorpusReader",
+    "ChunkedCorpusReader",
+    "SinicaTreebankCorpusReader",
+    "BracketParseCorpusReader",
+    "IndianCorpusReader",
+    "ToolboxCorpusReader",
+    "TimitCorpusReader",
+    "YCOECorpusReader",
+    "MacMorphoCorpusReader",
+    "SyntaxCorpusReader",
+    "AlpinoCorpusReader",
+    "RTECorpusReader",
+    "StringCategoryCorpusReader",
+    "EuroparlCorpusReader",
+    "CategorizedBracketParseCorpusReader",
+    "CategorizedTaggedCorpusReader",
+    "CategorizedPlaintextCorpusReader",
+    "PortugueseCategorizedPlaintextCorpusReader",
+    "tagged_treebank_para_block_reader",
+    "PropbankCorpusReader",
+    "VerbnetCorpusReader",
+    "BNCCorpusReader",
+    "ConllCorpusReader",
+    "XMLCorpusReader",
+    "NPSChatCorpusReader",
+    "SwadeshCorpusReader",
+    "WordNetCorpusReader",
+    "WordNetICCorpusReader",
+    "SwitchboardCorpusReader",
+    "DependencyCorpusReader",
+    "NombankCorpusReader",
+    "IPIPANCorpusReader",
+    "Pl196xCorpusReader",
+    "TEICorpusView",
+    "KNBCorpusReader",
+    "ChasenCorpusReader",
+    "CHILDESCorpusReader",
+    "AlignedCorpusReader",
+    "TimitTaggedCorpusReader",
+    "LinThesaurusCorpusReader",
+    "SemcorCorpusReader",
+    "FramenetCorpusReader",
+    "UdhrCorpusReader",
+    "BNCCorpusReader",
+    "SentiWordNetCorpusReader",
+    "SentiSynset",
+    "TwitterCorpusReader",
+    "NKJPCorpusReader",
+    "CrubadanCorpusReader",
+    "MTECorpusReader",
+    "ReviewsCorpusReader",
+    "OpinionLexiconCorpusReader",
+    "ProsConsCorpusReader",
+    "CategorizedSentencesCorpusReader",
+    "ComparativeSentencesCorpusReader",
+    "PanLexLiteCorpusReader",
+    "NonbreakingPrefixesCorpusReader",
+    "UnicharsCorpusReader",
+    "MWAPPDBCorpusReader",
+    "PanlexSwadeshCorpusReader",
+    "BCP47CorpusReader",
 ]

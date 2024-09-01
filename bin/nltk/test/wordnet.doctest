@@ -1,4 +1,4 @@
-.. Copyright (C) 2001-2019 NLTK Project
+b.. Copyright (C) 2001-2024 NLTK Project
 .. For license information, see LICENSE.TXT
 
 =================
@@ -6,7 +6,7 @@ WordNet Interface
 =================
 
 WordNet is just another NLTK corpus reader, and can be imported like this:
-    >>> from __future__ import print_function, unicode_literals
+
     >>> from nltk.corpus import wordnet
 
 For more compact code, we recommend:
@@ -20,7 +20,7 @@ Words
 Look up a word using ``synsets()``; this function has an optional ``pos`` argument
 which lets you constrain the part of speech of the word:
 
-    >>> wn.synsets('dog') # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    >>> wn.synsets('dog')
     [Synset('dog.n.01'), Synset('frump.n.01'), Synset('dog.n.03'), Synset('cad.n.01'),
     Synset('frank.n.02'), Synset('pawl.n.01'), Synset('andiron.n.01'), Synset('chase.v.01')]
     >>> wn.synsets('dog', pos=wn.VERB)
@@ -45,32 +45,37 @@ A synset is identified with a 3-part name of the form: word.pos.nn:
     Synset('dog.n.01')
 
 The WordNet corpus reader gives access to the Open Multilingual
-WordNet, using ISO-639 language codes.
+WordNet, using ISO-639 language codes. These languages are not
+loaded by default, but only lazily, when needed.
 
-    >>> sorted(wn.langs()) # doctest: +NORMALIZE_WHITESPACE
-    ['als', 'arb', 'bul', 'cat', 'cmn', 'dan', 'ell', 'eng', 'eus', 'fas',
-    'fin', 'fra', 'glg', 'heb', 'hrv', 'ind', 'ita', 'jpn', 'nld', 'nno',
-    'nob', 'pol', 'por', 'qcn', 'slv', 'spa', 'swe', 'tha', 'zsm']
+    >>> wn.langs()
+    ['eng']
+
     >>> wn.synsets(b'\xe7\x8a\xac'.decode('utf-8'), lang='jpn')
     [Synset('dog.n.01'), Synset('spy.n.01')]
 
-    wn.synset('spy.n.01').lemma_names('jpn') # doctest: +NORMALIZE_WHITESPACE
-    ['\u3044\u306c', '\u307e\u308f\u3057\u8005', '\u30b9\u30d1\u30a4', '\u56de\u3057\u8005',
-    '\u56de\u8005', '\u5bc6\u5075', '\u5de5\u4f5c\u54e1', '\u5efb\u3057\u8005',
-    '\u5efb\u8005', '\u63a2', '\u63a2\u308a', '\u72ac', '\u79d8\u5bc6\u635c\u67fb\u54e1',
-    '\u8adc\u5831\u54e1', '\u8adc\u8005', '\u9593\u8005', '\u9593\u8adc', '\u96a0\u5bc6']
+    >>> wn.synset('spy.n.01').lemma_names('jpn')
+    ['いぬ', 'まわし者', 'スパイ', '回し者', '回者', '密偵',
+    '工作員', '廻し者', '廻者', '探', '探り', '犬', '秘密捜査員',
+    '諜報員', '諜者', '間者', '間諜', '隠密']
+
+    >>> sorted(wn.langs())
+    ['als', 'arb', 'bul', 'cat', 'cmn', 'dan', 'ell', 'eng', 'eus',
+    'fin', 'fra', 'glg', 'heb', 'hrv', 'ind', 'isl', 'ita', 'ita_iwn',
+    'jpn', 'lit', 'nld', 'nno', 'nob', 'pol', 'por', 'ron', 'slk',
+    'slv', 'spa', 'swe', 'tha', 'zsm']
 
     >>> wn.synset('dog.n.01').lemma_names('ita')
-    ['cane', 'Canis_familiaris']
-    >>> wn.lemmas('cane', lang='ita') # doctest: +NORMALIZE_WHITESPACE
+    ['Canis_familiaris', 'cane']
+    >>> wn.lemmas('cane', lang='ita')
     [Lemma('dog.n.01.cane'), Lemma('cramp.n.02.cane'), Lemma('hammer.n.01.cane'), Lemma('bad_person.n.01.cane'),
     Lemma('incompetent.n.01.cane')]
-    >>> sorted(wn.synset('dog.n.01').lemmas('dan')) # doctest: +NORMALIZE_WHITESPACE
+    >>> sorted(wn.synset('dog.n.01').lemmas('dan'))
     [Lemma('dog.n.01.hund'), Lemma('dog.n.01.k\xf8ter'),
     Lemma('dog.n.01.vovhund'), Lemma('dog.n.01.vovse')]
 
-    sorted(wn.synset('dog.n.01').lemmas('por'))
-	[Lemma('dog.n.01.cachorra'), Lemma('dog.n.01.cachorro'), Lemma('dog.n.01.cadela'), Lemma('dog.n.01.c\xe3o')]
+    >>> sorted(wn.synset('dog.n.01').lemmas('por'))
+    [Lemma('dog.n.01.cachorra'), Lemma('dog.n.01.cachorro'), Lemma('dog.n.01.cadela'), Lemma('dog.n.01.c\xe3o')]
 
     >>> dog_lemma = wn.lemma(b'dog.n.01.c\xc3\xa3o'.decode('utf-8'), lang='por')
     >>> dog_lemma
@@ -78,7 +83,16 @@ WordNet, using ISO-639 language codes.
     >>> dog_lemma.lang()
     'por'
     >>> len(list(wordnet.all_lemma_names(pos='n', lang='jpn')))
-    64797
+    66031
+
+The synonyms of a word are returned as a nested list of synonyms of the different senses of
+the input word in the given language, since these different senses are not mutual synonyms:
+
+    >>> wn.synonyms('car')
+    [['auto', 'automobile', 'machine', 'motorcar'], ['railcar', 'railroad_car', 'railway_car'], ['gondola'], ['elevator_car'], ['cable_car']]
+    >>> wn.synonyms('coche', lang='spa')
+    [['auto', 'automóvil', 'carro', 'máquina', 'turismo', 'vehículo'], ['automotor', 'vagón'], ['vagón', 'vagón_de_pasajeros']]
+
 
 -------
 Synsets
@@ -87,13 +101,13 @@ Synsets
 `Synset`: a set of synonyms that share a common meaning.
 
     >>> dog = wn.synset('dog.n.01')
-    >>> dog.hypernyms()
+    >>> sorted(dog.hypernyms())
     [Synset('canine.n.02'), Synset('domestic_animal.n.01')]
-    >>> dog.hyponyms()  # doctest: +ELLIPSIS
+    >>> sorted(dog.hyponyms())
     [Synset('basenji.n.01'), Synset('corgi.n.01'), Synset('cur.n.01'), Synset('dalmatian.n.02'), ...]
-    >>> dog.member_holonyms()
+    >>> sorted(dog.member_holonyms())
     [Synset('canis.n.01'), Synset('pack.n.06')]
-    >>> dog.root_hypernyms()
+    >>> sorted(dog.root_hypernyms())
     [Synset('entity.n.01')]
     >>> wn.synset('dog.n.01').lowest_common_hypernyms(wn.synset('cat.n.01'))
     [Synset('carnivore.n.01')]
@@ -120,6 +134,11 @@ in NLTK:
 
     >>> wn.synset_from_pos_and_offset('n', 4543158)
     Synset('wagon.n.01')
+
+Likewise, instantiate a synset from a known sense key:
+    >>> wn.synset_from_sense_key("driving%1:04:03::")
+    Synset('drive.n.06')
+
 
 ------
 Lemmas
@@ -218,13 +237,13 @@ The old behavior can be achieved by setting simulate_root to be False.
 A score of 1 represents identity i.e. comparing a sense with itself
 will return 1.
 
-    >>> dog.path_similarity(cat)  # doctest: +ELLIPSIS
+    >>> dog.path_similarity(cat)
     0.2...
 
-    >>> hit.path_similarity(slap)  # doctest: +ELLIPSIS
+    >>> hit.path_similarity(slap)
     0.142...
 
-    >>> wn.path_similarity(hit, slap)  # doctest: +ELLIPSIS
+    >>> wn.path_similarity(hit, slap)
     0.142...
 
     >>> print(hit.path_similarity(slap, simulate_root=False))
@@ -241,13 +260,13 @@ of the taxonomy in which the senses occur. The relationship is given
 as -log(p/2d) where p is the shortest path length and d the taxonomy
 depth.
 
-    >>> dog.lch_similarity(cat)  # doctest: +ELLIPSIS
+    >>> dog.lch_similarity(cat)
     2.028...
 
-    >>> hit.lch_similarity(slap)  # doctest: +ELLIPSIS
+    >>> hit.lch_similarity(slap)
     1.312...
 
-    >>> wn.lch_similarity(hit, slap)  # doctest: +ELLIPSIS
+    >>> wn.lch_similarity(hit, slap)
     1.312...
 
     >>> print(hit.lch_similarity(slap, simulate_root=False))
@@ -261,7 +280,7 @@ Wu-Palmer Similarity:
 Return a score denoting how similar two word senses are, based on the
 depth of the two senses in the taxonomy and that of their Least Common
 Subsumer (most specific ancestor node). Note that at this time the
-scores given do _not_ always agree with those given by Pedersen's Perl
+scores given do **not** always agree with those given by Pedersen's Perl
 implementation of Wordnet Similarity.
 
 The LCS does not necessarily feature in the shortest path connecting the
@@ -272,7 +291,7 @@ shortest path to the root node is the longest will be selected. Where
 the LCS has multiple paths to the root, the longer path is used for
 the purposes of the calculation.
 
-    >>> dog.wup_similarity(cat)  # doctest: +ELLIPSIS
+    >>> dog.wup_similarity(cat)
     0.857...
 
     >>> hit.wup_similarity(slap)
@@ -310,9 +329,9 @@ information content, the result is dependent on the corpus used to
 generate the information content and the specifics of how the
 information content was created.
 
-    >>> dog.res_similarity(cat, brown_ic)  # doctest: +ELLIPSIS
+    >>> dog.res_similarity(cat, brown_ic)
     7.911...
-    >>> dog.res_similarity(cat, genesis_ic)  # doctest: +ELLIPSIS
+    >>> dog.res_similarity(cat, genesis_ic)
     7.204...
 
 ``synset1.jcn_similarity(synset2, ic):``
@@ -322,9 +341,9 @@ Information Content (IC) of the Least Common Subsumer (most specific
 ancestor node) and that of the two input Synsets. The relationship is
 given by the equation 1 / (IC(s1) + IC(s2) - 2 * IC(lcs)).
 
-    >>> dog.jcn_similarity(cat, brown_ic)  # doctest: +ELLIPSIS
+    >>> dog.jcn_similarity(cat, brown_ic)
     0.449...
-    >>> dog.jcn_similarity(cat, genesis_ic)  # doctest: +ELLIPSIS
+    >>> dog.jcn_similarity(cat, genesis_ic)
     0.285...
 
 ``synset1.lin_similarity(synset2, ic):``
@@ -334,7 +353,7 @@ Information Content (IC) of the Least Common Subsumer (most specific
 ancestor node) and that of the two input Synsets. The relationship is
 given by the equation 2 * IC(lcs) / (IC(s1) + IC(s2)).
 
-    >>> dog.lin_similarity(cat, semcor_ic)  # doctest: +ELLIPSIS
+    >>> dog.lin_similarity(cat, semcor_ic)
     0.886...
 
 
@@ -360,7 +379,7 @@ Iterate over all the noun synsets:
 
 Get all synsets for this word, possibly restricted by POS:
 
-    >>> wn.synsets('dog') # doctest: +ELLIPSIS
+    >>> wn.synsets('dog')
     [Synset('dog.n.01'), Synset('frump.n.01'), Synset('dog.n.03'), Synset('cad.n.01'), ...]
     >>> wn.synsets('dog', pos='v')
     [Synset('chase.v.01')]
@@ -389,7 +408,7 @@ Look up forms not in WordNet, with the help of Morphy:
     deny
     >>> wn.synsets('denied', wn.NOUN)
     []
-    >>> wn.synsets('denied', wn.VERB) # doctest: +NORMALIZE_WHITESPACE
+    >>> wn.synsets('denied', wn.VERB)
     [Synset('deny.v.01'), Synset('deny.v.02'), Synset('deny.v.03'), Synset('deny.v.04'),
     Synset('deny.v.05'), Synset('traverse.v.03'), Synset('deny.v.07')]
 
@@ -420,21 +439,17 @@ Compute transitive closures of synsets
     >>> dog = wn.synset('dog.n.01')
     >>> hypo = lambda s: s.hyponyms()
     >>> hyper = lambda s: s.hypernyms()
-    >>> list(dog.closure(hypo, depth=1)) == dog.hyponyms()
+    >>> sorted(dog.closure(hypo, depth=1)) == sorted(dog.hyponyms())
     True
-    >>> list(dog.closure(hyper, depth=1)) == dog.hypernyms()
+    >>> sorted(dog.closure(hyper, depth=1)) == sorted(dog.hypernyms())
     True
-    >>> list(dog.closure(hypo)) # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    [Synset('basenji.n.01'), Synset('corgi.n.01'), Synset('cur.n.01'),
-     Synset('dalmatian.n.02'), Synset('great_pyrenees.n.01'),
-     Synset('griffon.n.02'), Synset('hunting_dog.n.01'), Synset('lapdog.n.01'),
-     Synset('leonberg.n.01'), Synset('mexican_hairless.n.01'),
-     Synset('newfoundland.n.01'), Synset('pooch.n.01'), Synset('poodle.n.01'), ...]
-    >>> list(dog.closure(hyper)) # doctest: +NORMALIZE_WHITESPACE
-    [Synset('canine.n.02'), Synset('domestic_animal.n.01'), Synset('carnivore.n.01'), Synset('animal.n.01'),
-    Synset('placental.n.01'), Synset('organism.n.01'), Synset('mammal.n.01'), Synset('living_thing.n.01'),
-    Synset('vertebrate.n.01'), Synset('whole.n.02'), Synset('chordate.n.01'), Synset('object.n.01'),
-    Synset('physical_entity.n.01'), Synset('entity.n.01')]
+    >>> sorted(dog.closure(hypo))
+    [Synset('affenpinscher.n.01'), Synset('afghan_hound.n.01'), Synset('airedale.n.01'), Synset('american_foxhound.n.01'), ...]
+    >>> sorted(dog.closure(hyper))
+    [Synset('animal.n.01'), Synset('canine.n.02'), Synset('carnivore.n.01'), Synset('chordate.n.01'),
+    Synset('domestic_animal.n.01'), Synset('entity.n.01'), Synset('living_thing.n.01'),
+    Synset('mammal.n.01'), Synset('object.n.01'), Synset('organism.n.01'), Synset('physical_entity.n.01'),
+    Synset('placental.n.01'), Synset('vertebrate.n.01'), Synset('whole.n.02')]
 
 
 ----------------
@@ -451,32 +466,36 @@ as a base form for a POS for which that word is not defined:
     >>> wn.morphy('book', wn.NOUN)
     'book'
     >>> wn.morphy('book', wn.ADJ)
+    >>>
 
 Bug 160: wup_similarity breaks when the two synsets have no common hypernym
 
     >>> t = wn.synsets('picasso')[0]
     >>> m = wn.synsets('male')[1]
-    >>> t.wup_similarity(m)  # doctest: +ELLIPSIS
+    >>> t.wup_similarity(m)
     0.631...
+
+Issue #2278: wup_similarity not commutative when comparing a noun and a verb.
+Patch #2650 resolved this error. As a result, the output of the following use of wup_similarity no longer returns None.
 
     >>> t = wn.synsets('titan')[1]
     >>> s = wn.synsets('say', wn.VERB)[0]
-    >>> print(t.wup_similarity(s))
-    None
+    >>> t.wup_similarity(s)
+    0.142...
 
 Bug 21: "instance of" not included in LCS (very similar to bug 160)
 
     >>> a = wn.synsets("writings")[0]
     >>> b = wn.synsets("scripture")[0]
     >>> brown_ic = wordnet_ic.ic('ic-brown.dat')
-    >>> a.jcn_similarity(b, brown_ic)  # doctest: +ELLIPSIS
+    >>> a.jcn_similarity(b, brown_ic)
     0.175...
 
 Bug 221: Verb root IC is zero
 
     >>> from nltk.corpus.reader.wordnet import information_content
     >>> s = wn.synsets('say', wn.VERB)[0]
-    >>> information_content(s, brown_ic)  # doctest: +ELLIPSIS
+    >>> information_content(s, brown_ic)
     4.623...
 
 Bug 161: Comparison between WN keys/lemmas should not be case sensitive
@@ -502,7 +521,7 @@ Bug 382: JCN Division by zero error
     >>> shlep = wn.synset('shlep.v.02')
     >>> from nltk.corpus import wordnet_ic
     >>> brown_ic =  wordnet_ic.ic('ic-brown.dat')
-    >>> tow.jcn_similarity(shlep, brown_ic)  # doctest: +ELLIPSIS
+    >>> tow.jcn_similarity(shlep, brown_ic)
     1...e+300
 
 Bug 428: Depth is zero for instance nouns
@@ -524,7 +543,7 @@ Bug 470: shortest_path_distance ignored instance hypernyms
 
     >>> google = wordnet.synsets("google")[0]
     >>> earth = wordnet.synsets("earth")[0]
-    >>> google.wup_similarity(earth)  # doctest: +ELLIPSIS
+    >>> google.wup_similarity(earth)
     0.1...
 
 Bug 484: similarity metrics returned -1 instead of None for no LCS
@@ -556,17 +575,17 @@ Bug 482: Some nouns not being lemmatised by WordNetLemmatizer().lemmatize
 
 Bug 284: instance hypernyms not used in similarity calculations
 
-    >>> wn.synset('john.n.02').lch_similarity(wn.synset('dog.n.01'))  # doctest: +ELLIPSIS
+    >>> wn.synset('john.n.02').lch_similarity(wn.synset('dog.n.01'))
     1.335...
-    >>> wn.synset('john.n.02').wup_similarity(wn.synset('dog.n.01'))  # doctest: +ELLIPSIS
+    >>> wn.synset('john.n.02').wup_similarity(wn.synset('dog.n.01'))
     0.571...
-    >>> wn.synset('john.n.02').res_similarity(wn.synset('dog.n.01'), brown_ic)  # doctest: +ELLIPSIS
+    >>> wn.synset('john.n.02').res_similarity(wn.synset('dog.n.01'), brown_ic)
     2.224...
-    >>> wn.synset('john.n.02').jcn_similarity(wn.synset('dog.n.01'), brown_ic)  # doctest: +ELLIPSIS
+    >>> wn.synset('john.n.02').jcn_similarity(wn.synset('dog.n.01'), brown_ic)
     0.075...
-    >>> wn.synset('john.n.02').lin_similarity(wn.synset('dog.n.01'), brown_ic)  # doctest: +ELLIPSIS
+    >>> wn.synset('john.n.02').lin_similarity(wn.synset('dog.n.01'), brown_ic)
     0.252...
-    >>> wn.synset('john.n.02').hypernym_paths()  # doctest: +ELLIPSIS
+    >>> wn.synset('john.n.02').hypernym_paths()
     [[Synset('entity.n.01'), ..., Synset('john.n.02')]]
 
 Issue 541: add domains to wordnet
@@ -597,9 +616,209 @@ Bug https://github.com/nltk/nltk/issues/1641: Non-English lemmas containing capi
     [Lemma('united_kingdom.n.01.Londres'), Lemma('london.n.01.Londres'), Lemma('london.n.02.Londres')]
 
 Patch-1 https://github.com/nltk/nltk/pull/2065  Adding 3 functions (relations) to WordNet class
-    >>> wn.synsets("computer_science")[0].in_topic_domains()[2]
-    Synset('access_time.n.01')
-    >>> wn.synsets("France")[0].in_region_domains()[18]
-    Synset('french.n.01')
-    >>> wn.synsets("slang")[1].in_usage_domains()[18]
-    Synset('can-do.s.01')
+
+    >>> sorted(sorted(wn.synsets("computer_science"))[0].in_topic_domains())
+    [Synset('access.n.05'), Synset('access.v.01'), Synset('access_time.n.01'), Synset('accumulator.n.03'), ...]
+    >>> sorted(sorted(wn.synsets("France"))[0].in_region_domains())
+    [Synset('agincourt.n.01'), Synset('ancien_regime.n.01'), Synset('apache_dance.n.01'), Synset('bastille.n.01'), ...]
+    >>> sorted(sorted(wn.synsets("slang"))[2].in_usage_domains())
+    [Synset(''hood.n.01'), Synset('airhead.n.01'), Synset('arse.n.02'), Synset('baby.n.05'), Synset('bad_egg.n.01'), ...]
+
+Issue 2721: WordNetCorpusReader.ic() does not add smoothing to N
+
+    >>> class FakeCorpus:
+    ...     def words(self): return ['word']
+    ...
+    >>> fake_ic = wn.ic(FakeCorpus(), False, 1.0)
+    >>> word = wn.synset('word.n.01')
+    >>> information_content(word, fake_ic) > 0
+    True
+
+Issue 3077: Incorrect part-of-speech filtering in all_synsets
+
+    >>> next(wn.all_synsets(pos="a"))
+    Synset('able.a.01')
+    >>> next(wn.all_synsets(pos="s"))
+    Synset('emergent.s.02')
+    >>> wn.add_omw()
+    >>> next(wn.all_synsets(lang="hrv"))
+    Synset('able.a.01')
+    >>> next(wn.all_synsets(lang="hrv", pos="n"))
+    Synset('entity.n.01')
+    >>> next(wn.all_synsets(lang="hrv", pos="v"))
+    Synset('breathe.v.01')
+    >>> next(wn.all_synsets(lang="hrv", pos="s"))
+    Synset('ideological.s.02')
+    >>> next(wn.all_synsets(lang="hrv", pos="a"))
+    Synset('able.a.01')
+
+
+------------------------------------------------
+Endlessness vs. intractability in relation trees
+------------------------------------------------
+
+1. Endlessness
+--------------
+
+Until NLTK v. 3.5, the ``tree()`` function looped forever on symmetric
+relations (verb_groups, attributes, and most also_sees). But in
+the current version, ``tree()`` now detects and discards these cycles:
+
+    >>> from pprint import pprint
+    >>> pprint(wn.synset('bound.a.01').tree(lambda s:sorted(s.also_sees())))
+    [Synset('bound.a.01'),
+     [Synset('unfree.a.02'),
+      [Synset('confined.a.02'),
+       [Synset('restricted.a.01'), [Synset('classified.a.02')]]],
+      [Synset('dependent.a.01')],
+      [Synset('restricted.a.01'),
+       [Synset('classified.a.02')],
+       [Synset('confined.a.02')]]]]
+
+Specifying the "cut_mark" parameter increases verbosity, so that the cycles
+are mentioned in the output, together with the level where they occur:
+
+    >>> pprint(wn.synset('bound.a.01').tree(lambda s:sorted(s.also_sees()),cut_mark='...'))
+    [Synset('bound.a.01'),
+     [Synset('unfree.a.02'),
+      "Cycle(Synset('bound.a.01'),-3,...)",
+      [Synset('confined.a.02'),
+       [Synset('restricted.a.01'),
+        [Synset('classified.a.02')],
+        "Cycle(Synset('confined.a.02'),-5,...)",
+        "Cycle(Synset('unfree.a.02'),-5,...)"],
+       "Cycle(Synset('unfree.a.02'),-4,...)"],
+      [Synset('dependent.a.01'), "Cycle(Synset('unfree.a.02'),-4,...)"],
+      [Synset('restricted.a.01'),
+       [Synset('classified.a.02')],
+       [Synset('confined.a.02'),
+        "Cycle(Synset('restricted.a.01'),-5,...)",
+        "Cycle(Synset('unfree.a.02'),-5,...)"],
+       "Cycle(Synset('unfree.a.02'),-4,...)"]]]
+
+
+2. Intractability
+-----------------
+
+However, even after discarding the infinite cycles, some trees can remain
+intractable, due to combinatorial explosion in a relation. This happens in
+WordNet, because the ``also_sees()`` relation has a big Strongly Connected
+Component (_SCC_) consisting in 758 synsets, where any member node is
+transitively connected by the same relation, to all other members of the
+same SCC. This produces intractable relation trees for each of these 758
+synsets, i. e. trees that are too big to compute or display on any computer.
+
+For example, the synset 'concrete.a.01' is a member of the largest SCC,
+so its ``also_sees()`` tree is intractable, and can normally only be handled
+by limiting the ``depth`` parameter to display a small number of levels:
+
+    >>> from pprint import pprint
+    >>> pprint(wn.synset('concrete.a.01').tree(lambda s:sorted(s.also_sees()),cut_mark='...',depth=2))
+    [Synset('concrete.a.01'),
+     [Synset('practical.a.01'),
+      "Cycle(Synset('concrete.a.01'),0,...)",
+      [Synset('possible.a.01'), '...'],
+      [Synset('realistic.a.01'), '...'],
+      [Synset('serviceable.a.01'), '...']],
+     [Synset('real.a.01'),
+      "Cycle(Synset('concrete.a.01'),0,...)",
+      [Synset('genuine.a.01'), '...'],
+      [Synset('realistic.a.01'), '...'],
+      [Synset('sincere.a.01'), '...']],
+     [Synset('tangible.a.01'), "Cycle(Synset('concrete.a.01'),0,...)"]]
+
+
+2.1 First solution: ``acyclic_tree()``
+......................................
+
+On the other hand, the new ``acyclic_tree()`` function is able to also handle
+the intractable cases. The ``also_sees()`` acyclic tree of 'concrete.a.01' is
+several hundred lines long, so here is a simpler example, concerning a much
+smaller SCC: counting only five members, the SCC that includes 'bound.a.01'
+is tractable with the normal ``tree()`` function, as seen above.
+
+But while ``tree()`` only prunes redundancy within local branches, ``acyclic_tree()``
+prunes the tree globally, thus discarding any additional redundancy, and
+produces a tree that includes all reachable nodes (i.e., a **spanning tree**).
+This tree is **minimal** because it includes the reachable nodes only once,
+but it is not necessarily a **Minimum Spanning Tree** (MST), because the
+Depth-first search strategy does not guarantee that nodes are reached
+through the lowest number of links (as Breadth-first search would).
+
+    >>> pprint(wn.synset('bound.a.01').acyclic_tree(lambda s:sorted(s.also_sees())))
+    [Synset('bound.a.01'),
+     [Synset('unfree.a.02'),
+      [Synset('confined.a.02'),
+       [Synset('restricted.a.01'), [Synset('classified.a.02')]]],
+      [Synset('dependent.a.01')]]]
+
+Again, specifying the ``cut_mark`` parameter increases verbosity, so that the
+cycles are mentioned in the output, together with the level where they occur:
+
+    >>> pprint(wn.synset('bound.a.01').acyclic_tree(lambda s:sorted(s.also_sees()),cut_mark='...'))
+    [Synset('bound.a.01'),
+     [Synset('unfree.a.02'),
+      "Cycle(Synset('bound.a.01'),-3,...)",
+      [Synset('confined.a.02'),
+       [Synset('restricted.a.01'),
+        [Synset('classified.a.02')],
+        "Cycle(Synset('confined.a.02'),-5,...)",
+        "Cycle(Synset('unfree.a.02'),-5,...)"],
+       "Cycle(Synset('unfree.a.02'),-4,...)"],
+      [Synset('dependent.a.01'), "Cycle(Synset('unfree.a.02'),-4,...)"],
+      "Cycle(Synset('restricted.a.01'),-3,...)"]]
+
+
+2.2 Better solution: mst()
+..........................
+
+A Minimum Spanning Tree (MST) spans all the nodes of a relation subgraph once,
+while guaranteeing that each node is reached through the shortest path possible.
+In unweighted relation graphs like WordNet, a MST can be computed very efficiently
+in linear time, using Breadth-First Search (BFS). Like acyclic_tree(), the new
+``unweighted_minimum_spanning_tree()`` function (imported in the Wordnet
+module as ``mst``) handles intractable trees, such as the example discussed above:
+``wn.synset('concrete.a.01').mst(lambda s:sorted(s.also_sees()))``.
+
+But, while the also_sees() acyclic_tree of 'bound.a.01' reaches
+'classified.a.02' through four links, using depth-first search as seen above
+(bound.a.01 > unfree.a.02 > confined.a.02 > restricted.a.01 > classified.a.02),
+in the following MST, the path to 'classified.a.02' is the shortest possible,
+consisting only in three links (bound.a.01 > unfree.a.02 > restricted.a.01 >
+classified.a.02):
+
+    >>> pprint(wn.synset('bound.a.01').mst(lambda s:sorted(s.also_sees())))
+    [Synset('bound.a.01'),
+     [Synset('unfree.a.02'),
+      [Synset('confined.a.02')],
+      [Synset('dependent.a.01')],
+      [Synset('restricted.a.01'), [Synset('classified.a.02')]]]]
+
+
+----------------------------------------------------------------
+Loading alternative Wordnet versions
+----------------------------------------------------------------
+
+    >>> print("Wordnet {}".format(wn.get_version()))
+    Wordnet 3.0
+
+    >>> from nltk.corpus import wordnet31 as wn31
+    >>> print("Wordnet {}".format(wn31.get_version()))
+    Wordnet 3.1
+
+    >>> print(sorted(wn.synset('restrain.v.01').hyponyms()))
+    [Synset('confine.v.03'), Synset('control.v.02'), Synset('hold.v.36'), Synset('inhibit.v.04')]
+
+    >>> print(sorted(wn31.synset('restrain.v.01').hyponyms()))
+    [Synset('enchain.v.01'), Synset('fetter.v.01'), Synset('ground.v.02'), Synset('impound.v.02'), Synset('pen_up.v.01'), Synset('pinion.v.01'), Synset('pound.v.06'), Synset('tie_down.v.01')]
+
+    >>> print(sorted(wn31.synset('restrain.v.04').hyponyms()))
+    [Synset('baffle.v.03'), Synset('confine.v.02'), Synset('control.v.02'), Synset('hold.v.36'), Synset('rule.v.07'), Synset('swallow.v.06'), Synset('wink.v.04')]
+
+
+-------------
+Teardown test
+-------------
+
+    >>> from nltk.corpus import wordnet
+    >>> wordnet._unload()

@@ -1,4 +1,6 @@
-#!/opt/splunk/bin/python
+#!/usr/bin/env python
+import exec_anaconda
+exec_anaconda.exec_anaconda()
 
 from __future__ import division
 import sys

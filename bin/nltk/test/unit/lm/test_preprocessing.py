@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 # Natural Language Toolkit: Language Model Unit Tests
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Ilia Kurenkov <ilia.kurenkov@gmail.com>
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 import unittest
 
@@ -15,14 +14,14 @@ class TestPreprocessing(unittest.TestCase):
         expected_train = [
             [
                 ("<s>",),
-                ("a",),
-                ("b",),
-                ("c",),
-                ("</s>",),
                 ("<s>", "a"),
+                ("a",),
                 ("a", "b"),
+                ("b",),
                 ("b", "c"),
+                ("c",),
                 ("c", "</s>"),
+                ("</s>",),
             ]
         ]
         expected_vocab = ["<s>", "a", "b", "c", "</s>"]

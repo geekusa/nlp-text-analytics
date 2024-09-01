@@ -1,6 +1,6 @@
 # NLP Text Analytics Splunk App
 
-The intent of this app is to provide a simple interface for analyzing text in Splunk using python natural language processing libraries (currently just NLTK 3.4.5). The app provides custom commands and dashboards to show how to use. 
+The intent of this app is to provide a simple interface for analyzing text in Splunk using python natural language processing libraries (currently just NLTK 3.9.1). The app provides custom commands and dashboards to show how to use. 
 
 Available at:
 [Github](https://github.com/geekusa/nlp-text-analytics)
@@ -35,6 +35,7 @@ Have you ever wanted to perform advanced text analytics inside Splunk? Splunk ha
 
 ## Requirements
 Splunk ML Toolkit 3.2 or greater [https://splunkbase.splunk.com/app/2890/](https://splunkbase.splunk.com/app/2890/) </br>
+Python for Scientific Computing (download appropriate version for platform being used) </br>
 Wordcloud Custom Visualization [https://splunkbase.splunk.com/app/3212/](https://splunkbase.splunk.com/app/3212/) (preferred) OR Splunk Dashboard Examples [https://splunkbase.splunk.com/app/1603/](https://splunkbase.splunk.com/app/1603/) </br>
 Parallel Coordinates Custom Visualization [https://splunkbase.splunk.com/app/3137/](https://splunkbase.splunk.com/app/3137/) </br>
 Force Directed App For Splunk [https://splunkbase.splunk.com/app/3767/](https://splunkbase.splunk.com/app/3767/)
@@ -334,4 +335,4 @@ You can find other models directly from NLTK data website [https://www.nltk.org/
 it to the directory _bin/nltk_data/tokenizers/punkt_ and _bin/nltk_data/tokenizers/punkt/PY3_ 
 
 ### Release Notes
-Added GMeans as Clustering Algorithm option in Clustering dashboard. Updated splunklib from 1.6.16 to 2.0.2.
+Added GMeans as Clustering Algorithm option in Clustering dashboard. Updated splunklib from 1.6.16 to 2.0.2. Updated nltk library from 3.4.5 to 3.9.1 (which also requires now using libraries from Python for Scientific Computing app)

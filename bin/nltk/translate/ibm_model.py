@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 # Natural Language Toolkit: IBM Model Core
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Tah Wei Hoon <hoon.tw@gmail.com>
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
 """
@@ -37,7 +36,7 @@ Robert L. Mercer. 1993. The Mathematics of Statistical Machine
 Translation: Parameter Estimation. Computational Linguistics, 19 (2),
 263-311.
 """
-from __future__ import division
+
 from bisect import insort_left
 from collections import defaultdict
 from copy import deepcopy
@@ -58,7 +57,7 @@ def longest_target_sentence_length(sentence_aligned_corpus):
     return max_m
 
 
-class IBMModel(object):
+class IBMModel:
     """
     Abstract base class for all IBM models
     """
@@ -201,13 +200,13 @@ class IBMModel(object):
         :type i_pegged: int
         """
         src_sentence = [None] + sentence_pair.mots
-        trg_sentence = ['UNUSED'] + sentence_pair.words  # 1-indexed
+        trg_sentence = ["UNUSED"] + sentence_pair.words  # 1-indexed
 
         l = len(src_sentence) - 1  # exclude NULL
         m = len(trg_sentence) - 1
 
         alignment = [0] * (m + 1)  # init all alignments to NULL
-        cepts = [[] for i in range((l + 1))]  # init all cepts to empty list
+        cepts = [[] for i in range(l + 1)]  # init all cepts to empty list
 
         for j in range(1, m + 1):
             if j == j_pegged:
@@ -381,7 +380,7 @@ class IBMModel(object):
         return 0.0
 
 
-class AlignmentInfo(object):
+class AlignmentInfo:
     """
     Helper data object for training IBM Models 3 and up
 
@@ -516,18 +515,18 @@ class AlignmentInfo(object):
         return hash(self.alignment)
 
 
-class Counts(object):
+class Counts:
     """
     Data object to store counts of various parameters during training
     """
 
     def __init__(self):
-        self.t_given_s = defaultdict(lambda: defaultdict(lambda: 0.0))
-        self.any_t_given_s = defaultdict(lambda: 0.0)
+        self.t_given_s = defaultdict(lambda: defaultdict(float))
+        self.any_t_given_s = defaultdict(float)
         self.p0 = 0.0
         self.p1 = 0.0
-        self.fertility = defaultdict(lambda: defaultdict(lambda: 0.0))
-        self.fertility_for_any_phi = defaultdict(lambda: 0.0)
+        self.fertility = defaultdict(lambda: defaultdict(float))
+        self.fertility_for_any_phi = defaultdict(float)
 
     def update_lexical_translation(self, count, alignment_info, j):
         i = alignment_info.alignment[j]

@@ -5,7 +5,9 @@ Sentiment Analysis of Social Media Text. Eighth International Conference on
 Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.
 """
 
-#!/opt/splunk/bin/python
+#!/usr/bin/env python
+import exec_anaconda
+exec_anaconda.exec_anaconda()
 
 import sys
 import os

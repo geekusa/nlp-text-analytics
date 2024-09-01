@@ -1,23 +1,20 @@
-# -*- coding: utf-8 -*-
 # Natural Language Toolkit: Transformation-based learning
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Marcus Uneson <marcus.uneson@gmail.com>
 #   based on previous (nltk2) version by
 #   Christopher Maloof, Edward Loper, Steven Bird
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see  LICENSE.TXT
 
-from __future__ import print_function
-from abc import ABCMeta, abstractmethod
-from six import add_metaclass
 import itertools as it
+from abc import ABCMeta, abstractmethod
+
 from nltk.tbl.feature import Feature
 from nltk.tbl.rule import Rule
 
 
-@add_metaclass(ABCMeta)
-class BrillTemplateI(object):
+class BrillTemplateI(metaclass=ABCMeta):
     """
     An interface for generating lists of transformational rules that
     apply at given sentence positions.  ``BrillTemplateI`` is used by
@@ -28,19 +25,19 @@ class BrillTemplateI(object):
     def applicable_rules(self, tokens, i, correctTag):
         """
         Return a list of the transformational rules that would correct
-        the *i*th subtoken's tag in the given token.  In particular,
+        the ``i``-th subtoken's tag in the given token.  In particular,
         return a list of zero or more rules that would change
-        *tokens*[i][1] to *correctTag*, if applied to *token*[i].
+        ``tokens[i][1]`` to ``correctTag``, if applied to ``token[i]``.
 
-        If the *i*th token already has the correct tag (i.e., if
-        tagged_tokens[i][1] == correctTag), then
+        If the ``i``-th token already has the correct tag (i.e., if
+        ``tagged_tokens[i][1] == correctTag``), then
         ``applicable_rules()`` should return the empty list.
 
         :param tokens: The tagged tokens being tagged.
         :type tokens: list(tuple)
         :param i: The index of the token whose tag should be corrected.
         :type i: int
-        :param correctTag: The correct tag for the *i*th token.
+        :param correctTag: The correct tag for the ``i``-th token.
         :type correctTag: any
         :rtype: list(BrillRule)
         """
@@ -79,7 +76,6 @@ class Template(BrillTemplateI):
     # _ids = it.count(0)
 
     def __init__(self, *features):
-
         """
         Construct a Template for generating Rules.
 
@@ -93,32 +89,38 @@ class Template(BrillTemplateI):
         In new code, that would be better written
         Template(Feature(start1, end1), Feature(start2, end2), ...)
 
-        #For instance, importing some features
+        For instance, importing some features
+
         >>> from nltk.tbl.template import Template
         >>> from nltk.tag.brill import Word, Pos
 
-        #create some features
+        Create some features
 
         >>> wfeat1, wfeat2, pfeat = (Word([-1]), Word([1,2]), Pos([-2,-1]))
 
-        #Create a single-feature template
+        Create a single-feature template
+
         >>> Template(wfeat1)
         Template(Word([-1]))
 
-        #or a two-feature one
+        Or a two-feature one
+
         >>> Template(wfeat1, wfeat2)
         Template(Word([-1]),Word([1, 2]))
 
-        #or a three-feature one with two different feature types
+        Or a three-feature one with two different feature types
+
         >>> Template(wfeat1, wfeat2, pfeat)
         Template(Word([-1]),Word([1, 2]),Pos([-2, -1]))
 
-        #deprecated api: Feature subclass, followed by list of (start,end) pairs
-        #(permits only a single Feature)
+        deprecated api: Feature subclass, followed by list of (start,end) pairs
+        (permits only a single Feature)
+
         >>> Template(Word, (-2,-1), (0,0))
         Template(Word([-2, -1]),Word([0]))
 
-        #incorrect specification raises TypeError
+        Incorrect specification raises TypeError
+
         >>> Template(Word, (-2,-1), Pos, (0,0))
         Traceback (most recent call last):
           File "<stdin>", line 1, in <module>
@@ -142,11 +144,11 @@ class Template(BrillTemplateI):
             raise TypeError(
                 "expected either Feature1(args), Feature2(args), ... or Feature, (start1, end1), (start2, end2), ..."
             )
-        self.id = "{0:03d}".format(len(self.ALLTEMPLATES))
+        self.id = f"{len(self.ALLTEMPLATES):03d}"
         self.ALLTEMPLATES.append(self)
 
     def __repr__(self):
-        return "%s(%s)" % (
+        return "{}({})".format(
             self.__class__.__name__,
             ",".join([str(f) for f in self._features]),
         )
@@ -184,7 +186,7 @@ class Template(BrillTemplateI):
         # inherit docs from BrillTemplateI
 
         # applicable_rules(tokens, index, ...) depends on index.
-        neighborhood = set([index])  # set literal for python 2.7+
+        neighborhood = {index}  # set literal for python 2.7+
 
         # applicable_rules(tokens, i, ...) depends on index if
         # i+start < index <= i+end.
@@ -199,7 +201,6 @@ class Template(BrillTemplateI):
 
     @classmethod
     def expand(cls, featurelists, combinations=None, skipintersecting=True):
-
         """
         Factory method to mass generate Templates from a list L of lists of  Features.
 
@@ -281,9 +282,11 @@ class Template(BrillTemplateI):
             combrange = (
                 (1, len(xs) + 1)
                 if k is None
-                else (k, k + 1)  # n over 1 .. n over n (all non-empty combinations)
-                if isinstance(k, int)
-                else (k[0], k[1] + 1)  # n over k (only
+                else (
+                    (k, k + 1)  # n over 1 .. n over n (all non-empty combinations)
+                    if isinstance(k, int)
+                    else (k[0], k[1] + 1)
+                )  # n over k (only
             )  # n over k1, n over k1+1... n over k2
             return it.chain.from_iterable(
                 it.combinations(xs, r) for r in range(*combrange)

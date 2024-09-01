@@ -1,10 +1,10 @@
 # Natural Language Toolkit: Text Segmentation Metrics
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Edward Loper <edloper@gmail.com>
 #         Steven Bird <stevenbird1@gmail.com>
 #         David Doukhan <david.doukhan@gmail.com>
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
 
@@ -15,7 +15,7 @@ Text Segmentation Metrics
 
 Pevzner, L., and Hearst, M., A Critique and Improvement of
   an Evaluation Metric for Text Segmentation,
-Computational Linguistics 28, 19-36
+  Computational Linguistics 28, 19-36
 
 
 2. Generalized Hamming Distance
@@ -44,8 +44,6 @@ try:
     import numpy as np
 except ImportError:
     pass
-
-from six.moves import range
 
 
 def windowdiff(seg1, seg2, k, boundary="1", weighted=False):
@@ -120,7 +118,7 @@ def _ghd_aux(mat, rowv, colv, ins_cost, del_cost, shift_cost_coeff):
             mat[i + 1, j + 1] = min(tcost, shift_cost)
 
 
-def ghd(ref, hyp, ins_cost=2.0, del_cost=2.0, shift_cost_coeff=1.0, boundary='1'):
+def ghd(ref, hyp, ins_cost=2.0, del_cost=2.0, shift_cost_coeff=1.0, boundary="1"):
     """
     Compute the Generalized Hamming Distance for a reference and a hypothetical
     segmentation, corresponding to the cost related to the transformation
@@ -158,8 +156,8 @@ def ghd(ref, hyp, ins_cost=2.0, del_cost=2.0, shift_cost_coeff=1.0, boundary='1'
     :param del_cost: deletion cost
     :type del_cost: float
     :param shift_cost_coeff: constant used to compute the cost of a shift.
-    shift cost = shift_cost_coeff * |i - j| where i and j are
-    the positions indicating the shift
+        ``shift cost = shift_cost_coeff * |i - j|`` where ``i`` and ``j``
+        are the positions indicating the shift
     :type shift_cost_coeff: float
     :param boundary: boundary value
     :type boundary: str or int or bool
@@ -181,13 +179,13 @@ def ghd(ref, hyp, ins_cost=2.0, del_cost=2.0, shift_cost_coeff=1.0, boundary='1'
 
     mat = _init_mat(nhyp_bound + 1, nref_bound + 1, ins_cost, del_cost)
     _ghd_aux(mat, hyp_idx, ref_idx, ins_cost, del_cost, shift_cost_coeff)
-    return mat[-1, -1]
+    return float(mat[-1, -1])
 
 
 # Beeferman's Pk text segmentation evaluation metric
 
 
-def pk(ref, hyp, k=None, boundary='1'):
+def pk(ref, hyp, k=None, boundary="1"):
     """
     Compute the Pk metric for a pair of segmentations A segmentation
     is any sequence over a vocabulary of two items (e.g. "0", "1"),
@@ -222,13 +220,3 @@ def pk(ref, hyp, k=None, boundary='1'):
         if r != h:
             err += 1
     return err / (len(ref) - k + 1.0)
-
-
-# skip doctests if numpy is not installed
-def setup_module(module):
-    from nose import SkipTest
-
-    try:
-        import numpy
-    except ImportError:
-        raise SkipTest("numpy is required for nltk.metrics.segmentation")

@@ -1,4 +1,4 @@
-.. Copyright (C) 2001-2019 NLTK Project
+.. Copyright (C) 2001-2024 NLTK Project
 .. For license information, see LICENSE.TXT
 
 ===============================================
@@ -65,3 +65,14 @@ The number of sentences of different max depths:
     >>> len(list(generate(grammar)))
     114
 
+Infinite grammars will throw a RecursionError when not bounded by some ``depth``:
+
+    >>> grammar = CFG.fromstring("""
+    ... S -> A B
+    ... A -> B
+    ... B -> "b" | A
+    ... """)
+    >>> list(generate(grammar))
+    Traceback (most recent call last):
+    ...
+    RuntimeError: The grammar has rule(s) that yield infinite recursion!

@@ -1,25 +1,23 @@
 # Natural Language Toolkit: Corpus Reader Utility Functions
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Edward Loper <edloper@gmail.com>
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
 ######################################################################
 # { Lazy Corpus Loader
 ######################################################################
 
-from __future__ import unicode_literals
-import re
 import gc
+import re
+
 import nltk
-from nltk.compat import python_2_unicode_compatible
 
 TRY_ZIPFILE_FIRST = False
 
 
-@python_2_unicode_compatible
-class LazyCorpusLoader(object):
+class LazyCorpusLoader:
     """
     To see the API documentation for this lazily loaded corpus, first
     run corpus.ensure_loaded(), and then run help(this_corpus).
@@ -46,8 +44,8 @@ class LazyCorpusLoader(object):
     :type reader: nltk.corpus.reader.api.CorpusReader
     :param nltk_data_subdir: The subdirectory where the corpus is stored.
     :type nltk_data_subdir: str
-    :param *args: Any other non-keywords arguments that `reader_cls` might need.
-    :param *kargs: Any other keywords arguments that `reader_cls` might need.
+    :param `*args`: Any other non-keywords arguments that `reader_cls` might need.
+    :param `**kwargs`: Any other keywords arguments that `reader_cls` might need.
     """
 
     def __init__(self, name, reader_cls, *args, **kwargs):
@@ -57,33 +55,33 @@ class LazyCorpusLoader(object):
         self.__name = self.__name__ = name
         self.__reader_cls = reader_cls
         # If nltk_data_subdir is set explicitly
-        if 'nltk_data_subdir' in kwargs:
+        if "nltk_data_subdir" in kwargs:
             # Use the specified subdirectory path
-            self.subdir = kwargs['nltk_data_subdir']
+            self.subdir = kwargs["nltk_data_subdir"]
             # Pops the `nltk_data_subdir` argument, we don't need it anymore.
-            kwargs.pop('nltk_data_subdir', None)
+            kwargs.pop("nltk_data_subdir", None)
         else:  # Otherwise use 'nltk_data/corpora'
-            self.subdir = 'corpora'
+            self.subdir = "corpora"
         self.__args = args
         self.__kwargs = kwargs
 
     def __load(self):
         # Find the corpus root directory.
-        zip_name = re.sub(r'(([^/]+)(/.*)?)', r'\2.zip/\1/', self.__name)
+        zip_name = re.sub(r"(([^/]+)(/.*)?)", r"\2.zip/\1/", self.__name)
         if TRY_ZIPFILE_FIRST:
             try:
-                root = nltk.data.find('{}/{}'.format(self.subdir, zip_name))
+                root = nltk.data.find(f"{self.subdir}/{zip_name}")
             except LookupError as e:
                 try:
-                    root = nltk.data.find('{}/{}'.format(self.subdir, self.__name))
+                    root = nltk.data.find(f"{self.subdir}/{self.__name}")
                 except LookupError:
                     raise e
         else:
             try:
-                root = nltk.data.find('{}/{}'.format(self.subdir, self.__name))
+                root = nltk.data.find(f"{self.subdir}/{self.__name}")
             except LookupError as e:
                 try:
-                    root = nltk.data.find('{}/{}'.format(self.subdir, zip_name))
+                    root = nltk.data.find(f"{self.subdir}/{zip_name}")
                 except LookupError:
                     raise e
 
@@ -112,12 +110,11 @@ class LazyCorpusLoader(object):
         self._unload = _make_bound_method(_unload, self)
 
     def __getattr__(self, attr):
-
         # Fix for inspect.isclass under Python 2.6
-        # (see http://bugs.python.org/issue1225107).
+        # (see https://bugs.python.org/issue1225107).
         # Without this fix tests may take extra 1.5GB RAM
         # because all corpora gets loaded during test collection.
-        if attr == '__bases__':
+        if attr == "__bases__":
             raise AttributeError("LazyCorpusLoader object has no attribute '__bases__'")
 
         self.__load()
@@ -126,13 +123,13 @@ class LazyCorpusLoader(object):
         return getattr(self, attr)
 
     def __repr__(self):
-        return '<%s in %r (not loaded yet)>' % (
+        return "<{} in {!r} (not loaded yet)>".format(
             self.__reader_cls.__name__,
-            '.../corpora/' + self.__name,
+            ".../corpora/" + self.__name,
         )
 
     def _unload(self):
-        # If an exception occures during corpus loading then
+        # If an exception occurs during corpus loading then
         # '_unload' method may be unattached, so __getattr__ can be called;
         # we shouldn't trigger corpus loading again in this case.
         pass
@@ -143,7 +140,7 @@ def _make_bound_method(func, self):
     Magic for creating bound methods (used for _unload).
     """
 
-    class Foo(object):
+    class Foo:
         def meth(self):
             pass
 

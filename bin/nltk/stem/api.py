@@ -1,18 +1,16 @@
 # Natural Language Toolkit: Stemmer Interface
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Trevor Cohn <tacohn@cs.mu.oz.au>
 #         Edward Loper <edloper@gmail.com>
 #         Steven Bird <stevenbird1@gmail.com>
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
 from abc import ABCMeta, abstractmethod
-from six import add_metaclass
 
 
-@add_metaclass(ABCMeta)
-class StemmerI(object):
+class StemmerI(metaclass=ABCMeta):
     """
     A processing interface for removing morphological affixes from
     words.  This process is known as stemming.

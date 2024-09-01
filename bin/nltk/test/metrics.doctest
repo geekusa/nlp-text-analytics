@@ -1,14 +1,21 @@
-.. Copyright (C) 2001-2019 NLTK Project
+.. Copyright (C) 2001-2024 NLTK Project
 .. For license information, see LICENSE.TXT
 
 =======
 Metrics
 =======
 
+-----
+Setup
+-----
+
+    >>> import pytest
+    >>> _ = pytest.importorskip("numpy")
+
+
 The `nltk.metrics` package provides a variety of *evaluation measures*
 which can be used for a wide variety of NLP tasks.
 
-   >>> from __future__ import print_function
    >>> from nltk.metrics import *
 
 ------------------
@@ -55,7 +62,7 @@ String edit distance (Levenshtein):
     >>> edit_distance_align("shine", "shine")
     [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5)]
     >>> edit_distance_align("rain", "brainy")
-    [(0, 0), (1, 1), (1, 2), (2, 3), (3, 4), (4, 5), (4, 6)]
+    [(0, 0), (0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (4, 6)]
     >>> edit_distance_align("", "brainy")
     [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6)]
     >>> edit_distance_align("", "")
@@ -210,6 +217,27 @@ Confusion Matrix
         10: h
     <BLANKLINE>
 
+For "e", the number of true positives should be 6, while the number of false negatives is 3.
+So, the recall ought to be 6 / (6 + 3):
+
+    >>> cm.recall("e") # doctest: +ELLIPSIS
+    0.666666...
+
+For "e", the false positive is just 1, so the precision should be 6 / (6 + 1):
+
+    >>> cm.precision("e") # doctest: +ELLIPSIS
+    0.857142...
+
+The f-measure with default value of ``alpha = 0.5`` should then be:
+
+* *1/(alpha/p + (1-alpha)/r) =*
+* *1/(0.5/p + 0.5/r) =*
+* *2pr / (p + r) =*
+* *2 * 0.857142... * 0.666666... / (0.857142... + 0.666666...) =*
+* *0.749999...*
+
+    >>> cm.f_measure("e") # doctest: +ELLIPSIS
+    0.749999...
 
 --------------------
 Association measures
@@ -282,7 +310,7 @@ For fourgrams, we have to provide more count information:
 
     >>> n_w1_w2_w3_w4 = 5
     >>> n_w1_w2, n_w1_w3, n_w2_w3 = 35, 60, 40
-    >>> n_w1_w2_w3, n_w2_w3_w4 = 20, 10 
+    >>> n_w1_w2_w3, n_w2_w3_w4 = 20, 10
     >>> pair_counts = (n_w1_w2, n_w1_w3, n_w2_w3)
     >>> triplet_counts = (n_w1_w2_w3, n_w2_w3_w4)
     >>> n_w1, n_w2, n_w3, n_w4 = 100, 200, 300, 400

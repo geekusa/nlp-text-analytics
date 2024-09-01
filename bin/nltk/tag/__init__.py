@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 # Natural Language Toolkit: Taggers
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Edward Loper <edloper@gmail.com>
 #         Steven Bird <stevenbird1@gmail.com> (minor additions)
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 """
 NLTK Taggers
@@ -22,7 +21,7 @@ the word ``'fly'`` with a noun part of speech tag (``'NN'``):
 An off-the-shelf tagger is available for English. It uses the Penn Treebank tagset:
 
     >>> from nltk import pos_tag, word_tokenize
-    >>> pos_tag(word_tokenize("John's big idea isn't all that bad."))
+    >>> pos_tag(word_tokenize("John's big idea isn't all that bad.")) # doctest: +NORMALIZE_WHITESPACE
     [('John', 'NNP'), ("'s", 'POS'), ('big', 'JJ'), ('idea', 'NN'), ('is', 'VBZ'),
     ("n't", 'RB'), ('all', 'PDT'), ('that', 'DT'), ('bad', 'JJ'), ('.', '.')]
 
@@ -58,12 +57,15 @@ of ``None``.
 
 We evaluate a tagger on data that was not seen during training:
 
-    >>> tagger.evaluate(brown.tagged_sents(categories='news')[500:600])
-    0.73...
+    >>> round(tagger.accuracy(brown.tagged_sents(categories='news')[500:600]), 3)
+    0.735
 
 For more information, please consult chapter 5 of the NLTK Book.
+
+isort:skip_file
 """
-from __future__ import print_function
+
+import functools
 
 from nltk.tag.api import TaggerI
 from nltk.tag.util import str2tuple, tuple2str, untag
@@ -93,57 +95,62 @@ from nltk.tag.perceptron import PerceptronTagger
 
 from nltk.data import load, find
 
-RUS_PICKLE = (
-    'taggers/averaged_perceptron_tagger_ru/averaged_perceptron_tagger_ru.pickle'
-)
+
+PRETRAINED_TAGGERS = {
+    "rus": "taggers/averaged_perceptron_tagger_rus/",
+    "eng": "taggers/averaged_perceptron_tagger_eng/",
+}
 
 
+@functools.lru_cache
 def _get_tagger(lang=None):
-    if lang == 'rus':
-        tagger = PerceptronTagger(False)
-        ap_russian_model_loc = 'file:' + str(find(RUS_PICKLE))
-        tagger.load(ap_russian_model_loc)
+    if lang == "rus":
+        tagger = PerceptronTagger(lang=lang)
     else:
         tagger = PerceptronTagger()
     return tagger
 
 
 def _pos_tag(tokens, tagset=None, tagger=None, lang=None):
-    # Currently only supoorts English and Russian.
-    if lang not in ['eng', 'rus']:
+    # Currently only supports English and Russian.
+    if lang not in ["eng", "rus"]:
         raise NotImplementedError(
             "Currently, NLTK pos_tag only supports English and Russian "
             "(i.e. lang='eng' or lang='rus')"
         )
+    # Throws Error if tokens is of string type
+    elif isinstance(tokens, str):
+        raise TypeError("tokens: expected a list of strings, got a string")
+
     else:
         tagged_tokens = tagger.tag(tokens)
         if tagset:  # Maps to the specified tagset.
-            if lang == 'eng':
+            if lang == "eng":
                 tagged_tokens = [
-                    (token, map_tag('en-ptb', tagset, tag))
+                    (token, map_tag("en-ptb", tagset, tag))
                     for (token, tag) in tagged_tokens
                 ]
-            elif lang == 'rus':
-                # Note that the new Russion pos tags from the model contains suffixes,
+            elif lang == "rus":
+                # Note that the new Russian pos tags from the model contains suffixes,
                 # see https://github.com/nltk/nltk/issues/2151#issuecomment-430709018
                 tagged_tokens = [
-                    (token, map_tag('ru-rnc-new', tagset, tag.partition('=')[0]))
+                    (token, map_tag("ru-rnc-new", tagset, tag.partition("=")[0]))
                     for (token, tag) in tagged_tokens
                 ]
         return tagged_tokens
 
 
-def pos_tag(tokens, tagset=None, lang='eng'):
+def pos_tag(tokens, tagset=None, lang="eng"):
     """
     Use NLTK's currently recommended part of speech tagger to
     tag the given list of tokens.
 
         >>> from nltk.tag import pos_tag
         >>> from nltk.tokenize import word_tokenize
-        >>> pos_tag(word_tokenize("John's big idea isn't all that bad."))
+        >>> pos_tag(word_tokenize("John's big idea isn't all that bad.")) # doctest: +NORMALIZE_WHITESPACE
         [('John', 'NNP'), ("'s", 'POS'), ('big', 'JJ'), ('idea', 'NN'), ('is', 'VBZ'),
         ("n't", 'RB'), ('all', 'PDT'), ('that', 'DT'), ('bad', 'JJ'), ('.', '.')]
-        >>> pos_tag(word_tokenize("John's big idea isn't all that bad."), tagset='universal')
+        >>> pos_tag(word_tokenize("John's big idea isn't all that bad."), tagset='universal') # doctest: +NORMALIZE_WHITESPACE
         [('John', 'NOUN'), ("'s", 'PRT'), ('big', 'ADJ'), ('idea', 'NOUN'), ('is', 'VERB'),
         ("n't", 'ADV'), ('all', 'DET'), ('that', 'DET'), ('bad', 'ADJ'), ('.', '.')]
 
@@ -162,13 +169,13 @@ def pos_tag(tokens, tagset=None, lang='eng'):
     return _pos_tag(tokens, tagset, tagger, lang)
 
 
-def pos_tag_sents(sentences, tagset=None, lang='eng'):
+def pos_tag_sents(sentences, tagset=None, lang="eng"):
     """
     Use NLTK's currently recommended part of speech tagger to tag the
     given list of sentences, each consisting of a list of tokens.
 
-    :param tokens: List of sentences to be tagged
-    :type tokens: list(list(str))
+    :param sentences: List of sentences to be tagged
+    :type sentences: list(list(str))
     :param tagset: the tagset to be used, e.g. universal, wsj, brown
     :type tagset: str
     :param lang: the ISO 639 code of the language, e.g. 'eng' for English, 'rus' for Russian

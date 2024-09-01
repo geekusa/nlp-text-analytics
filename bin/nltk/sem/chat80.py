@@ -1,19 +1,19 @@
 # Natural Language Toolkit: Chat-80 KB Reader
-# See http://www.w3.org/TR/swbp-skos-core-guide/
+# See https://www.w3.org/TR/swbp-skos-core-guide/
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Ewan Klein <ewan@inf.ed.ac.uk>,
-# URL: <http://nltk.sourceforge.net>
+# URL: <https://www.nltk.org>
 # For license information, see LICENSE.TXT
 
-"""
+r"""
 Overview
 ========
 
 Chat-80 was a natural language system which allowed the user to
 interrogate a Prolog knowledge base in the domain of world
 geography. It was developed in the early '80s by Warren and Pereira; see
-``http://www.aclweb.org/anthology/J82-3002.pdf`` for a description and
+``https://www.aclweb.org/anthology/J82-3002.pdf`` for a description and
 ``http://www.cis.upenn.edu/~pereira/oldies.html`` for the source
 files.
 
@@ -122,136 +122,131 @@ The set of rules is written to the file ``chat_pnames.cfg`` in the
 current directory.
 
 """
-from __future__ import print_function, unicode_literals
 
+import os
 import re
 import shelve
-import os
 import sys
 
-from six import string_types
-
 import nltk.data
-from nltk.compat import python_2_unicode_compatible
 
 ###########################################################################
 # Chat-80 relation metadata bundles needed to build the valuation
 ###########################################################################
 
 borders = {
-    'rel_name': 'borders',
-    'closures': ['symmetric'],
-    'schema': ['region', 'border'],
-    'filename': 'borders.pl',
+    "rel_name": "borders",
+    "closures": ["symmetric"],
+    "schema": ["region", "border"],
+    "filename": "borders.pl",
 }
 
 contains = {
-    'rel_name': 'contains0',
-    'closures': ['transitive'],
-    'schema': ['region', 'contain'],
-    'filename': 'contain.pl',
+    "rel_name": "contains0",
+    "closures": ["transitive"],
+    "schema": ["region", "contain"],
+    "filename": "contain.pl",
 }
 
 city = {
-    'rel_name': 'city',
-    'closures': [],
-    'schema': ['city', 'country', 'population'],
-    'filename': 'cities.pl',
+    "rel_name": "city",
+    "closures": [],
+    "schema": ["city", "country", "population"],
+    "filename": "cities.pl",
 }
 
 country = {
-    'rel_name': 'country',
-    'closures': [],
-    'schema': [
-        'country',
-        'region',
-        'latitude',
-        'longitude',
-        'area',
-        'population',
-        'capital',
-        'currency',
+    "rel_name": "country",
+    "closures": [],
+    "schema": [
+        "country",
+        "region",
+        "latitude",
+        "longitude",
+        "area",
+        "population",
+        "capital",
+        "currency",
     ],
-    'filename': 'countries.pl',
+    "filename": "countries.pl",
 }
 
 circle_of_lat = {
-    'rel_name': 'circle_of_latitude',
-    'closures': [],
-    'schema': ['circle_of_latitude', 'degrees'],
-    'filename': 'world1.pl',
+    "rel_name": "circle_of_latitude",
+    "closures": [],
+    "schema": ["circle_of_latitude", "degrees"],
+    "filename": "world1.pl",
 }
 
 circle_of_long = {
-    'rel_name': 'circle_of_longitude',
-    'closures': [],
-    'schema': ['circle_of_longitude', 'degrees'],
-    'filename': 'world1.pl',
+    "rel_name": "circle_of_longitude",
+    "closures": [],
+    "schema": ["circle_of_longitude", "degrees"],
+    "filename": "world1.pl",
 }
 
 continent = {
-    'rel_name': 'continent',
-    'closures': [],
-    'schema': ['continent'],
-    'filename': 'world1.pl',
+    "rel_name": "continent",
+    "closures": [],
+    "schema": ["continent"],
+    "filename": "world1.pl",
 }
 
 region = {
-    'rel_name': 'in_continent',
-    'closures': [],
-    'schema': ['region', 'continent'],
-    'filename': 'world1.pl',
+    "rel_name": "in_continent",
+    "closures": [],
+    "schema": ["region", "continent"],
+    "filename": "world1.pl",
 }
 
 ocean = {
-    'rel_name': 'ocean',
-    'closures': [],
-    'schema': ['ocean'],
-    'filename': 'world1.pl',
+    "rel_name": "ocean",
+    "closures": [],
+    "schema": ["ocean"],
+    "filename": "world1.pl",
 }
 
-sea = {'rel_name': 'sea', 'closures': [], 'schema': ['sea'], 'filename': 'world1.pl'}
+sea = {"rel_name": "sea", "closures": [], "schema": ["sea"], "filename": "world1.pl"}
 
 
 items = [
-    'borders',
-    'contains',
-    'city',
-    'country',
-    'circle_of_lat',
-    'circle_of_long',
-    'continent',
-    'region',
-    'ocean',
-    'sea',
+    "borders",
+    "contains",
+    "city",
+    "country",
+    "circle_of_lat",
+    "circle_of_long",
+    "continent",
+    "region",
+    "ocean",
+    "sea",
 ]
 items = tuple(sorted(items))
 
 item_metadata = {
-    'borders': borders,
-    'contains': contains,
-    'city': city,
-    'country': country,
-    'circle_of_lat': circle_of_lat,
-    'circle_of_long': circle_of_long,
-    'continent': continent,
-    'region': region,
-    'ocean': ocean,
-    'sea': sea,
+    "borders": borders,
+    "contains": contains,
+    "city": city,
+    "country": country,
+    "circle_of_lat": circle_of_lat,
+    "circle_of_long": circle_of_long,
+    "continent": continent,
+    "region": region,
+    "ocean": ocean,
+    "sea": sea,
 }
 
 rels = item_metadata.values()
 
-not_unary = ['borders.pl', 'contain.pl']
+not_unary = ["borders.pl", "contain.pl"]
 
 ###########################################################################
 
 
-@python_2_unicode_compatible
-class Concept(object):
+class Concept:
     """
     A Concept class, loosely based on SKOS
-    (http://www.w3.org/TR/swbp-skos-core-guide/).
+    (https://www.w3.org/TR/swbp-skos-core-guide/).
     """
 
     def __init__(self, prefLabel, arity, altLabels=[], closures=[], extension=set()):
@@ -260,12 +255,12 @@ class Concept(object):
         :type prefLabel: str
         :param arity: the arity of the concept
         :type arity: int
-        @keyword altLabels: other (related) labels
+        :param altLabels: other (related) labels
         :type altLabels: list
-        @keyword closures: closure properties of the extension \
+        :param closures: closure properties of the extension
             (list items can be ``symmetric``, ``reflexive``, ``transitive``)
         :type closures: list
-        @keyword extension: the extensional value of the concept
+        :param extension: the extensional value of the concept
         :type extension: set
         """
         self.prefLabel = prefLabel
@@ -285,7 +280,7 @@ class Concept(object):
         # _extension += element + ', '
         # _extension = _extension[:-1]
 
-        return "Label = '%s'\nArity = %s\nExtension = %s" % (
+        return "Label = '{}'\nArity = {}\nExtension = {}".format(
             self.prefLabel,
             self.arity,
             self.extension,
@@ -312,7 +307,7 @@ class Concept(object):
         Convert a set of pairs into an adjacency linked list encoding of a graph.
         """
         g = {}
-        for (x, y) in s:
+        for x, y in s:
             if x in g:
                 g[x].append(y)
             else:
@@ -352,17 +347,16 @@ class Concept(object):
         from nltk.sem import is_rel
 
         assert is_rel(self._extension)
-        if 'symmetric' in self.closures:
+        if "symmetric" in self.closures:
             pairs = []
-            for (x, y) in self._extension:
+            for x, y in self._extension:
                 pairs.append((y, x))
             sym = set(pairs)
             self._extension = self._extension.union(sym)
-        if 'transitive' in self.closures:
+        if "transitive" in self.closures:
             all = self._make_graph(self._extension)
             closed = self._transclose(all)
             trans = self._make_pairs(closed)
-            # print sorted(trans)
             self._extension = self._extension.union(trans)
         self.extension = sorted(list(self._extension))
 
@@ -432,13 +426,13 @@ def cities2table(filename, rel_name, dbname, verbose=False, setup=False):
     cur = connection.cursor()
     if setup:
         cur.execute(
-            '''CREATE TABLE city_table
-        (City text, Country text, Population int)'''
+            """CREATE TABLE city_table
+        (City text, Country text, Population int)"""
         )
 
     table_name = "city_table"
     for t in records:
-        cur.execute('insert into %s values (?,?,?)' % table_name, t)
+        cur.execute("insert into %s values (?,?,?)" % table_name, t)
         if verbose:
             print("inserting values into %s: " % table_name, t)
     connection.commit()
@@ -479,9 +473,9 @@ def _str2records(filename, rel):
     contents = nltk.data.load("corpora/chat80/%s" % filename, format="text")
     for line in contents.splitlines():
         if line.startswith(rel):
-            line = re.sub(rel + r'\(', '', line)
-            line = re.sub(r'\)\.$', '', line)
-            record = line.split(',')
+            line = re.sub(rel + r"\(", "", line)
+            line = re.sub(r"\)\.$", "", line)
+            record = line.split(",")
             recs.append(record)
     return recs
 
@@ -537,8 +531,8 @@ def binary_concept(label, closures, subj, obj, records):
     :return: ``Concept`` of arity 2
     :rtype: Concept
     """
-    if not label == 'border' and not label == 'contain':
-        label = label + '_of'
+    if not label == "border" and not label == "contain":
+        label = label + "_of"
     c = Concept(label, arity=2, closures=closures, extension=set())
     for record in records:
         c.augment((record[subj], record[obj]))
@@ -559,10 +553,10 @@ def process_bundle(rels):
     """
     concepts = {}
     for rel in rels:
-        rel_name = rel['rel_name']
-        closures = rel['closures']
-        schema = rel['schema']
-        filename = rel['filename']
+        rel_name = rel["rel_name"]
+        closures = rel["closures"]
+        schema = rel["schema"]
+        filename = rel["filename"]
 
         concept_list = clause2concepts(filename, rel_name, schema, closures)
         for c in concept_list:
@@ -618,7 +612,7 @@ def val_dump(rels, db):
     """
     concepts = process_bundle(rels).values()
     valuation = make_valuation(concepts, read=True)
-    db_out = shelve.open(db, 'n')
+    db_out = shelve.open(db, "n")
 
     db_out.update(valuation)
 
@@ -680,7 +674,7 @@ def label_indivs(valuation, lexicon=False):
     pairs = [(e, e) for e in domain]
     if lexicon:
         lex = make_lex(domain)
-        with open("chat_pnames.cfg", 'w') as outfile:
+        with open("chat_pnames.cfg", "w") as outfile:
             outfile.writelines(lex)
     # read the pairs into the valuation
     valuation.update(pairs)
@@ -706,12 +700,12 @@ def make_lex(symbols):
 
 """
     lex.append(header)
-    template = "PropN[num=sg, sem=<\P.(P %s)>] -> '%s'\n"
+    template = r"PropN[num=sg, sem=<\P.(P %s)>] -> '%s'\n"
 
     for s in symbols:
-        parts = s.split('_')
+        parts = s.split("_")
         caps = [p.capitalize() for p in parts]
-        pname = '_'.join(caps)
+        pname = "_".join(caps)
         rule = template % (s, pname)
         lex.append(rule)
     return lex
@@ -731,7 +725,7 @@ def concepts(items=items):
     :return: the ``Concept`` objects which are extracted from the relations
     :rtype: list(Concept)
     """
-    if isinstance(items, string_types):
+    if isinstance(items, str):
         items = (items,)
 
     rels = [item_metadata[r] for r in items]
@@ -825,8 +819,8 @@ Valuation object for use in the NLTK semantics package.
             concepts = concept_map.values()
             # just print out the vocabulary
             if options.vocab:
-                items = sorted([(c.arity, c.prefLabel) for c in concepts])
-                for (arity, label) in items:
+                items = sorted((c.arity, c.prefLabel) for c in concepts)
+                for arity, label in items:
                     print(label, arity)
                 sys.exit(0)
             # show all the concepts
@@ -854,10 +848,10 @@ def sql_demo():
     """
     print()
     print("Using SQL to extract rows from 'city.db' RDB.")
-    for row in sql_query('corpora/city_database/city.db', "SELECT * FROM city_table"):
+    for row in sql_query("corpora/city_database/city.db", "SELECT * FROM city_table"):
         print(row)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
     sql_demo()

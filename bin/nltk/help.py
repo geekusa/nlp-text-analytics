@@ -1,19 +1,19 @@
 # Natural Language Toolkit (NLTK) Help
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Authors: Steven Bird <stevenbird1@gmail.com>
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
 """
 Provide structured access to documentation.
 """
-from __future__ import print_function
 
+import json
 import re
 from textwrap import wrap
 
-from nltk.data import load
+from nltk.data import find
 
 
 def brown_tagset(tagpattern=None):
@@ -38,13 +38,17 @@ def _print_entries(tags, tagdict):
         entry = tagdict[tag]
         defn = [tag + ": " + entry[0]]
         examples = wrap(
-            entry[1], width=75, initial_indent='    ', subsequent_indent='    '
+            entry[1], width=75, initial_indent="    ", subsequent_indent="    "
         )
         print("\n".join(defn + examples))
 
 
 def _format_tagset(tagset, tagpattern=None):
-    tagdict = load("help/tagsets/" + tagset + ".pickle")
+    # Load tagset from json file.
+    tag_json_file = find(f"help/tagsets_json/PY3_json/{tagset}.json")
+    with open(tag_json_file) as fin:
+        tagdict = json.load(fin)
+
     if not tagpattern:
         _print_entries(sorted(tagdict), tagdict)
     elif tagpattern in tagdict:
@@ -58,8 +62,8 @@ def _format_tagset(tagset, tagpattern=None):
             print("No matching tags found.")
 
 
-if __name__ == '__main__':
-    brown_tagset(r'NN.*')
-    upenn_tagset(r'.*\$')
-    claws5_tagset('UNDEFINED')
-    brown_tagset(r'NN')
+if __name__ == "__main__":
+    brown_tagset(r"NN.*")
+    upenn_tagset(r".*\$")
+    claws5_tagset("UNDEFINED")
+    brown_tagset(r"NN")

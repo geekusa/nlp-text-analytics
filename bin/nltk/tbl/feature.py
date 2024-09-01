@@ -1,20 +1,16 @@
-# -*- coding: utf-8 -*-
 # Natural Language Toolkit: Transformation-based learning
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Marcus Uneson <marcus.uneson@gmail.com>
 #   based on previous (nltk2) version by
 #   Christopher Maloof, Edward Loper, Steven Bird
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see  LICENSE.TXT
 
-from __future__ import division, print_function, unicode_literals
 from abc import ABCMeta, abstractmethod
-from six import add_metaclass
 
 
-@add_metaclass(ABCMeta)
-class Feature(object):
+class Feature(metaclass=ABCMeta):
     """
     An abstract base class for Features. A Feature is a combination of
     a specific property-computing method and a list of relative positions
@@ -33,30 +29,30 @@ class Feature(object):
 
     """
 
-    json_tag = 'nltk.tbl.Feature'
+    json_tag = "nltk.tbl.Feature"
     PROPERTY_NAME = None
 
     def __init__(self, positions, end=None):
         """
         Construct a Feature which may apply at C{positions}.
 
-        #For instance, importing some concrete subclasses (Feature is abstract)
+        >>> # For instance, importing some concrete subclasses (Feature is abstract)
         >>> from nltk.tag.brill import Word, Pos
 
-        #Feature Word, applying at one of [-2, -1]
+        >>> # Feature Word, applying at one of [-2, -1]
         >>> Word([-2,-1])
         Word([-2, -1])
 
-        #Positions need not be contiguous
+        >>> # Positions need not be contiguous
         >>> Word([-2,-1, 1])
         Word([-2, -1, 1])
 
-        #Contiguous ranges can alternatively be specified giving the
-        #two endpoints (inclusive)
+        >>> # Contiguous ranges can alternatively be specified giving the
+        >>> # two endpoints (inclusive)
         >>> Pos(-3, -1)
         Pos([-3, -2, -1])
 
-        #In two-arg form, start <= end is enforced
+        >>> # In two-arg form, start <= end is enforced
         >>> Pos(2, 1)
         Traceback (most recent call last):
           File "<stdin>", line 1, in <module>
@@ -75,23 +71,22 @@ class Feature(object):
         :param start: start of range where this feature should apply
         :type end: int
         :param end: end of range (NOTE: inclusive!) where this feature should apply
-
         """
         self.positions = None  # to avoid warnings
         if end is None:
-            self.positions = tuple(sorted(set(int(i) for i in positions)))
+            self.positions = tuple(sorted({int(i) for i in positions}))
         else:  # positions was actually not a list, but only the start index
             try:
                 if positions > end:
                     raise TypeError
                 self.positions = tuple(range(positions, end + 1))
-            except TypeError:
+            except TypeError as e:
                 # let any kind of erroneous spec raise ValueError
                 raise ValueError(
-                    "illegal interval specification: (start={0}, end={1})".format(
+                    "illegal interval specification: (start={}, end={})".format(
                         positions, end
                     )
-                )
+                ) from e
 
         # set property name given in subclass, or otherwise name of subclass
         self.PROPERTY_NAME = self.__class__.PROPERTY_NAME or self.__class__.__name__
@@ -105,7 +100,7 @@ class Feature(object):
         return cls(positions)
 
     def __repr__(self):
-        return "%s(%r)" % (self.__class__.__name__, list(self.positions))
+        return f"{self.__class__.__name__}({list(self.positions)!r})"
 
     @classmethod
     def expand(cls, starts, winlens, excludezero=False):
@@ -117,10 +112,12 @@ class Feature(object):
         target feature at [0])
 
         For instance, importing a concrete subclass (Feature is abstract)
+
         >>> from nltk.tag.brill import Word
 
         First argument gives the possible start positions, second the
         possible window lengths
+
         >>> Word.expand([-3,-2,-1], [1])
         [Word([-3]), Word([-2]), Word([-1])]
 
@@ -133,7 +130,8 @@ class Feature(object):
         >>> Word.expand([-2,-1], [1])
         [Word([-2]), Word([-1])]
 
-        a third optional argument excludes all Features whose positions contain zero
+        A third optional argument excludes all Features whose positions contain zero
+
         >>> Word.expand([-2,-1,0], [1,2], excludezero=False)
         [Word([-2]), Word([-1]), Word([0]), Word([-2, -1]), Word([-1, 0])]
 
@@ -141,6 +139,7 @@ class Feature(object):
         [Word([-2]), Word([-1]), Word([-2, -1])]
 
         All window lengths must be positive
+
         >>> Word.expand([-2,-1], [0])
         Traceback (most recent call last):
           File "<stdin>", line 1, in <module>
@@ -158,7 +157,7 @@ class Feature(object):
         :raises ValueError: for non-positive window lengths
         """
         if not all(x > 0 for x in winlens):
-            raise ValueError("non-positive window length in {0}".format(winlens))
+            raise ValueError(f"non-positive window length in {winlens}")
         xs = (starts[i : i + w] for w in winlens for i in range(len(starts) - w + 1))
         return [cls(x) for x in xs if not (excludezero and 0 in x)]
 
@@ -224,10 +223,8 @@ class Feature(object):
         """
 
         return bool(
-            (
-                self.__class__ is other.__class__
-                and set(self.positions) & set(other.positions)
-            )
+            self.__class__ is other.__class__
+            and set(self.positions) & set(other.positions)
         )
 
     # Rich comparisons for Features. With @functools.total_ordering (Python 2.7+),

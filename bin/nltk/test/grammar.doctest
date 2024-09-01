@@ -1,4 +1,4 @@
-.. Copyright (C) 2001-2019 NLTK Project
+.. Copyright (C) 2001-2024 NLTK Project
 .. For license information, see LICENSE.TXT
 
 ===============
@@ -22,13 +22,13 @@ Grammars can be parsed from strings:
     <Grammar with 14 productions>
     >>> grammar.start()
     S
-    >>> grammar.productions() # doctest: +NORMALIZE_WHITESPACE
+    >>> grammar.productions()
     [S -> NP VP, PP -> P NP, NP -> Det N, NP -> NP PP, VP -> V NP, VP -> VP PP,
     Det -> 'a', Det -> 'the', N -> 'dog', N -> 'cat', V -> 'chased', V -> 'sat',
     P -> 'on', P -> 'in']
 
 Probabilistic CFGs:
-   
+
     >>> from nltk import PCFG
     >>> toy_pcfg1 = PCFG.fromstring("""
     ... S -> NP VP [1.0]
@@ -46,3 +46,24 @@ Chomsky Normal Form grammar (Test for bug 474)
     >>> g = CFG.fromstring("VP^<TOP> -> VBP NP^<VP-TOP>")
     >>> g.productions()[0].lhs()
     VP^<TOP>
+
+Grammars can contain both empty strings and empty productions:
+
+    >>> from nltk.grammar import CFG
+    >>> from nltk.parse.generate import generate
+    >>> grammar = CFG.fromstring("""
+    ... S -> A B
+    ... A -> 'a'
+    ... # An empty string:
+    ... B -> 'b' | ''
+    ... """)
+    >>> list(generate(grammar))
+    [['a', 'b'], ['a', '']]
+    >>> grammar = CFG.fromstring("""
+    ... S -> A B
+    ... A -> 'a'
+    ... # An empty production:
+    ... B -> 'b' |
+    ... """)
+    >>> list(generate(grammar))
+    [['a', 'b'], ['a']]

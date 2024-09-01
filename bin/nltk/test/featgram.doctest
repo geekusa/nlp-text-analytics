@@ -1,15 +1,22 @@
-.. Copyright (C) 2001-2019 NLTK Project
+.. Copyright (C) 2001-2024 NLTK Project
 .. For license information, see LICENSE.TXT
 
 =========================
  Feature Grammar Parsing
 =========================
 
-.. include:: ../../../nltk_book/definitions.rst
+.. definitions from nltk_book/definitions.rst
+
+.. role:: feat
+    :class: feature
+.. role:: fval
+     :class: fval
+.. |rarr| unicode:: U+2192 .. right arrow
+.. |dot| unicode:: U+2022 .. bullet
+.. |pi| unicode:: U+03C0
 
 Grammars can be parsed from strings.
 
-    >>> from __future__ import print_function
     >>> import nltk
     >>> from nltk import grammar, parse
     >>> g = """
@@ -37,11 +44,9 @@ Grammars can be parsed from strings.
 
 In general, when we are trying to develop even a very small grammar,
 it is convenient to put the rules in a file where they can be edited,
-tested and revised. Let's assume that we have saved feat0cfg_ as a file named
+tested and revised. Let's assume that we have saved feat0cfg as a file named
 ``'feat0.fcfg'`` and placed it in the NLTK ``data`` directory. We can
 inspect it as follows:
-
-.. _feat0cfg: http://nltk.svn.sourceforge.net/svnroot/nltk/trunk/nltk/data/grammars/feat0.fcfg
 
     >>> nltk.data.show_cfg('grammars/book_grammars/feat0.fcfg')
     % start S
@@ -74,7 +79,7 @@ inspect it as follows:
     IV[TENSE=past] -> 'disappeared' | 'walked'
     TV[TENSE=past] -> 'saw' | 'liked'
 
-Assuming we have saved feat0cfg_ as a file named
+Assuming we have saved feat0cfg as a file named
 ``'feat0.fcfg'``, the function ``parse.load_parser`` allows us to
 read the grammar into NLTK, ready for use in parsing.
 
@@ -119,7 +124,7 @@ standard CFGs is used to combine an incomplete edge that's expecting a
 nonterminal *B* with a following, complete edge whose left hand side
 matches *B*. In our current setting, rather than checking for a
 complete match, we test whether the expected category *B* will
-`unify`:dt: with the left hand side *B'* of a following complete
+unify with the left hand side *B'* of a following complete
 edge. We will explain in more detail in Section 9.2 how
 unification works; for the moment, it is enough to know that as a
 result of unification, any variable values of features in *B* will be
@@ -240,10 +245,10 @@ Unification is commutative:
     >>> nltk.unify(nltk.unify(fs1, fs2), fs3) == nltk.unify(fs1, nltk.unify(fs2, fs3))
     True
 
-Unification between `FS`:math:\ :subscript:`0` and `FS`:math:\
-:subscript:`1` will fail if the two feature structures share a path |pi|,
-but the value of |pi| in `FS`:math:\ :subscript:`0` is a distinct
-atom from the value of |pi| in `FS`:math:\ :subscript:`1`. In NLTK,
+Unification between *FS*:math:`_0` and *FS*:math:`_1` will fail if the
+two feature structures share a path |pi|,
+but the value of |pi| in *FS*:math:`_0` is a distinct
+atom from the value of |pi| in *FS*:math:`_1`. In NLTK,
 this is implemented by setting the result of unification to be
 ``None``.
 
@@ -497,12 +502,10 @@ Let's load a German grammar:
 
 Grammar with Binding Operators
 ------------------------------
-The `bindop.fcfg`_ grammar is a semantic grammar that uses lambda
+The bindop.fcfg grammar is a semantic grammar that uses lambda
 calculus.  Each element has a core semantics, which is a single lambda
 calculus expression; and a set of binding operators, which bind
 variables.
-
-.. _bindop.fcfg: http://nltk.svn.sourceforge.net/svnroot/nltk/trunk/nltk/data/grammars/bindop.fcfg
 
 In order to make the binding operators work right, they need to
 instantiate their bound variable every time they are added to the

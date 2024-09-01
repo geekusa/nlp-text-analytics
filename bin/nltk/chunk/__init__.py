@@ -1,9 +1,9 @@
 # Natural Language Toolkit: Chunkers
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Steven Bird <stevenbird1@gmail.com>
 #         Edward Loper <edloper@gmail.com>
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 #
 
@@ -65,7 +65,7 @@ simpler types of rules:
 
     - ``ChunkRule`` chunks anything that matches a given regular
       expression.
-    - ``ChinkRule`` chinks anything that matches a given regular
+    - ``StripRule`` strips anything that matches a given regular
       expression.
     - ``UnChunkRule`` will un-chunk any chunk that matches a given
       regular expression.
@@ -95,8 +95,8 @@ patterns are:
       ``'<NN>+'`` matches one or more repetitions of ``'<NN>'``, not
       ``'<NN'`` followed by one or more repetitions of ``'>'``.
     - Whitespace in tag patterns is ignored.  So
-      ``'<DT> | <NN>'`` is equivalant to ``'<DT>|<NN>'``
-    - In tag patterns, ``'.'`` is equivalant to ``'[^{}<>]'``; so
+      ``'<DT> | <NN>'`` is equivalent to ``'<DT>|<NN>'``
+    - In tag patterns, ``'.'`` is equivalent to ``'[^{}<>]'``; so
       ``'<NN.*>'`` matches any single tag starting with ``'NN'``.
 
 The function ``tag_pattern2re_pattern`` can be used to transform
@@ -152,37 +152,44 @@ zero-length assertions).
      pattern is valid.
 """
 
-from nltk.data import load
-
 from nltk.chunk.api import ChunkParserI
+from nltk.chunk.named_entity import Maxent_NE_Chunker
+from nltk.chunk.regexp import RegexpChunkParser, RegexpParser
 from nltk.chunk.util import (
     ChunkScore,
     accuracy,
-    tagstr2tree,
     conllstr2tree,
     conlltags2tree,
-    tree2conlltags,
+    ieerstr2tree,
+    tagstr2tree,
     tree2conllstr,
     tree2conlltags,
-    ieerstr2tree,
 )
-from nltk.chunk.regexp import RegexpChunkParser, RegexpParser
 
-# Standard treebank POS tagger
-_BINARY_NE_CHUNKER = 'chunkers/maxent_ne_chunker/english_ace_binary.pickle'
-_MULTICLASS_NE_CHUNKER = 'chunkers/maxent_ne_chunker/english_ace_multiclass.pickle'
+
+def ne_chunker(fmt="multiclass"):
+    """
+    Load NLTK's currently recommended named entity chunker.
+    """
+    return Maxent_NE_Chunker(fmt)
 
 
 def ne_chunk(tagged_tokens, binary=False):
     """
     Use NLTK's currently recommended named entity chunker to
     chunk the given list of tagged tokens.
+
+    >>> from nltk.chunk import ne_chunk
+    >>> from nltk.corpus import treebank
+    >>> from pprint import pprint
+    >>> pprint(ne_chunk(treebank.tagged_sents()[2][8:14])) # doctest: +NORMALIZE_WHITESPACE
+    Tree('S', [('chairman', 'NN'), ('of', 'IN'), Tree('ORGANIZATION', [('Consolidated', 'NNP'), ('Gold', 'NNP'), ('Fields', 'NNP')]), ('PLC', 'NNP')])
+
     """
     if binary:
-        chunker_pickle = _BINARY_NE_CHUNKER
+        chunker = ne_chunker(fmt="binary")
     else:
-        chunker_pickle = _MULTICLASS_NE_CHUNKER
-    chunker = load(chunker_pickle)
+        chunker = ne_chunker()
     return chunker.parse(tagged_tokens)
 
 
@@ -192,8 +199,7 @@ def ne_chunk_sents(tagged_sentences, binary=False):
     given list of tagged sentences, each consisting of a list of tagged tokens.
     """
     if binary:
-        chunker_pickle = _BINARY_NE_CHUNKER
+        chunker = ne_chunker(fmt="binary")
     else:
-        chunker_pickle = _MULTICLASS_NE_CHUNKER
-    chunker = load(chunker_pickle)
+        chunker = ne_chunker()
     return chunker.parse_sents(tagged_sentences)

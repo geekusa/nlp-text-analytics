@@ -1,14 +1,14 @@
 # Natural Language Toolkit: Minimal Sets
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Steven Bird <stevenbird1@gmail.com>
-# URL: <http://nltk.org>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
 from collections import defaultdict
 
 
-class MinimalSet(object):
+class MinimalSet:
     """
     Find contexts where more than one possible target value can
     appear.  E.g. if targets are word-initial letters, and contexts
@@ -63,7 +63,7 @@ class MinimalSet(object):
 
         :param minimum: the minimum number of distinct target forms
         :type minimum: int
-        :rtype list
+        :rtype: list
         """
         return [c for c in self._contexts if len(self._seen[c]) >= minimum]
 

@@ -1,9 +1,9 @@
 # Natural Language Toolkit: Simple Tokenizers
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Edward Loper <edloper@gmail.com>
 #         Steven Bird <stevenbird1@gmail.com>
-# URL: <http://nltk.sourceforge.net>
+# URL: <https://www.nltk.org>
 # For license information, see LICENSE.TXT
 
 r"""
@@ -18,13 +18,13 @@ The simple tokenizers are *not* available as separate functions;
 instead, you should just use the string ``split()`` method directly:
 
     >>> s = "Good muffins cost $3.88\nin New York.  Please buy me\ntwo of them.\n\nThanks."
-    >>> s.split()
+    >>> s.split() # doctest: +NORMALIZE_WHITESPACE
     ['Good', 'muffins', 'cost', '$3.88', 'in', 'New', 'York.',
     'Please', 'buy', 'me', 'two', 'of', 'them.', 'Thanks.']
-    >>> s.split(' ')
+    >>> s.split(' ') # doctest: +NORMALIZE_WHITESPACE
     ['Good', 'muffins', 'cost', '$3.88\nin', 'New', 'York.', '',
     'Please', 'buy', 'me\ntwo', 'of', 'them.\n\nThanks.']
-    >>> s.split('\n')
+    >>> s.split('\n') # doctest: +NORMALIZE_WHITESPACE
     ['Good muffins cost $3.88', 'in New York.  Please buy me',
     'two of them.', '', 'Thanks.']
 
@@ -34,9 +34,9 @@ that expects a tokenizer.  For example, these tokenizers can be used
 to specify the tokenization conventions when building a `CorpusReader`.
 
 """
-from __future__ import unicode_literals
-from nltk.tokenize.api import TokenizerI, StringTokenizer
-from nltk.tokenize.util import string_span_tokenize, regexp_span_tokenize
+
+from nltk.tokenize.api import StringTokenizer, TokenizerI
+from nltk.tokenize.util import regexp_span_tokenize, string_span_tokenize
 
 
 class SpaceTokenizer(StringTokenizer):
@@ -45,12 +45,12 @@ class SpaceTokenizer(StringTokenizer):
 
         >>> from nltk.tokenize import SpaceTokenizer
         >>> s = "Good muffins cost $3.88\nin New York.  Please buy me\ntwo of them.\n\nThanks."
-        >>> SpaceTokenizer().tokenize(s)
+        >>> SpaceTokenizer().tokenize(s) # doctest: +NORMALIZE_WHITESPACE
         ['Good', 'muffins', 'cost', '$3.88\nin', 'New', 'York.', '',
         'Please', 'buy', 'me\ntwo', 'of', 'them.\n\nThanks.']
     """
 
-    _string = ' '
+    _string = " "
 
 
 class TabTokenizer(StringTokenizer):
@@ -62,7 +62,7 @@ class TabTokenizer(StringTokenizer):
         ['a', 'b c\n', ' d']
     """
 
-    _string = '\t'
+    _string = "\t"
 
 
 class CharTokenizer(StringTokenizer):
@@ -70,12 +70,13 @@ class CharTokenizer(StringTokenizer):
     is ever required directly, use ``for char in string``.
     """
 
+    _string = None
+
     def tokenize(self, s):
         return list(s)
 
     def span_tokenize(self, s):
-        for i, j in enumerate(range(1, len(s) + 1)):
-            yield i, j
+        yield from enumerate(range(1, len(s) + 1))
 
 
 class LineTokenizer(TokenizerI):
@@ -84,11 +85,11 @@ class LineTokenizer(TokenizerI):
 
         >>> from nltk.tokenize import LineTokenizer
         >>> s = "Good muffins cost $3.88\nin New York.  Please buy me\ntwo of them.\n\nThanks."
-        >>> LineTokenizer(blanklines='keep').tokenize(s)
+        >>> LineTokenizer(blanklines='keep').tokenize(s) # doctest: +NORMALIZE_WHITESPACE
         ['Good muffins cost $3.88', 'in New York.  Please buy me',
         'two of them.', '', 'Thanks.']
         >>> # same as [l for l in s.split('\n') if l.strip()]:
-        >>> LineTokenizer(blanklines='discard').tokenize(s)
+        >>> LineTokenizer(blanklines='discard').tokenize(s) # doctest: +NORMALIZE_WHITESPACE
         ['Good muffins cost $3.88', 'in New York.  Please buy me',
         'two of them.', 'Thanks.']
 
@@ -101,11 +102,11 @@ class LineTokenizer(TokenizerI):
            a corresponding token ``''`` after that newline.
     """
 
-    def __init__(self, blanklines='discard'):
-        valid_blanklines = ('discard', 'keep', 'discard-eof')
+    def __init__(self, blanklines="discard"):
+        valid_blanklines = ("discard", "keep", "discard-eof")
         if blanklines not in valid_blanklines:
             raise ValueError(
-                'Blank lines must be one of: %s' % ' '.join(valid_blanklines)
+                "Blank lines must be one of: %s" % " ".join(valid_blanklines)
             )
 
         self._blanklines = blanklines
@@ -113,21 +114,19 @@ class LineTokenizer(TokenizerI):
     def tokenize(self, s):
         lines = s.splitlines()
         # If requested, strip off blank lines.
-        if self._blanklines == 'discard':
+        if self._blanklines == "discard":
             lines = [l for l in lines if l.rstrip()]
-        elif self._blanklines == 'discard-eof':
+        elif self._blanklines == "discard-eof":
             if lines and not lines[-1].strip():
                 lines.pop()
         return lines
 
     # discard-eof not implemented
     def span_tokenize(self, s):
-        if self._blanklines == 'keep':
-            for span in string_span_tokenize(s, r'\n'):
-                yield span
+        if self._blanklines == "keep":
+            yield from string_span_tokenize(s, r"\n")
         else:
-            for span in regexp_span_tokenize(s, r'\n(\s+\n)*'):
-                yield span
+            yield from regexp_span_tokenize(s, r"\n(\s+\n)*")
 
 
 ######################################################################
@@ -136,5 +135,5 @@ class LineTokenizer(TokenizerI):
 # XXX: it is stated in module docs that there is no function versions
 
 
-def line_tokenize(text, blanklines='discard'):
+def line_tokenize(text, blanklines="discard"):
     return LineTokenizer(blanklines).tokenize(text)

@@ -1,8 +1,8 @@
 # Natural Language Toolkit: Ngram Association Measures
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Joel Nothman <jnothman@student.usyd.edu.au>
-# URL: <http://nltk.org>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
 """
@@ -11,15 +11,11 @@ generic, abstract implementation in ``NgramAssocMeasures``, and n-specific
 ``BigramAssocMeasures`` and ``TrigramAssocMeasures``.
 """
 
-from __future__ import division
-
 import math as _math
 from abc import ABCMeta, abstractmethod
 from functools import reduce
 
-from six import add_metaclass
-
-_log2 = lambda x: _math.log(x, 2.0)
+_log2 = lambda x: _math.log2(x)
 _ln = _math.log
 
 _product = lambda s: reduce(lambda x, y: x * y, s)
@@ -46,8 +42,7 @@ TOTAL = -1
 """Marginals index for the number of words in the data"""
 
 
-@add_metaclass(ABCMeta)
-class NgramAssocMeasures(object):
+class NgramAssocMeasures(metaclass=ABCMeta):
     """
     An abstract class defining a collection of generic association measures.
     Each public method returns a score, taking the following arguments::
@@ -95,7 +90,7 @@ class NgramAssocMeasures(object):
             # Yield the expected value
             yield (
                 _product(
-                    sum(cont[x] for x in range(2 ** cls._n) if (x & j) == (i & j))
+                    sum(cont[x] for x in range(2**cls._n) if (x & j) == (i & j))
                     for j in bits
                 )
                 / (n_all ** (cls._n - 1))
@@ -131,7 +126,7 @@ class NgramAssocMeasures(object):
         argument power sets an exponent (default 3) for the numerator. No
         logarithm of the result is calculated.
         """
-        return marginals[NGRAM] ** kwargs.get('power', 3) / _product(
+        return marginals[NGRAM] ** kwargs.get("power", 3) / _product(
             marginals[UNIGRAMS]
         )
 
@@ -146,10 +141,9 @@ class NgramAssocMeasures(object):
 
     @classmethod
     def likelihood_ratio(cls, *marginals):
-        """Scores ngrams using likelihood ratios as in Manning and Schutze 5.3.4.
-        """
+        """Scores ngrams using likelihood ratios as in Manning and Schutze 5.3.4."""
         cont = cls._contingency(*marginals)
-        return cls._n * sum(
+        return 2 * sum(
             obs * _ln(obs / (exp + _SMALL) + _SMALL)
             for obs, exp in zip(cont, cls._expected_values(cont))
         )
@@ -179,10 +173,10 @@ class BigramAssocMeasures(NgramAssocMeasures):
     suffix refers to the appearance of the word in question, while x indicates
     the appearance of any word. Thus, for example:
 
-        n_ii counts (w1, w2), i.e. the bigram being scored
-        n_ix counts (w1, *)
-        n_xi counts (*, w2)
-        n_xx counts (*, *), i.e. any bigram
+    - n_ii counts ``(w1, w2)``, i.e. the bigram being scored
+    - n_ix counts ``(w1, *)``
+    - n_xi counts ``(*, w2)``
+    - n_xx counts ``(*, *)``, i.e. any bigram
 
     This may be shown with respect to a contingency table::
 
@@ -246,7 +240,7 @@ class BigramAssocMeasures(NgramAssocMeasures):
 
         n_ii, n_io, n_oi, n_oo = cls._contingency(*marginals)
 
-        (odds, pvalue) = fisher_exact([[n_ii, n_io], [n_oi, n_oo]], alternative='less')
+        (odds, pvalue) = fisher_exact([[n_ii, n_io], [n_oi, n_oo]], alternative="less")
         return pvalue
 
     @staticmethod
@@ -270,9 +264,10 @@ class TrigramAssocMeasures(NgramAssocMeasures):
     the occurrences of particular events in a corpus. The letter i in the
     suffix refers to the appearance of the word in question, while x indicates
     the appearance of any word. Thus, for example:
-    n_iii counts (w1, w2, w3), i.e. the trigram being scored
-    n_ixx counts (w1, *, *)
-    n_xxx counts (*, *, *), i.e. any trigram
+
+    - n_iii counts ``(w1, w2, w3)``, i.e. the trigram being scored
+    - n_ixx counts ``(w1, *, *)``
+    - n_xxx counts ``(*, *, *)``, i.e. any trigram
     """
 
     _n = 3
@@ -330,9 +325,10 @@ class QuadgramAssocMeasures(NgramAssocMeasures):
     the occurrences of particular events in a corpus. The letter i in the
     suffix refers to the appearance of the word in question, while x indicates
     the appearance of any word. Thus, for example:
-    n_iiii counts (w1, w2, w3, w4), i.e. the quadgram being scored
-    n_ixxi counts (w1, *, *, w4)
-    n_xxxx counts (*, *, *, *), i.e. any quadgram
+
+    - n_iiii counts ``(w1, w2, w3, w4)``, i.e. the quadgram being scored
+    - n_ixxi counts ``(w1, *, *, w4)``
+    - n_xxxx counts ``(*, *, *, *)``, i.e. any quadgram
     """
 
     _n = 4
@@ -403,9 +399,24 @@ class QuadgramAssocMeasures(NgramAssocMeasures):
         QuadgramAssocMeasures._marginals(1, 0, 2, 46, 552, 825, 2577, 34967, 1, 0, 2, 48, 7250, 9031, 28585, 356653)
         (1, (2, 553, 3, 1), (7804, 6, 3132, 1378, 49, 2), (38970, 17660, 100, 38970), 440540)
         """
-        n_iiii, n_oiii, n_ioii, n_ooii, n_iioi, n_oioi, n_iooi, n_oooi, n_iiio, n_oiio, n_ioio, n_ooio, n_iioo, n_oioo, n_iooo, n_oooo = (
-            contingency
-        )
+        (
+            n_iiii,
+            n_oiii,
+            n_ioii,
+            n_ooii,
+            n_iioi,
+            n_oioi,
+            n_iooi,
+            n_oooi,
+            n_iiio,
+            n_oiio,
+            n_ioio,
+            n_ooio,
+            n_iioo,
+            n_oioo,
+            n_iooo,
+            n_oooo,
+        ) = contingency
 
         n_iiix = n_iiii + n_iiio
         n_iixi = n_iiii + n_iioi
@@ -435,19 +446,19 @@ class QuadgramAssocMeasures(NgramAssocMeasures):
         )
 
 
-class ContingencyMeasures(object):
+class ContingencyMeasures:
     """Wraps NgramAssocMeasures classes such that the arguments of association
     measures are contingency table values rather than marginals.
     """
 
     def __init__(self, measures):
         """Constructs a ContingencyMeasures given a NgramAssocMeasures class"""
-        self.__class__.__name__ = 'Contingency' + measures.__class__.__name__
+        self.__class__.__name__ = "Contingency" + measures.__class__.__name__
         for k in dir(measures):
-            if k.startswith('__'):
+            if k.startswith("__"):
                 continue
             v = getattr(measures, k)
-            if not k.startswith('_'):
+            if not k.startswith("_"):
                 v = self._make_contingency_fn(measures, v)
             setattr(self, k, v)
 

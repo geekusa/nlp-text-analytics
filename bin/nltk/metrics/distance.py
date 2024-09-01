@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 # Natural Language Toolkit: Distance Metrics
 #
-# Copyright (C) 2001-2019 NLTK Project
+# Copyright (C) 2001-2024 NLTK Project
 # Author: Edward Loper <edloper@gmail.com>
 #         Steven Bird <stevenbird1@gmail.com>
 #         Tom Lippincott <tom@cs.columbia.edu>
-# URL: <http://nltk.org/>
+# URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 #
 
@@ -20,11 +19,9 @@ As metrics, they must satisfy the following three requirements:
 3. d(a, c) <= d(a, b) + d(b, c)
 """
 
-from __future__ import print_function
-from __future__ import division
-
-import warnings
 import operator
+import warnings
+
 
 def _edit_dist_init(len1, len2):
     lev = []
@@ -37,7 +34,13 @@ def _edit_dist_init(len1, len2):
     return lev
 
 
-def _edit_dist_step(lev, i, j, s1, s2, substitution_cost=1, transpositions=False):
+def _last_left_t_init(sigma):
+    return {c: 0 for c in sigma}
+
+
+def _edit_dist_step(
+    lev, i, j, s1, s2, last_left, last_right, substitution_cost=1, transpositions=False
+):
     c1 = s1[i - 1]
     c2 = s2[j - 1]
 
@@ -50,9 +53,8 @@ def _edit_dist_step(lev, i, j, s1, s2, substitution_cost=1, transpositions=False
 
     # transposition
     d = c + 1  # never picked by default
-    if transpositions and i > 1 and j > 1:
-        if s1[i - 2] == c2 and s2[j - 2] == c1:
-            d = lev[i - 2][j - 2] + 1
+    if transpositions and last_left > 0 and last_right > 0:
+        d = lev[last_left - 1][last_right - 1] + i - last_left + j - last_right - 1
 
     # pick the cheapest
     lev[i][j] = min(a, b, c, d)
@@ -81,25 +83,43 @@ def edit_distance(s1, s2, substitution_cost=1, transpositions=False):
     :type s2: str
     :type substitution_cost: int
     :type transpositions: bool
-    :rtype int
+    :rtype: int
     """
     # set up a 2-D array
     len1 = len(s1)
     len2 = len(s2)
     lev = _edit_dist_init(len1 + 1, len2 + 1)
 
+    # retrieve alphabet
+    sigma = set()
+    sigma.update(s1)
+    sigma.update(s2)
+
+    # set up table to remember positions of last seen occurrence in s1
+    last_left_t = _last_left_t_init(sigma)
+
     # iterate over the array
-    for i in range(len1):
-        for j in range(len2):
+    # i and j start from 1 and not 0 to stay close to the wikipedia pseudo-code
+    # see https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
+    for i in range(1, len1 + 1):
+        last_right_buf = 0
+        for j in range(1, len2 + 1):
+            last_left = last_left_t[s2[j - 1]]
+            last_right = last_right_buf
+            if s1[i - 1] == s2[j - 1]:
+                last_right_buf = j
             _edit_dist_step(
                 lev,
-                i + 1,
-                j + 1,
+                i,
+                j,
                 s1,
                 s2,
+                last_left,
+                last_right,
                 substitution_cost=substitution_cost,
                 transpositions=transpositions,
             )
+        last_left_t[s1[i - 1]] = i
     return lev[len1][len2]
 
 
@@ -109,13 +129,14 @@ def _edit_dist_backtrace(lev):
 
     while (i, j) != (0, 0):
         directions = [
+            (i - 1, j - 1),  # substitution
             (i - 1, j),  # skip s1
             (i, j - 1),  # skip s2
-            (i - 1, j - 1),  # substitution
         ]
 
         direction_costs = (
-            (lev[i][j] if (i >= 0 and j >= 0) else float('inf'), (i, j)) for i, j in directions
+            (lev[i][j] if (i >= 0 and j >= 0) else float("inf"), (i, j))
+            for i, j in directions
         )
         _, (i, j) = min(direction_costs, key=operator.itemgetter(0))
 
@@ -137,9 +158,11 @@ def edit_distance_align(s1, s2, substitution_cost=1):
 
     In case of multiple valid minimum-distance alignments, the
     backtrace has the following operation precedence:
-    1. Skip s1 character
-    2. Skip s2 character
-    3. Substitute s1 and s2 characters
+
+    1. Substitute s1 and s2 characters
+    2. Skip s1 character
+    3. Skip s2 character
+
     The backtrace is carried out in reverse string order.
 
     This function does not support transposition.
@@ -148,7 +171,7 @@ def edit_distance_align(s1, s2, substitution_cost=1):
     :type s1: str
     :type s2: str
     :type substitution_cost: int
-    :rtype List[Tuple(int, int)]
+    :rtype: List[Tuple(int, int)]
     """
     # set up a 2-D array
     len1 = len(s1)
@@ -164,6 +187,8 @@ def edit_distance_align(s1, s2, substitution_cost=1):
                 j + 1,
                 s1,
                 s2,
+                0,
+                0,
                 substitution_cost=substitution_cost,
                 transpositions=False,
             )
@@ -190,9 +215,7 @@ def binary_distance(label1, label2):
 
 
 def jaccard_distance(label1, label2):
-    """Distance metric comparing set-similarity.
-
-    """
+    """Distance metric comparing set-similarity."""
     return (len(label1.union(label2)) - len(label1.intersection(label2))) / len(
         label1.union(label2)
     )
@@ -244,25 +267,23 @@ def interval_distance(label1, label2):
 
 
 def presence(label):
-    """Higher-order function to test presence of a given label
-    """
+    """Higher-order function to test presence of a given label"""
 
     return lambda x, y: 1.0 * ((label in x) == (label in y))
 
 
 def fractional_presence(label):
     return (
-        lambda x, y: abs(((1.0 / len(x)) - (1.0 / len(y))))
-        * (label in x and label in y)
+        lambda x, y: abs((1.0 / len(x)) - (1.0 / len(y))) * (label in x and label in y)
         or 0.0 * (label not in x and label not in y)
-        or abs((1.0 / len(x))) * (label in x and label not in y)
-        or ((1.0 / len(y))) * (label not in x and label in y)
+        or abs(1.0 / len(x)) * (label in x and label not in y)
+        or (1.0 / len(y)) * (label not in x and label in y)
     )
 
 
 def custom_distance(file):
     data = {}
-    with open(file, 'r') as infile:
+    with open(file) as infile:
         for l in infile:
             labelA, labelB, dist = l.strip().split("\t")
             labelA = frozenset([labelA])
@@ -273,7 +294,7 @@ def custom_distance(file):
 
 def jaro_similarity(s1, s2):
     """
-   Computes the Jaro similarity between 2 sequences from:
+    Computes the Jaro similarity between 2 sequences from:
 
         Matthew A. Jaro (1989). Advances in record linkage methodology
         as applied to the 1985 census of Tampa Florida. Journal of the
@@ -283,13 +304,12 @@ def jaro_similarity(s1, s2):
     required to change one word into another. The Jaro similarity formula from
     https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance :
 
-        jaro_sim = 0 if m = 0 else 1/3 * (m/|s_1| + m/s_2 + (m-t)/m)
+        ``jaro_sim = 0 if m = 0 else 1/3 * (m/|s_1| + m/s_2 + (m-t)/m)``
 
-    where:
-        - |s_i| is the length of string s_i
-        - m is the no. of matching characters
-        - t is the half no. of possible transpositions.
-
+    where
+        - `|s_i|` is the length of string `s_i`
+        - `m` is the no. of matching characters
+        - `t` is the half no. of possible transpositions.
     """
     # First, store the length of the strings
     # because they will be re-used several times.
@@ -341,20 +361,21 @@ def jaro_winkler_similarity(s1, s2, p=0.1, max_l=4):
         Decision Rules in the Fellegi-Sunter Model of Record Linkage.
         Proceedings of the Section on Survey Research Methods.
         American Statistical Association: 354-359.
+
     such that:
 
         jaro_winkler_sim = jaro_sim + ( l * p * (1 - jaro_sim) )
 
     where,
 
-        - jaro_sim is the output from the Jaro Similarity,
+    - jaro_sim is the output from the Jaro Similarity,
         see jaro_similarity()
-        - l is the length of common prefix at the start of the string
-            - this implementation provides an upperbound for the l value
-              to keep the prefixes.A common value of this upperbound is 4.
-        - p is the constant scaling factor to overweigh common prefixes.
-          The Jaro-Winkler similarity will fall within the [0, 1] bound,
-          given that max(p)<=0.25 , default is p=0.1 in Winkler (1990)
+    - l is the length of common prefix at the start of the string
+        - this implementation provides an upperbound for the l value
+            to keep the prefixes.A common value of this upperbound is 4.
+    - p is the constant scaling factor to overweigh common prefixes.
+        The Jaro-Winkler similarity will fall within the [0, 1] bound,
+        given that max(p)<=0.25 , default is p=0.1 in Winkler (1990)
 
 
     Test using outputs from https://www.census.gov/srd/papers/pdf/rr93-8.pdf
@@ -367,8 +388,9 @@ def jaro_winkler_similarity(s1, s2, p=0.1, max_l=4):
     >>> winkler_scores = [1.000, 0.967, 0.947, 0.944, 0.911, 0.893, 0.858, 0.853, 0.000]
     >>> jaro_scores =    [1.000, 0.933, 0.933, 0.889, 0.889, 0.867, 0.822, 0.790, 0.000]
 
-        # One way to match the values on the Winkler's paper is to provide a different
-    # p scaling factor for different pairs of strings, e.g.
+    One way to match the values on the Winkler's paper is to provide a different
+    p scaling factor for different pairs of strings, e.g.
+
     >>> p_factors = [0.1, 0.125, 0.20, 0.125, 0.20, 0.20, 0.20, 0.15, 0.1]
 
     >>> for (s1, s2), jscore, wscore, p in zip(winkler_examples, jaro_scores, winkler_scores, p_factors):
@@ -396,8 +418,9 @@ def jaro_winkler_similarity(s1, s2, p=0.1, max_l=4):
     ... 0.961, 0.921, 0.933, 0.880, 0.858, 0.805, 0.933, 0.000, 0.947, 0.967, 0.943,
     ... 0.913, 0.922, 0.922, 0.900, 0.867, 0.000]
 
-        # One way to match the values on the Winkler's paper is to provide a different
-    # p scaling factor for different pairs of strings, e.g.
+    One way to match the values on the Winkler's paper is to provide a different
+    p scaling factor for different pairs of strings, e.g.
+
     >>> p_factors = [0.1, 0.1, 0.1, 0.1, 0.125, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.20,
     ... 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
@@ -416,8 +439,6 @@ def jaro_winkler_similarity(s1, s2, p=0.1, max_l=4):
 
     >>> round(jaro_winkler_similarity('TANYA', 'TONYA', p=0.1, max_l=100), 3)
     0.88
-
-
     """
     # To ensure that the output of the Jaro-Winkler's similarity
     # falls between [0,1], the product of l * p needs to be
@@ -460,22 +481,22 @@ def demo():
         ("language", "lngauage"),
     ]
     for s1, s2 in string_distance_examples:
-        print("Edit distance btwn '%s' and '%s':" % (s1, s2), edit_distance(s1, s2))
+        print(f"Edit distance btwn '{s1}' and '{s2}':", edit_distance(s1, s2))
         print(
-            "Edit dist with transpositions btwn '%s' and '%s':" % (s1, s2),
+            f"Edit dist with transpositions btwn '{s1}' and '{s2}':",
             edit_distance(s1, s2, transpositions=True),
         )
-        print("Jaro similarity btwn '%s' and '%s':" % (s1, s2), jaro_similarity(s1, s2))
+        print(f"Jaro similarity btwn '{s1}' and '{s2}':", jaro_similarity(s1, s2))
         print(
-            "Jaro-Winkler similarity btwn '%s' and '%s':" % (s1, s2),
+            f"Jaro-Winkler similarity btwn '{s1}' and '{s2}':",
             jaro_winkler_similarity(s1, s2),
         )
         print(
-            "Jaro-Winkler distance btwn '%s' and '%s':" % (s1, s2),
+            f"Jaro-Winkler distance btwn '{s1}' and '{s2}':",
             1 - jaro_winkler_similarity(s1, s2),
         )
-    s1 = set([1, 2, 3, 4])
-    s2 = set([3, 4, 5])
+    s1 = {1, 2, 3, 4}
+    s2 = {3, 4, 5}
     print("s1:", s1)
     print("s2:", s2)
     print("Binary distance:", binary_distance(s1, s2))
@@ -483,5 +504,5 @@ def demo():
     print("MASI distance:", masi_distance(s1, s2))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     demo()
