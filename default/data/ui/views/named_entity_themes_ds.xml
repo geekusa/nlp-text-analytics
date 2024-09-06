@@ -278,7 +278,7 @@
     ]]></definition>
     <meta type="hiddenElements"><![CDATA[
 {
-	"hideEdit": false,
+	"hideEdit": true,
 	"hideOpenInSearch": false,
 	"hideExport": false
 }
