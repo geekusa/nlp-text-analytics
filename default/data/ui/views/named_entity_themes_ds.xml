@@ -1,274 +1,284 @@
 
-<dashboard version="2" theme="light">
-    <label>Named Entities Copy</label>
+<dashboard version="2" theme="dark">
+    <label>Named Entities DS</label>
     <description></description>
     <definition><![CDATA[
-{
-	"visualizations": {
-		"viz_ATP0vfJP": {
-			"type": "splunk.sankey",
-			"dataSources": {
-				"primary": "ds_6aYbZ1H4"
-			},
-			"title": "Connections",
-			"showProgressBar": true,
-			"options": {
-				"linkValues": "> primary | seriesByName('count')"
-			},
-			"containerOptions": {
-				"visibility": {
-					"hideWhenNoData": true
-				}
-			}
-		}
-	},
-	"dataSources": {
-		"ds_base_search": {
-			"type": "ds.search",
-			"options": {
-				"query": "$master_search$\n| cleantext textfield=$textfield$ base_type=lemma_pos remove_stopwords=t language=$lang$ term_min_len=2\n| eval ne = mvzip(pos_tag,'$textfield$',\",\")\n| eval ne = mvfilter(match(ne,\"NNPS?,\"))\n| rex field=ne mode=sed \"s/[^,]+,([a-z]+)/\\1/\"\n| eval ribbon = if(mvcount(ne)>1,\"co-occurence\",\"singular\")\n| eval outer = ne\n| stats count by ne outer ribbon\n| where NOT (ne==outer AND ribbon==\"co-occurence\")\n| eventstats sum(count) AS total_ribbon by ne ribbon\n| eventstats sum(count) AS total by ne\n| sort -total\n| eval perc_of_total = count/total_ribbon\n| streamstats dc(total) AS order",
-				"queryParameters": {
-					"earliest": "$time.earliest$",
-					"latest": "$time.latest$"
-				}
-			},
-			"name": "ds_base_search"
-		},
-		"ds_filter": {
-			"type": "ds.chain",
-			"options": {
-				"extend": "ds_base_search",
-				"query": "| where order<=$num_ne$ AND perc_of_total>=$zone$"
-			},
-			"name": "ds_filter"
-		},
-		"ds_O5UhSHWY": {
-			"type": "ds.chain",
-			"options": {
-				"extend": "ds_filter",
-				"query": "| eval ribbon_color = if(ribbon==\"co-occurence\",\"#9C1E5D\",\"#1E5D9C\")\n| table count ne outer ribbon ribbon_color\n| rename ne AS inner"
-			},
-			"name": "Importance - Unsupported visualization search"
-		},
-		"ds_6aYbZ1H4": {
-			"type": "ds.chain",
-			"options": {
-				"extend": "ds_filter",
-				"query": "| sort -count\n| table ne outer count\n| where ne!=outer"
-			},
-			"name": "Connections - Sankey diagram search"
-		}
-	},
-	"defaults": {
-		"dataSources": {
-			"ds.search": {
-				"options": {
-					"queryParameters": {}
-				}
-			}
-		}
-	},
-	"inputs": {
-		"input_MvYeudVI": {
-			"type": "input.timerange",
-			"options": {
-				"token": "time",
-				"defaultValue": "-24h@h,now"
-			},
-			"title": "Time Range"
-		},
-		"input_text_long": {
-			"type": "input.text",
-			"options": {
-				"token": "master_search"
-			},
-			"title": "Text Search (output must be tabular-i.e. ... | table text)"
-		},
-		"input_WaZH23z4": {
-			"type": "input.text",
-			"options": {
-				"token": "textfield"
-			},
-			"title": "Text Field"
-		},
-		"input_IxqI02hp": {
-			"type": "input.dropdown",
-			"options": {
-				"defaultValue": "10",
-				"items": [
-					{
-						"value": "5",
-						"label": "5"
-					},
-					{
-						"value": "6",
-						"label": "6"
-					},
-					{
-						"value": "7",
-						"label": "7"
-					},
-					{
-						"value": "8",
-						"label": "8"
-					},
-					{
-						"value": "9",
-						"label": "9"
-					},
-					{
-						"value": "10",
-						"label": "10"
-					},
-					{
-						"value": "11",
-						"label": "11"
-					},
-					{
-						"value": "12",
-						"label": "12"
-					},
-					{
-						"value": "13",
-						"label": "13"
-					},
-					{
-						"value": "14",
-						"label": "14"
-					},
-					{
-						"value": "15",
-						"label": "15"
-					},
-					{
-						"value": "16",
-						"label": "16"
-					},
-					{
-						"value": "17",
-						"label": "17"
-					},
-					{
-						"value": "18",
-						"label": "18"
-					},
-					{
-						"value": "19",
-						"label": "19"
-					},
-					{
-						"value": "20",
-						"label": "20"
-					}
-				],
-				"token": "num_ne"
-			},
-			"title": "#Named Entities"
-		},
-		"input_LsVR7xV5": {
-			"type": "input.dropdown",
-			"options": {
-				"defaultValue": "0.02",
-				"items": [
-					{
-						"value": "0.1",
-						"label": "Very Small"
-					},
-					{
-						"value": "0.04",
-						"label": "Small"
-					},
-					{
-						"value": "0.02",
-						"label": "Medium"
-					},
-					{
-						"value": "0.005",
-						"label": "Large"
-					},
-					{
-						"value": "0.0001",
-						"label": "Very Large"
-					}
-				],
-				"token": "zone"
-			},
-			"title": "Link Zone Size"
-		},
-		"input_language_selector": {
-			"type": "input.dropdown",
-			"options": {
-				"defaultValue": "english",
-				"items": [
-					{
-						"value": "english",
-						"label": "english"
-					},
-					{
-						"value": "russian",
-						"label": "russian"
-					},
-					{
-						"value": "spanish",
-						"label": "spanish"
-					},
-					{
-						"value": "german",
-						"label": "german"
-					},
-					{
-						"value": "french",
-						"label": "french"
-					},
-					{
-						"value": "italian",
-						"label": "italian"
-					},
-					{
-						"value": "portuguese",
-						"label": "portuguese"
-					}
-				],
-				"token": "lang"
-			},
-			"title": "Language selection"
-		}
-	},
-	"layout": {
-		"type": "grid",
-		"options": {
-			"submitButton": true,
-			"height": 1700,
-			"width": 1440
-		},
-		"structure": [
-			{
-				"item": "viz_ATP0vfJP",
-				"type": "block",
-				"position": {
-					"x": 0,
-					"y": 0,
-					"w": 1440,
-					"h": 710
-				}
-			}
-		],
-		"globalInputs": [
-			"input_MvYeudVI",
-			"input_text_long",
-			"input_WaZH23z4",
-			"input_IxqI02hp",
-			"input_LsVR7xV5",
-			"input_language_selector"
-		]
-	},
-	"description": "",
-	"title": "Named Entities Copy"
+	{
+    "visualizations": {
+        "viz_ATP0vfJP": {
+            "type": "splunk.sankey",
+            "dataSources": {
+                "primary": "ds_6aYbZ1H4"
+            },
+            "title": "Connections",
+            "showProgressBar": true,
+            "options": {
+                "linkValues": "> primary | seriesByName('count')"
+            },
+            "containerOptions": {
+                "visibility": {
+                    "hideWhenNoData": true
+                }
+            }
+        },
+        "viz_eWFX4BBn": {
+            "type": "splunk.linkgraph",
+            "dataSources": {
+                "primary": "link_graph"
+            },
+            "containerOptions": {
+                "visibility": {
+                    "hideWhenNoData": true
+                }
+            },
+            "showProgressBar": false,
+            "showLastUpdated": false,
+            "title": "$textfield$ Relationships"
+        },
+        "viz_EAbdDafl": {
+            "type": "splunk.rectangle",
+            "options": {
+                "fillColor": "transparent",
+                "strokeColor": "transparent"
+            }
+        }
+    },
+    "dataSources": {
+        "ds_base_search": {
+            "type": "ds.search",
+            "options": {
+                "query": "$master_search$\n| cleantext textfield=$textfield$ base_type=lemma_pos remove_stopwords=t language=$lang$ term_min_len=2| eval ne = mvzip(pos_tag,'$textfield$',\",\")\n| eval ne = mvfilter(match(ne,\"NNPS?,\"))\n| rex field=ne mode=sed \"s/[^,]+,([a-z]+)/\\1/\"\n| eval ribbon = if(mvcount(ne)>1,\"co-occurence\",\"singular\")\n",
+                "queryParameters": {
+                    "earliest": "$time.earliest$",
+                    "latest": "$time.latest$"
+                }
+            },
+            "name": "ds_base_search"
+        },
+        "ds_base_extended": {
+            "type": "ds.chain",
+            "options": {
+                "extend": "ds_base_search",
+                "query": "| eval outer = ne\n| stats count by ne outer ribbon\n| where NOT (ne==outer AND ribbon==\"co-occurence\")\n| eventstats sum(count) AS total_ribbon by ne ribbon\n| eventstats sum(count) AS total by ne\n| sort -total\n| eval perc_of_total = count/total_ribbon\n| streamstats dc(total) AS order"
+            },
+            "name": "ds_base_extended"
+        },
+        "ds_filter": {
+            "type": "ds.chain",
+            "options": {
+                "extend": "ds_base_extended",
+                "query": "| where order<=$num_ne$ AND perc_of_total>=$zone$"
+            },
+            "name": "ds_filter"
+        },
+        "link_graph": {
+            "type": "ds.chain",
+            "options": {
+                "extend": "ds_base_search",
+                "query": "| table ne\n| where mvcount(ne) = $num_re$\n| eval ne = mvsort(ne)\n| eval iter=0, h_json=json_object()\n| foreach mode=multivalue ne\n    [| eval iter='iter'+1,\n    h_json=json_set(h_json, \"relation_\".'iter', '<<ITEM>>')]\n| spath input=h_json\n| fields - h_json, iter, ne\n"
+            },
+            "name": "link_graph"
+        },
+        "ds_6aYbZ1H4": {
+            "type": "ds.chain",
+            "options": {
+                "extend": "ds_filter",
+                "query": "| sort -count\n| table ne outer count\n| where ne!=outer"
+            },
+            "name": "Connections - Sankey diagram search"
+        }
+    },
+    "defaults": {
+        "dataSources": {
+            "ds.search": {
+                "options": {
+                    "queryParameters": {}
+                }
+            }
+        }
+    },
+    "inputs": {
+        "input_MvYeudVI": {
+            "type": "input.timerange",
+            "options": {
+                "token": "time",
+                "defaultValue": "-24h@h,now"
+            },
+            "title": "Time Range"
+        },
+        "input_text_long": {
+            "type": "input.text",
+            "options": {
+                "token": "master_search"
+            },
+            "title": "Text Search (output must be tabular-i.e. ... | table text)"
+        },
+        "input_WaZH23z4": {
+            "type": "input.text",
+            "options": {
+                "token": "textfield"
+            },
+            "title": "Text Field"
+        },
+        "input_IxqI02hp": {
+            "type": "input.number",
+            "options": {
+                "defaultValue": 10,
+                "token": "num_ne",
+                "step": 1,
+                "min": 2,
+                "max": 100
+            },
+            "title": "#Named Entities"
+        },
+        "input_LsVR7xV5": {
+            "type": "input.dropdown",
+            "options": {
+                "defaultValue": "0.04",
+                "items": [
+                    {
+                        "value": "0.1",
+                        "label": "Very Small"
+                    },
+                    {
+                        "value": "0.04",
+                        "label": "Small"
+                    },
+                    {
+                        "value": "0.02",
+                        "label": "Medium"
+                    },
+                    {
+                        "value": "0.005",
+                        "label": "Large"
+                    },
+                    {
+                        "value": "0.0001",
+                        "label": "Very Large"
+                    }
+                ],
+                "token": "zone"
+            },
+            "title": "Link Zone Size",
+            "containerOptions": {
+                "visibility": {}
+            }
+        },
+        "input_language_selector": {
+            "type": "input.dropdown",
+            "options": {
+                "defaultValue": "english",
+                "items": [
+                    {
+                        "value": "english",
+                        "label": "english"
+                    },
+                    {
+                        "value": "russian",
+                        "label": "russian"
+                    },
+                    {
+                        "value": "spanish",
+                        "label": "spanish"
+                    },
+                    {
+                        "value": "german",
+                        "label": "german"
+                    },
+                    {
+                        "value": "french",
+                        "label": "french"
+                    },
+                    {
+                        "value": "italian",
+                        "label": "italian"
+                    },
+                    {
+                        "value": "portuguese",
+                        "label": "portuguese"
+                    }
+                ],
+                "token": "lang"
+            },
+            "title": "Language selection"
+        },
+        "input_dvmBkMyA": {
+            "options": {
+                "defaultValue": 3,
+                "token": "num_re",
+                "step": 1,
+                "min": 2,
+                "max": 100
+            },
+            "title": "Number Of Relationships",
+            "type": "input.number"
+        }
+    },
+    "layout": {
+        "type": "grid",
+        "options": {
+            "submitButton": true,
+            "height": 1700,
+            "width": 1440
+        },
+        "structure": [
+            {
+                "item": "viz_ATP0vfJP",
+                "type": "block",
+                "position": {
+                    "x": 0,
+                    "y": 0,
+                    "w": 1440,
+                    "h": 712
+                }
+            },
+            {
+                "item": "input_dvmBkMyA",
+                "type": "input",
+                "position": {
+                    "x": 0,
+                    "y": 712,
+                    "w": 306,
+                    "h": 110
+                }
+            },
+            {
+                "item": "viz_eWFX4BBn",
+                "type": "block",
+                "position": {
+                    "x": 0,
+                    "y": 822,
+                    "w": 1440,
+                    "h": 480
+                }
+            },
+            {
+                "item": "viz_EAbdDafl",
+                "type": "block",
+                "position": {
+                    "x": 306,
+                    "y": 712,
+                    "w": 1134,
+                    "h": 110
+                }
+            }
+        ],
+        "globalInputs": [
+            "input_MvYeudVI",
+            "input_text_long",
+            "input_WaZH23z4",
+            "input_IxqI02hp",
+            "input_LsVR7xV5",
+            "input_language_selector"
+        ]
+    },
+    "description": "",
+    "title": "Named Entities DS"
 }
     ]]></definition>
     <meta type="hiddenElements"><![CDATA[
 {
-	"hideEdit": true,
+	"hideEdit": false,
 	"hideOpenInSearch": false,
 	"hideExport": false
 }
