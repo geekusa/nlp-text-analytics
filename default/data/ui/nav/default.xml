@@ -5,9 +5,11 @@
   <collection label="Themes">
      <view name="cluster_themes"/>
      <view name="named_entity_themes"/>
+     <view name="named_entity_themes_ds"/>
   </collection>
-  <view name="sentiment"/>
+  <collection label="Sentiment">
+     <view name="sentiment"/>
+     <view name="sentiment_ds"/>
+  </collection>
   <view name="classification"/>
-  <view name="similarity"/>
-  <view name="search"/>
 </nav>
