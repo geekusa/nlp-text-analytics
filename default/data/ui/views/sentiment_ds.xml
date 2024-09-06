@@ -1,0 +1,588 @@
+
+<dashboard version="2" theme="dark">
+    <label>Sentiment DS</label>
+    <description>Click in panels with (+) for further action</description>
+    <definition><![CDATA[
+{
+	"visualizations": {
+		"viz_lFujiBw0": {
+			"type": "splunk.pie",
+			"options": {
+				"seriesColorsByField": {}
+			},
+			"dataSources": {
+				"primary": "ds_kncvx4rw"
+			},
+			"eventHandlers": [],
+			"title": "",
+			"showProgressBar": true
+		},
+		"viz_u2OdZyME": {
+			"type": "splunk.column",
+			"options": {
+				"yAxisAbbreviation": "off",
+				"y2AxisAbbreviation": "off",
+				"showRoundedY2AxisLabels": false,
+				"legendTruncation": "ellipsisMiddle",
+				"showY2MajorGridLines": true,
+				"xAxisTitleVisibility": "show",
+				"yAxisTitleVisibility": "show",
+				"y2AxisTitleVisibility": "show",
+				"overlayFields": [
+					"sentiment",
+					"avg_sentiment"
+				],
+				"seriesColorsByField": {},
+				"legendDisplay": "right"
+			},
+			"dataSources": {
+				"primary": "ds_6AdcE6j9"
+			},
+			"eventHandlers": [
+				{
+					"type": "drilldown.setToken",
+					"options": {
+						"tokens": [
+							{
+								"token": "specific_textfield",
+								"key": "row.sentence.value"
+							}
+						]
+					}
+				}
+			],
+			"title": "Sentiment Scores Per $textfield$ (+)",
+			"showProgressBar": true
+		},
+		"viz_i5Jo2ofs": {
+			"type": "splunk.rectangle",
+			"options": {
+				"fillColor": "transparent",
+				"strokeColor": "transparent"
+			}
+		},
+		"viz_PtqdND51": {
+			"type": "splunk.table",
+			"options": {
+				"count": 10,
+				"drilldown": "cell",
+				"showInternalFields": false,
+				"columnFormat": {
+					"sentiment": {
+						"rowBackgroundColors": "> table | seriesByName(\"sentiment\") | rangeValue(sentimentColumnColorConfig)"
+					},
+					"sentence": {
+						"width": 582
+					}
+				}
+			},
+			"context": {
+				"sentimentColumnColorConfig": [
+					{
+						"to": -0.05,
+						"value": "#9C1E1E"
+					},
+					{
+						"from": -0.05,
+						"to": 0.05,
+						"value": "#1E5D9C"
+					},
+					{
+						"from": 0.05,
+						"to": 1,
+						"value": "#5D9C1E"
+					},
+					{
+						"from": 1,
+						"value": "#9C1E1E"
+					}
+				]
+			},
+			"dataSources": {
+				"primary": "ds_VIq1AzIx"
+			},
+			"eventHandlers": [
+				{
+					"type": "drilldown.setToken",
+					"options": {
+						"tokens": [
+							{
+								"token": "specific_textfield",
+								"key": "\"false\""
+							}
+						]
+					}
+				}
+			],
+			"title": "$textfield$ Specific",
+			"showProgressBar": true,
+			"containerOptions": {
+				"visibility": {
+					"hideWhenNoData": true
+				}
+			}
+		},
+		"viz_T1lUe8PY": {
+			"type": "splunk.column",
+			"options": {
+				"yAxisAbbreviation": "off",
+				"y2AxisAbbreviation": "off",
+				"showRoundedY2AxisLabels": false,
+				"legendTruncation": "ellipsisMiddle",
+				"showY2MajorGridLines": true,
+				"xAxisTitleVisibility": "show",
+				"yAxisTitleVisibility": "show",
+				"y2AxisTitleVisibility": "show",
+				"overlayFields": [
+					"avg_sentiment_neutral"
+				],
+				"legendDisplay": "right"
+			},
+			"dataSources": {
+				"primary": "ds_vgejL9lW"
+			},
+			"title": "Neutral Scores",
+			"showProgressBar": true
+		},
+		"viz_iJ1i6KiK": {
+			"type": "splunk.parallelcoordinates",
+			"options": {
+				"showNullAxis": false
+			},
+			"dataSources": {
+				"primary": "ds_2S7Q2JxG"
+			},
+			"title": "Parellel Coordinates",
+			"showProgressBar": true
+		},
+		"viz_KpI151t6": {
+			"type": "splunk.singlevalueradial",
+			"options": {
+				"numberPrecision": 2,
+				"trendDisplay": "off",
+				"unit": "%",
+				"backgroundColor": "> majorValue | rangeValue(backgroundColorEditorConfig)"
+			},
+			"dataSources": {
+				"primary": "ds_X6I5aUbR"
+			},
+			"title": "Sentiment To Percentage",
+			"description": "-1 = 0%, 0=50%, 1=100%",
+			"context": {
+				"backgroundColorEditorConfig": [
+					{
+						"value": "#D41F1F",
+						"to": 20
+					},
+					{
+						"value": "#D94E17",
+						"from": 20,
+						"to": 40
+					},
+					{
+						"value": "#1E5D9C",
+						"from": 40,
+						"to": 60
+					},
+					{
+						"value": "#669922",
+						"from": 60,
+						"to": 80
+					},
+					{
+						"value": "#118832",
+						"from": 80
+					}
+				]
+			}
+		},
+		"viz_a1w7m9BI": {
+			"type": "splunk.singlevalue",
+			"options": {
+				"backgroundColor": "> majorValue | rangeValue(backgroundColorEditorConfig)"
+			},
+			"dataSources": {
+				"primary": "ds_ya3diM6T"
+			},
+			"context": {
+				"backgroundColorEditorConfig": [
+					{
+						"to": 20,
+						"value": "#D41F1F"
+					},
+					{
+						"from": 20,
+						"to": 40,
+						"value": "#D94E17"
+					},
+					{
+						"from": 40,
+						"to": 60,
+						"value": "#CBA700"
+					},
+					{
+						"from": 60,
+						"to": 80,
+						"value": "#669922"
+					},
+					{
+						"from": 80,
+						"value": "#118832"
+					}
+				]
+			}
+		},
+		"viz_c968O6ut": {
+			"type": "splunk.singlevalue",
+			"options": {
+				"numberPrecision": 3,
+				"sparklineDisplay": "off",
+				"backgroundColor": "> majorValue | rangeValue(backgroundColorEditorConfig)"
+			},
+			"dataSources": {
+				"primary": "ds_PD4YkEPv"
+			},
+			"context": {
+				"backgroundColorEditorConfig": [
+					{
+						"value": "#9C1E1E",
+						"to": -0.8
+					},
+					{
+						"value": "#1E5D9C",
+						"from": -0.8,
+						"to": 0.2
+					},
+					{
+						"value": "#5D9C1E",
+						"from": 0.2
+					}
+				]
+			}
+		}
+	},
+	"dataSources": {
+		"ds_base_search": {
+			"type": "ds.search",
+			"options": {
+				"query": "$master_search$\n| vader textfield=\"$textfield$\" full_output=t",
+				"queryParameters": {
+					"earliest": "$time.earliest$",
+					"latest": "$time.latest$"
+				}
+			},
+			"name": "ds_base_search"
+		},
+		"ds_textfield_count": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_base_search",
+				"query": "| eval sentiment_negative = sentiment_negative * -1\n| streamstats count AS \"$textfield$_count\""
+			},
+			"name": "ds_textfield_count"
+		},
+		"ds_EXdz01vf": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_base_search",
+				"query": "| stats avg(sentiment) AS sentiment"
+			},
+			"name": "Average Sentiment - Unsupported visualization search"
+		},
+		"ds_ya3diM6T": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_base_search",
+				"query": "| stats avg(sentiment) AS sentiment\n| eval sentiment = case(sentiment>$neutral$,\"Positive\",sentiment<-$neutral$,\"Negative\",true(),\"Neutral\")\n| eval color = case(sentiment==\"Positive\",\"#5D9C1E\", sentiment==\"Negative\",\"#9C1E1E\", sentiment==\"Neutral\", \"#1E5D9C\")"
+			},
+			"name": "Unsupported visualization 1 search"
+		},
+		"ds_PD4YkEPv": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_base_search",
+				"query": "| stats avg(sentiment) AS sentiment\n| eval sentiment = round(sentiment, 3)\n| eval color = case(sentiment>$neutral$,\"#5D9C1E\",sentiment<-$neutral$,\"#9C1E1E\",true(),\"#1E5D9C\")"
+			},
+			"name": "Unsupported visualization 2 search"
+		},
+		"ds_kncvx4rw": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_base_search",
+				"query": "| eval sentiment = case(sentiment>$neutral$,\"Positive\",sentiment<-$neutral$,\"Negative\",true(),\"Neutral\")\n| stats count BY sentiment"
+			},
+			"name": "___ - Pie chart search"
+		},
+		"ds_6AdcE6j9": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_textfield_count",
+				"query": "| fields - sentiment_neutral\n| sample ratio=$sample$\n| table \"$textfield$_count\" sentiment*\n| rename \"$textfield$_count\" AS \"$textfield$\"\n| streamstats avg(sentiment) AS avg_sentiment"
+			},
+			"name": "Sentiment Scores Per _textfield_ ___ - Column chart search"
+		},
+		"ds_VIq1AzIx": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_textfield_count",
+				"query": "| sort -sentiment\n| eval sentiment_label = case(sentiment>$neutral$,\"Positive\",sentiment<-$neutral$,\"Negative\",true(),\"Neutral\")\n| search \"$textfield$_count\" = $specific_textfield$\n| table \"$textfield$\" sentiment"
+			},
+			"name": "_textfield_ Specific Sentiment search"
+		},
+		"ds_vgejL9lW": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_base_search",
+				"query": "| eval sentiment_negative = sentiment_negative * -1\n| streamstats count AS $textfield$\n| fields $textfield$ sentiment_neutral\n| sample ratio=$sample$\n| table $textfield$ sentiment*\n| streamstats avg(sentiment_neutral) AS avg_sentiment_neutral"
+			},
+			"name": "Neutral Scores search"
+		},
+		"ds_2S7Q2JxG": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_base_search",
+				"query": "|eval sentiment_negative = sentiment_negative * -1\n|streamstats count AS $textfield$\n|streamstats avg(sentiment) AS avg_sentiment\n|table $textfield$ sentiment sentiment_negative sentiment_positive sentiment_neutral avg_sentiment\n|sample ratio=$sample$"
+			},
+			"name": "Parellel Coordinates search"
+		},
+		"ds_X6I5aUbR": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_EXdz01vf",
+				"query": "| eval sentiment = ((sentiment +1)/2) *100"
+			},
+			"name": "AvgSentimentToPercentage"
+		}
+	},
+	"defaults": {
+		"dataSources": {
+			"ds.search": {
+				"options": {
+					"queryParameters": {}
+				}
+			}
+		},
+		"tokens": {
+			"default": {
+				"sentiment_label": {
+					"value": "*"
+				}
+			}
+		}
+	},
+	"inputs": {
+		"input_eaDd5yoW": {
+			"type": "input.timerange",
+			"options": {
+				"token": "time",
+				"defaultValue": "-24h@h,now"
+			},
+			"title": "Time Range"
+		},
+		"input_text_long": {
+			"type": "input.text",
+			"options": {
+				"token": "master_search"
+			},
+			"title": "Text Search (output must be tabular-i.e. ... | table text)"
+		},
+		"input_vlVoCJbg": {
+			"type": "input.text",
+			"options": {
+				"token": "textfield"
+			},
+			"title": "Text Field"
+		},
+		"input_T7kuo0Rj": {
+			"type": "input.dropdown",
+			"options": {
+				"defaultValue": "0.05",
+				"items": [
+					{
+						"value": "0.01",
+						"label": "Small"
+					},
+					{
+						"value": "0.05",
+						"label": "Medium"
+					},
+					{
+						"value": "0.1",
+						"label": "Large"
+					}
+				],
+				"token": "neutral"
+			},
+			"title": "Neutral Zone Size"
+		},
+		"input_PRizuxUO": {
+			"type": "input.dropdown",
+			"options": {
+				"defaultValue": "0.1",
+				"items": [
+					{
+						"value": "0.01",
+						"label": "0.01"
+					},
+					{
+						"value": "0.05",
+						"label": "0.05"
+					},
+					{
+						"value": "0.1",
+						"label": "0.1"
+					},
+					{
+						"value": "0.15",
+						"label": "0.15"
+					},
+					{
+						"value": "0.25",
+						"label": "0.25"
+					},
+					{
+						"value": "0.5",
+						"label": "0.5"
+					},
+					{
+						"value": "0.75",
+						"label": "0.75"
+					},
+					{
+						"value": "1",
+						"label": "1"
+					}
+				],
+				"token": "sample"
+			},
+			"title": "Sample Ratio"
+		}
+	},
+	"layout": {
+		"type": "grid",
+		"options": {
+			"submitButton": true,
+			"height": 1493,
+			"width": 1440
+		},
+		"structure": [
+			{
+				"item": "viz_KpI151t6",
+				"type": "block",
+				"position": {
+					"x": 0,
+					"y": 0,
+					"w": 480,
+					"h": 253
+				}
+			},
+			{
+				"item": "input_PRizuxUO",
+				"type": "input",
+				"position": {
+					"x": 0,
+					"y": 253,
+					"w": 260,
+					"h": 90
+				}
+			},
+			{
+				"item": "viz_u2OdZyME",
+				"type": "block",
+				"position": {
+					"x": 0,
+					"y": 343,
+					"w": 1440,
+					"h": 400
+				}
+			},
+			{
+				"item": "viz_PtqdND51",
+				"type": "block",
+				"position": {
+					"x": 0,
+					"y": 743,
+					"w": 1440,
+					"h": 180
+				}
+			},
+			{
+				"item": "viz_T1lUe8PY",
+				"type": "block",
+				"position": {
+					"x": 0,
+					"y": 923,
+					"w": 1440,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_iJ1i6KiK",
+				"type": "block",
+				"position": {
+					"x": 0,
+					"y": 1173,
+					"w": 1440,
+					"h": 250
+				}
+			},
+			{
+				"type": "block",
+				"position": {
+					"x": 260,
+					"y": 253,
+					"w": 1180,
+					"h": 90
+				},
+				"item": "viz_i5Jo2ofs"
+			},
+			{
+				"item": "viz_c968O6ut",
+				"type": "block",
+				"position": {
+					"x": 480,
+					"y": 126,
+					"w": 480,
+					"h": 127
+				}
+			},
+			{
+				"item": "viz_a1w7m9BI",
+				"type": "block",
+				"position": {
+					"x": 480,
+					"y": 0,
+					"w": 480,
+					"h": 126
+				}
+			},
+			{
+				"item": "viz_lFujiBw0",
+				"type": "block",
+				"position": {
+					"x": 960,
+					"y": 0,
+					"w": 480,
+					"h": 253
+				}
+			}
+		],
+		"globalInputs": [
+			"input_eaDd5yoW",
+			"input_text_long",
+			"input_vlVoCJbg",
+			"input_T7kuo0Rj"
+		]
+	},
+	"description": "Click in panels with (+) for further action",
+	"title": "Sentiment DS"
+}
+    ]]></definition>
+    <meta type="hiddenElements"><![CDATA[
+{
+	"hideEdit": true,
+	"hideOpenInSearch": false,
+	"hideExport": false
+}
+    ]]></meta>
+</dashboard>
