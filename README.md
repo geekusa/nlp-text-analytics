@@ -10,10 +10,6 @@ Splunk App Available at:
 
 Version: 1.2.0
 
-# Note About Visualization Deprecation
-
-Many of the visualizations that the dashboards use in this app are either deprecated or will reach end of support on Dec 21, 2024 see [https://lantern.splunk.com/@go/page/7824](https://lantern.splunk.com/@go/page/7824). This app's original intention was about providing custom commands and extending the algorithms from sklearn that MLTK does not implement, and the dashboards were only meant as showing examples of how to use them. Some of these visualizations can see extended life like seen in [https://community.splunk.com/t5/All-Apps-and-Add-ons/Failed-to-load-source-for-Wordcloud-visualization/m-p/665787#M79891](https://community.splunk.com/t5/All-Apps-and-Add-ons/Failed-to-load-source-for-Wordcloud-visualization/m-p/665787#M79891), but it certainly is only delaying the inevitable. Have begun attempting to migrate the dashboards to the new dashboard studio versions but as of version 9.3.0 there are still many features of SimpleXML that do not have an equivallent feature in Dashboard Studio.
-
 ##### Author: Nathan Worsham 
 Created for MSDS692 Data Science Practicum I at Regis University, 2018 </br>
 See [associated blog](https://github.com/geekusa/nlp-text-analytics/blob/master/PROJECT_FILES/blog.md) for detailed information on the project creation.
@@ -30,8 +26,10 @@ Since release to open source, the project now has contributors! See [CONTRIBUTOR
 
 
 ## Description and Use-cases
-
 Have you ever wanted to perform advanced text analytics inside Splunk? Splunk has some ways to handle text but also lacks some more advanced features that NLP libraries can offer. This can also benefit use-cases that involve using Splunk’s ML Toolkit.
+
+## Note About Visualization Deprecation
+Many of the visualizations that the dashboards use in this app are either deprecated or will reach end of support on Dec 21, 2024 see [https://lantern.splunk.com/@go/page/7824](https://lantern.splunk.com/@go/page/7824). This app's original intention was about providing custom commands and extending the algorithms from sklearn that MLTK does not implement, and the dashboards were only meant as showing examples of how to use them. Some of these visualizations can see extended life like seen in [https://community.splunk.com/t5/All-Apps-and-Add-ons/Failed-to-load-source-for-Wordcloud-visualization/m-p/665787#M79891](https://community.splunk.com/t5/All-Apps-and-Add-ons/Failed-to-load-source-for-Wordcloud-visualization/m-p/665787#M79891), but it certainly is only delaying the inevitable. Have begun attempting to migrate the dashboards to the new dashboard studio versions but as of version 9.3.0 there are still many features of SimpleXML that do not have an equivalent feature in Dashboard Studio.
 
 ## Requirements
 Splunk ML Toolkit 3.2 or greater [https://splunkbase.splunk.com/app/2890/](https://splunkbase.splunk.com/app/2890/) </br>
@@ -335,4 +333,4 @@ You can find other models directly from NLTK data website [https://www.nltk.org/
 it to the directory _bin/nltk_data/tokenizers/punkt_ and _bin/nltk_data/tokenizers/punkt/PY3_ 
 
 ### Release Notes
-Added GMeans as Clustering Algorithm option in Clustering dashboard. Updated splunklib from 1.6.16 to 2.0.2. Updated nltk library from 3.4.5 to 3.9.1 (which also requires now using libraries from Python for Scientific Computing app)
+Added GMeans as Clustering Algorithm option in Clustering dashboard. Updated splunklib from 1.6.16 to 2.0.2. Updated nltk library from 3.4.5 to 3.9.1 (which also requires now using libraries from Python for Scientific Computing app). Added Sentiment and Named Entity dashboard studio version dashboards. 

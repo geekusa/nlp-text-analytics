@@ -40,10 +40,15 @@
         <div>
           The intent of this app is to provide a simple interface for analyzing text in Splunk using python natural language processing libraries (currently just NLTK 3.4.5). The app provides custom commands (currently 4), additional ML algorithms (currently 7) to use with Splunk's ML Toolkit, and dashboards to show how to use. The app is also packaged with Gutenberg texts (currenlty 3) and the "20 newsgroups" dataset formatted as CSV lookups. 
         </div>
+        <h1>Note About Visualization Deprecation</h1>
+        <div>
+          Many of the visualizations that the dashboards use in this app are either deprecated or will reach end of support on Dec 21, 2024 see <a href="https://lantern.splunk.com/@go/page/7824">https://lantern.splunk.com/@go/page/7824</a>. The dashboards included were only meant as showing examples of how to the included commands and algorithms. However, some of these visualizations can see extended life like seen in <a href="https://community.splunk.com/t5/All-Apps-and-Add-ons/Failed-to-load-source-for-Wordcloud-visualization/m-p/665787#M79891">https://community.splunk.com/t5/All-Apps-and-Add-ons/Failed-to-load-source-for-Wordcloud-visualization/m-p/665787#M79891</a>, but it certainly is only delaying the inevitable. Have begun attempting to migrate the dashboards to the new dashboard studio versions but as of version 9.3.0 there are still many features of SimpleXML that do not have an equivalent feature in Dashboard Studio.
+        </div>
         <h1>Requirements</h1>
         <div>
 <a href="https://splunkbase.splunk.com/app/2890/">Splunk ML Toolkit 3.2 or greater</a>
           <br/>
+Python for Scientific Computing (download appropriate version for platform being used) <br/>
 <a href="https://splunkbase.splunk.com/app/3212/">Wordcloud Custom Visualization</a> (preferred) OR <a href="https://splunkbase.splunk.com/app/1603/">Splunk Dashboard Examples</a>
           <br/>
 <a href="https://splunkbase.splunk.com/app/3137/">Parallel Coordinates Custom Visualization</a>
