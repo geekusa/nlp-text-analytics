@@ -38,7 +38,7 @@
     <panel>
       <html>
         <div>
-          The intent of this app is to provide a simple interface for analyzing text in Splunk using python natural language processing libraries (currently just NLTK 3.4.5). The app provides custom commands (currently 4), additional ML algorithms (currently 7) to use with Splunk's ML Toolkit, and dashboards to show how to use. The app is also packaged with Gutenberg texts (currenlty 3) and the "20 newsgroups" dataset formatted as CSV lookups. 
+          The intent of this app is to provide a simple interface for analyzing text in Splunk using python natural language processing libraries (currently just NLTK 3.9.1). The app provides custom commands (currently 4), additional ML algorithms (currently 7) to use with Splunk's ML Toolkit, and dashboards to show how to use. The app is also packaged with Gutenberg texts (currenlty 3) and the "20 newsgroups" dataset formatted as CSV lookups. 
         </div>
         <h1>Note About Visualization Deprecation</h1>
         <div>
