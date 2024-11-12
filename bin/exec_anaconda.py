@@ -71,13 +71,6 @@ def exec_anaconda():
     check_python_version()
 
     sa_path, system = get_system_paths()
-    if system not in SUPPORTED_SYSTEMS:
-        raise Exception('Unsupported platform: %s %s' % (system))
-
-    sa_scipy = '%s%s' % (PSC_PATH_PREFIX, SUPPORTED_SYSTEMS[system])
-
-    if not os.path.isdir(sa_path):
-        raise Exception('Failed to find Python for Scientific Computing Add-on (%s)' % sa_scipy)
 
     system_path = os.path.join(sa_path, 'bin', '%s' % (SUPPORTED_SYSTEMS[system]))
 
