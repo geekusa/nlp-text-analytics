@@ -8,7 +8,7 @@ Available at:
 Splunk App Available at:
 [https://splunkbase.splunk.com/app/4066/](https://splunkbase.splunk.com/app/4066/)
 
-Version: 1.2.1
+Version: 1.2.2
 
 ##### Author: Nathan Worsham 
 Created for MSDS692 Data Science Practicum I at Regis University, 2018 </br>
@@ -333,4 +333,4 @@ You can find other models directly from NLTK data website [https://www.nltk.org/
 it to the directory _bin/nltk_data/tokenizers/punkt_ and _bin/nltk_data/tokenizers/punkt/PY3_ 
 
 ### Release Notes
-Removed redundant code from exec_anaconda.py regarding system checks (thank you Lindon Morris). 
+Added supported system for some installions of Splunk Cloud. 

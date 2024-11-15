@@ -24,6 +24,7 @@ PSC_PATH_PREFIX = 'Splunk_SA_Scientific_Python_'
 
 SUPPORTED_SYSTEMS = {
     ('Linux', 'x86_64'): 'linux_x86_64',
+    ('Linux', 'aarch64'): 'linux_x86_64',
     ('Darwin', 'x86_64'): 'darwin_x86_64',
     ('Darwin', 'arm64'): 'darwin_arm64',
     ('Windows', 'AMD64'): 'windows_x86_64',
