@@ -16,8 +16,6 @@ from nltk.stem.snowball import SnowballStemmer
 from nltk.util import ngrams
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option, validators
 
-from six.moves import range
-
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 CORPORA_DIR = os.path.join(BASE_DIR,'nltk_data')
 nltk_data_path.append(CORPORA_DIR)

@@ -57,7 +57,7 @@ def exec_anaconda():
        ...
     """
     if PSC_PATH_PREFIX in sys.executable:
-        from imp import reload
+        from importlib import reload
 
         fix_sys_path()
 
